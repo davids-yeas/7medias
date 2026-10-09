@@ -466,3 +466,15 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
 .favtgl[aria-pressed="true"] span{color:var(--onorange)}
 .hfilters{display:flex;gap:10px;align-items:center}
 .hfilters .hsearch{flex:1;min-width:0}
+
+/* ---------- Studio sans modèle : carte « Aucun modèle sélectionné » ---------- */
+.work.nomodel>.dims,.work.nomodel>.metrics,.work.nomodel>.stagebox,.work.nomodel>.note{display:none}
+.curmodel.empty{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;color:var(--ink);background:var(--panel);border:1px dashed var(--orange);border-radius:10px;padding:14px 12px;font:inherit;cursor:pointer}
+.curmodel.empty:hover{background:var(--panel2)}
+.curmodel.empty .cm-thumb svg{width:76px;height:52px;display:block;color:var(--muted)}
+.curmodel.empty .cm-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.curmodel.empty .cm-txt small{font:600 .6rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.curmodel.empty .cm-txt b{font:700 1.1rem var(--display);letter-spacing:.02em}
+.curmodel.empty .cm-txt>span{font-size:.82rem;color:var(--muted)}
+.curmodel.empty .cm-chg{display:flex;align-items:center;gap:2px;font:600 .72rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--orange)}
+.curmodel.empty .cm-chg svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}

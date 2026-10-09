@@ -29,8 +29,8 @@
   <main class="work">
     <button type="button" id="curModel" class="curmodel" aria-label="Modèle sélectionné. Changer de modèle.">
       <span class="cm-thumb" id="cmThumb"></span>
-      <span class="cm-txt"><small>Modèle sélectionné</small><b id="cmCode">0201</b><i class="tag" id="cmWarn" hidden>à valider</i><span id="cmTitle"></span></span>
-      <span class="cm-chg">Changer<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
+      <span class="cm-txt"><small id="cmLabel">Modèle sélectionné</small><b id="cmCode">0201</b><i class="tag" id="cmWarn" hidden>à valider</i><span id="cmTitle"></span></span>
+      <span class="cm-chg" id="cmChg">Changer<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
     </button>
     <section class="dims" aria-label="Dimensions intérieures">
       <label class="clientf" for="client"><span>Client <i>facultatif</i></span><input id="client" type="text" maxlength="60" placeholder="Nom du client ou référence" autocomplete="off" autocapitalize="words"></label>
@@ -176,7 +176,7 @@
     <section id="g1"><h3>À quoi sert Snotrac Studio</h3>
       <p>Pour une demande de prix ou une fabrication, il faut connaître le format de la feuille de carton. Ce format change dès que L, W ou H change. Le Studio le recalcule en direct et le dessine, pour que le commercial n'ait plus besoin de demander les chiffres.</p>
       <div class="steps">
-        <div><i>1</i><b>Choisir le modèle</b><span>Un carton de la bibliothèque, par son code FEFCO.</span></div>
+        <div><i>1</i><b>Choisir le modèle</b><span>Un carton de la bibliothèque, par son code FEFCO. Aucun n'est choisi à l'ouverture.</span></div>
         <div><i>2</i><b>Saisir L, W, H</b><span>Les dimensions intérieures, en millimètres.</span></div>
         <div><i>3</i><b>Lire le résultat</b><span>Laize, coupe, surface, volume, plan coté et vue 3D.</span></div>
         <div><i>4</i><b>Garder et partager</b><span>Fiche PDF, récapitulatif copié, historique de l'équipe.</span></div>
@@ -239,6 +239,7 @@
       <ul>
         <li><b>Sur ordinateur :</b> la liste des modèles est à gauche, avec une recherche par code, nom ou série. Les accents n'ont pas d'importance : « telescop » trouve les boîtes télescopiques.</li>
         <li><b>Sur téléphone :</b> un champ de recherche et une carte « Modèle sélectionné ». Le bouton « Changer » ouvre la bibliothèque. Taper dans la recherche affiche les modèles qui correspondent, un toucher en sélectionne un.</li>
+        <li><b>À l'ouverture :</b> aucun modèle n'est sélectionné. Le Studio affiche la carte « Aucun modèle sélectionné » : choisis un modèle (liste, recherche, favoris, récents ou bibliothèque) et les dimensions, les résultats et le plan apparaissent.</li>
         <li><b>Favoris :</b> l'étoile au-dessus du plan marque le modèle en cours.</li>
         <li><b>Récents :</b> les 6 derniers modèles utilisés.</li>
       </ul>

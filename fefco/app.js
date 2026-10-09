@@ -4,11 +4,12 @@
   const DEF = { code: '0201', L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, client: '', view: 'plan' };
   const st = Object.assign({}, DEF);
   try { Object.assign(st, JSON.parse(localStorage.getItem('dieline') || '{}')); } catch (e) {}
+  st.code = ''; // à l'ouverture, aucun modèle n'est sélectionné
   try { // lien de partage : ?c=0201&L=400&W=300&H=250
     const q = new URLSearchParams(location.search);
     if (S[q.get('c')]) { st.code = q.get('c'); ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => { if (q.has(k)) st[k] = Math.max(0, parseFloat(q.get(k)) || 0); }); }
   } catch (e) {}
-  if (!S[st.code]) st.code = DEF.code;
+  if (!S[st.code]) st.code = '';
   const save = () => { try { localStorage.setItem('dieline', JSON.stringify(st)); } catch (e) {} };
   const fmt = (n, d = 1) => (Math.round(n * 10 ** d) / 10 ** d).toLocaleString('fr-FR', { maximumFractionDigits: d });
   const num = (v) => Math.max(0, parseFloat(v) || 0);
@@ -69,7 +70,20 @@
     syncFav(); renderQuick();
     return surf;
   }
+  function showEmpty(on) {
+    document.querySelector('.work').classList.toggle('nomodel', on);
+    const c = $('curModel'); c.classList.toggle('empty', on);
+    $('cmLabel').textContent = on ? 'Studio' : 'Modèle sélectionné';
+    $('cmChg').firstChild.textContent = on ? 'Choisir' : 'Changer';
+    c.setAttribute('aria-label', on ? 'Aucun modèle sélectionné. Choisir un modèle.' : 'Modèle sélectionné. Changer de modèle.');
+    if (on) {
+      $('cmThumb').innerHTML = '<svg viewBox="0 0 76 52" aria-hidden="true"><rect x="3" y="6" width="70" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/></svg>';
+      $('cmCode').textContent = 'Aucun modèle sélectionné'; $('cmTitle').textContent = 'Choisis un modèle pour commencer.'; $('cmWarn').hidden = true;
+    }
+  }
   function refresh(opts = {}) {
+    if (!S[st.code]) { showEmpty(true); renderQuick(); if (opts.lib) buildLib($('q').value); return; }
+    showEmpty(false);
     if (!st.L || !st.W || !st.H) return;
     compute(); drawPlan();
     if (st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.update(st.code, dims());
@@ -166,7 +180,7 @@
     document.querySelectorAll('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
     $('panePlan').hidden = v === '3d'; $('pane3d').hidden = v === 'plan';
     $('stage').classList.toggle('both', v === 'both');
-    if (v !== 'plan' && window.FEFCO_3D) { window.FEFCO_3D.update(st.code, dims()); if (!userPaused && !playing) setPlay(true); }
+    if (v !== 'plan' && window.FEFCO_3D && S[st.code]) { window.FEFCO_3D.update(st.code, dims()); if (!userPaused && !playing) setPlay(true); }
     save();
   }
   document.querySelectorAll('.seg button').forEach((b) => (b.onclick = () => setView(b.dataset.v)));
