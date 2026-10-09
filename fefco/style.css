@@ -1,21 +1,22 @@
-/* Charte provisoire : remplacer ces variables par celles de snotrac.fr */
-:root{--brand:#3a86a1;--brand-dark:#2b6a82;--ink:#1d2b33;--bg:#f3f6f8;--card:#fff;--line:#d5dee3;--cut:#111;--crease:#e02424;--dim:#1f5fd6}
+/* Charte Snotrac (relevée sur snotrac.fr) : orange brique + bleu pétrole */
+:root{--brand:#0f4a63;--brand-dark:#0b3a4f;--orange:#c94f22;--peach:#e2ad94;--ink:#1d2b33;--bg:#f3f6f8;--card:#fff;--line:#d5dee3;--cut:#111;--crease:#e02424;--dim:#1f5fd6}
 *{box-sizing:border-box}
 body{margin:0;font:16px/1.4 system-ui,sans-serif;color:var(--ink);background:var(--bg)}
-header{background:var(--brand);color:#fff;padding:14px 16px}
-h1{margin:0;font-size:1.3rem}h1 span{font-weight:400;opacity:.8;font-size:.9rem;margin-left:8px}
+header{background:#fff;border-bottom:4px solid var(--orange);padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-weight:700;font-size:1.6rem;color:var(--brand);letter-spacing:.02em;line-height:1}.logo small{display:block;font-weight:400;font-size:.62rem;color:var(--orange);letter-spacing:.18em;margin-top:3px}
+h1{margin:0 0 0 auto;font-size:1rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--brand)}
 main{display:grid;gap:16px;padding:16px;max-width:1300px;margin:auto;grid-template-columns:340px 1fr}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
 label{display:block;font-size:.85rem;font-weight:600;margin-bottom:10px}
 input,select{display:block;width:100%;margin-top:4px;padding:10px;font:inherit;border:1px solid var(--line);border-radius:6px;background:#fff}
 .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .desc,.hint{font-size:.85rem;color:#5a6b74;margin:4px 0 12px}
-details{margin:8px 0 12px}summary{cursor:pointer;font-size:.85rem;color:var(--brand-dark)}
+details{margin:8px 0 12px}summary{cursor:pointer;font-size:.85rem;color:var(--orange)}
 .results{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
 .card{border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column}
 .card b{font-size:1.25rem}.card span{font-size:.75rem;color:#5a6b74}
-.accent{grid-column:span 2;background:var(--brand);color:#fff;border-color:var(--brand)}.accent span{color:#e3f0f5}
-button{width:100%;padding:12px;border:0;border-radius:8px;background:var(--brand-dark);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.accent{grid-column:span 2;background:var(--orange);color:#fff;border-color:var(--orange)}.accent span{color:#fde6dc}
+button{width:100%;padding:12px;border:0;border-radius:8px;background:var(--brand);color:#fff;font:inherit;font-weight:600;cursor:pointer}
 .warn{background:#fff4d6;border:1px solid #f0d27a;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:.85rem}
 #svg{width:100%;height:auto;max-height:80vh;display:block}
 @media(max-width:800px){main{grid-template-columns:1fr}}
