@@ -62,6 +62,7 @@
     const hasH = !!r.bodyY;
     const x0 = -pad - (hasH ? fs * 3 : 0), y0 = -pad, w = r.coupe + 2 * pad + off + (hasH ? fs * 3 : 0) + fs * 2, h = r.laize + 2 * pad + off + fs * 2;
     view.base = { x: x0, y: y0, w, h }; applyView();
+    $('svg').style.aspectRatio = `${w} / ${h}`;
     const T = (x, y, t, c, o = {}) => `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="middle" class="${c}"${o.rot ? ` transform="rotate(-90 ${x} ${y})"` : ''}>${t}</text>`;
     const label = (cx, cy, w, h, l) => {
       if (!l) return '';
