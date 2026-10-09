@@ -141,28 +141,34 @@
     document.querySelectorAll('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
     $('panePlan').hidden = v === '3d'; $('pane3d').hidden = v === 'plan';
     $('stage').classList.toggle('both', v === 'both');
-    if (v !== 'plan' && window.FEFCO_3D) { window.FEFCO_3D.update(st.code, dims()); }
+    if (v !== 'plan' && window.FEFCO_3D) { window.FEFCO_3D.update(st.code, dims()); if (!userPaused && !playing) setPlay(true); }
     save();
   }
   document.querySelectorAll('.seg button').forEach((b) => (b.onclick = () => setView(b.dataset.v)));
 
-  /* ---------- Lecture du pliage ---------- */
-  let anim = null;
+  /* ---------- Lecture du pliage : boucle automatique, le curseur reprend la main ---------- */
   const fold = $('fold'), play = $('play');
-  function stopAnim() { if (anim) cancelAnimationFrame(anim); anim = null; play.textContent = '▶ Replier'; }
-  play.onclick = () => {
-    if (anim) { stopAnim(); return; }
-    play.textContent = '❚❚ Pause';
-    let t0 = null, from = +fold.value >= 100 ? 0 : +fold.value;
-    const step = (t) => {
-      if (t0 === null) t0 = t;
-      const p = Math.min(1, (t - t0) / 3200), v = from + (100 - from) * (1 - Math.pow(1 - p, 2));
-      fold.value = v; fold.dispatchEvent(new Event('input'));
-      if (p < 1) anim = requestAnimationFrame(step); else stopAnim();
-    };
-    anim = requestAnimationFrame(step);
-  };
-  fold.addEventListener('pointerdown', stopAnim);
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let playing = false, userPaused = reduce, dir = 1, hold = 0, last = 0, raf = null;
+  function tick(t) {
+    if (!playing) return;
+    const dt = last ? Math.min(t - last, 60) : 0; last = t;
+    if (hold > 0) hold -= dt;
+    else if (!$('pane3d').hidden) {
+      let v = +fold.value / 100 + dir * dt / 3400;
+      if (v >= 1) { v = 1; dir = -1; hold = 1400; } else if (v <= 0) { v = 0; dir = 1; hold = 900; }
+      fold.value = v * 100; fold.dispatchEvent(new Event('input'));
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  function setPlay(on) {
+    playing = on; last = 0; if (raf) cancelAnimationFrame(raf); raf = null;
+    play.textContent = on ? '❚❚ Pause' : '▶ Lecture';
+    if (on) raf = requestAnimationFrame(tick);
+  }
+  play.onclick = () => { userPaused = playing; setPlay(!playing); };
+  fold.addEventListener('pointerdown', () => { userPaused = true; setPlay(false); });
+  fold.addEventListener('keydown', () => { userPaused = true; setPlay(false); });
   $('auto').onchange = (e) => window.FEFCO_3D && window.FEFCO_3D.setAuto(e.target.checked);
 
   /* ---------- Récapitulatif, thème, export ---------- */
@@ -190,6 +196,7 @@
   /* ---------- Démarrage ---------- */
   ['L', 'W', 'H', 'j', 'o', 'jeu', 'qty'].forEach((k) => sync(k, st[k]));
   buildLib('');
+  if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').checked);
   setView(st.view);
   refresh();
 })();
