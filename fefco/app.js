@@ -223,31 +223,50 @@
   $('tryEx').onclick = () => { ['L', 'W', 'H'].forEach((k, i) => sync(k, [400, 300, 250][i])); st.code = '0201'; refresh({ lib: true }); page('tool'); };
 
   /* ---------- Page Bibliothèque ---------- */
-  const CAT = window.FEFCO_CATALOG, cat = { s: 'all' };
+  const CAT = window.FEFCO_CATALOG, cat = { s: 'all', m: 'all', t: 'all' };
+  const MODES = { M: 'Manuel', A: 'Automatique', 'M/A': 'Manuel ou auto' };
+  const statusOf = (c) => (!S[c] ? 'ajouter' : S[c].conf === 'ok' ? 'dispo' : 'valider');
+  const STAT = { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter' };
+  const chip = (grp, v, l, n) => `<button type="button" class="chip${cat[grp] === v ? ' on' : ''}" data-g="${grp}" data-v="${v}">${l}<small>${n}</small></button>`;
+  function matches(x, skip) {
+    const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const q = norm($('cq').value.trim());
+    if (q) {
+      const hay = norm(x.c + ' ' + CAT.series[x.s] + ' ' + (S[x.c] ? S[x.c].title : '') + ' ' + (MODES[x.m] || ''));
+      if (!q.split(/\s+/).every((w) => hay.includes(w))) return false;
+    }
+    if (skip !== 's' && cat.s !== 'all' && x.s !== cat.s) return false;
+    if (skip !== 'm' && cat.m !== 'all' && x.m !== cat.m) return false;
+    if (skip !== 't' && cat.t !== 'all' && statusOf(x.c) !== cat.t) return false;
+    return true;
+  }
   function renderCat() {
-    const q = $('cq').value.trim().toLowerCase(), only = $('catOnly').checked;
-    const avail = (c) => !!S[c];
-    $('catAvail').textContent = CAT.list.filter((x) => avail(x.c)).length;
-    $('catTotal').textContent = CAT.list.length;
-    $('catBar').style.width = (CAT.list.filter((x) => avail(x.c)).length / CAT.list.length * 100) + '%';
-    $('catChips').innerHTML = [['all', 'Toutes']].concat(Object.keys(CAT.series).map((s) => [s, s])).map(([s, l]) => `<button type="button" class="chip${cat.s === s ? ' on' : ''}" data-s="${s}" title="${CAT.series[s] || ''}">${l}</button>`).join('');
+    const avail = CAT.list.filter((x) => S[x.c]).length;
+    $('catAvail').textContent = avail; $('catTotal').textContent = CAT.list.length;
+    $('catBar').style.width = (avail / CAT.list.length * 100) + '%';
+    const cnt = (skip, f) => CAT.list.filter((x) => matches(x, skip) && f(x)).length;
+    $('fSerie').innerHTML = chip('s', 'all', 'Toutes', cnt('s', () => true)) + Object.keys(CAT.series).map((s) => chip('s', s, s, cnt('s', (x) => x.s === s))).join('');
+    $('fMode').innerHTML = chip('m', 'all', 'Tous', cnt('m', () => true)) + Object.keys(MODES).map((m) => chip('m', m, MODES[m], cnt('m', (x) => x.m === m))).join('');
+    $('fStatus').innerHTML = chip('t', 'all', 'Tous', cnt('t', () => true)) + Object.keys(STAT).map((t) => chip('t', t, STAT[t], cnt('t', (x) => statusOf(x.c) === t))).join('');
     let html = '', last = '', n = 0;
     CAT.list.forEach((x) => {
-      if (cat.s !== 'all' && x.s !== cat.s) return;
-      if (q && !x.c.includes(q) && !(S[x.c] && S[x.c].title.toLowerCase().includes(q))) return;
-      if (only && !avail(x.c)) return;
+      if (!matches(x)) return;
       if (x.s !== last) { html += `<div class="cat-s">${x.s} · ${CAT.series[x.s]}</div>`; last = x.s; }
       n++;
-      const ok = avail(x.c), mode = x.m ? `<small>${x.m === 'M' ? 'Manuel' : x.m === 'A' ? 'Automatique' : 'Manuel ou auto'}</small>` : '';
+      const ok = !!S[x.c], mode = x.m ? `<small>${MODES[x.m]}</small>` : '', warn = ok && S[x.c].conf !== 'ok' ? '<i class="tag">à valider</i>' : '';
       html += ok
-        ? `<button type="button" class="cc ok" data-c="${x.c}">${thumb(x.c)}<b>${x.c}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">Disponible · ouvrir</span></button>`
+        ? `<button type="button" class="cc ok" data-c="${x.c}">${thumb(x.c)}<b>${x.c}${warn}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">Ouvrir dans l'outil</span></button>`
         : `<div class="cc off"><div class="ph">plan à ajouter</div><b>${x.c}</b>${mode}<span class="st">À ajouter</span></div>`;
     });
-    $('catGrid').innerHTML = html || '<p class="note">Aucun code ne correspond. Efface la recherche ou change de série.</p>';
+    $('catCount').textContent = `${n} code${n > 1 ? 's' : ''} affiché${n > 1 ? 's' : ''}`;
+    $('catGrid').innerHTML = html || '<p class="note">Aucun code ne correspond à ces filtres. Retire un filtre ou clique sur « Réinitialiser ».</p>';
   }
   $('cq').addEventListener('input', renderCat);
-  $('catOnly').addEventListener('change', renderCat);
-  $('catChips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) { cat.s = b.dataset.s; renderCat(); } });
+  $('catReset').onclick = () => { $('cq').value = ''; cat.s = cat.m = cat.t = 'all'; renderCat(); };
+  ['fSerie', 'fMode', 'fStatus'].forEach((id) => $(id).addEventListener('click', (e) => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    cat[b.dataset.g] = cat[b.dataset.g] === b.dataset.v ? 'all' : b.dataset.v; renderCat();
+  }));
   $('catGrid').addEventListener('click', (e) => {
     const b = e.target.closest('.cc.ok'); if (!b) return;
     st.code = b.dataset.c; resetView(); refresh({ lib: true }); page('tool');

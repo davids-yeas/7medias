@@ -83,10 +83,15 @@
     </div>
     <div class="prog"><b><span id="catAvail">0</span> / <span id="catTotal">0</span></b><span>codes disponibles</span><i><u id="catBar"></u></i></div>
   </div>
-  <div class="catbar">
-    <input id="cq" type="search" placeholder="Rechercher un code" autocomplete="off" aria-label="Rechercher un code">
-    <div id="catChips" class="chips" role="group" aria-label="Séries"></div>
-    <label class="chk"><input id="catOnly" type="checkbox"> Disponibles seulement</label>
+  <div class="filters" aria-label="Filtres">
+    <div class="frow">
+      <input id="cq" type="search" placeholder="Rechercher : code, nom, série…" autocomplete="off" aria-label="Rechercher">
+      <span class="fcount" id="catCount" aria-live="polite"></span>
+      <button type="button" id="catReset" class="ghost sm">Réinitialiser</button>
+    </div>
+    <div class="fgroup"><span class="flabel">Série</span><div id="fSerie" class="chips" role="group" aria-label="Série"></div></div>
+    <div class="fgroup"><span class="flabel">Montage</span><div id="fMode" class="chips" role="group" aria-label="Montage"></div></div>
+    <div class="fgroup"><span class="flabel">Statut</span><div id="fStatus" class="chips" role="group" aria-label="Statut"></div></div>
   </div>
   <div id="catGrid" class="catgrid"></div>
   <p class="note">Les séries 0600 (rigides), 0700 (prêtes à coller), 0800 (retail et e-commerce) et 0900 (aménagements intérieurs) sont à relever dans le PDF.</p>

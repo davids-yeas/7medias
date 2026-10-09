@@ -230,3 +230,12 @@ body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
 .dock svg{width:27px;height:27px;stroke-width:1.9}
 .dock span:not(.lens){font-size:.74rem;font-weight:700}
 body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
+
+.filters{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.frow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.frow input[type=search]{flex:1 1 220px;max-width:360px}
+.fcount{margin-left:auto;font:500 .78rem var(--mono);color:var(--muted)}
+.fgroup{display:flex;gap:10px;align-items:center}
+.flabel{flex:0 0 64px;font:600 .68rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.chip small{font:500 .65rem var(--mono);opacity:.7;margin-left:4px}
+@media(max-width:860px){.fgroup{flex-direction:column;align-items:flex-start;gap:6px}.fcount{margin-left:0;width:100%}}
