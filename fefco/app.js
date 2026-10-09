@@ -21,6 +21,7 @@
     $('coupe').textContent = fmt(r.coupe) + ' mm';
     $('surf').textContent = (r.laize * r.coupe / 1e6).toLocaleString('fr-FR', { maximumFractionDigits: 3 }) + ' m²';
     draw(r, st);
+    if (!$('pane3d').hidden && window.FEFCO_3D) window.FEFCO_3D.update(sel.value, d);
   }
 
   function draw(r, st) {
@@ -77,6 +78,13 @@
     a.download = `FEFCO-${sel.value}-${val('L')}x${val('W')}x${val('H')}.svg`;
     a.click();
   };
+  function tab(is3d) {
+    $('svg').hidden = is3d; $('pane3d').hidden = !is3d;
+    $('tab2d').classList.toggle('on', !is3d); $('tab3d').classList.toggle('on', is3d);
+    if (is3d) render();
+  }
+  $('tab2d').onclick = () => tab(false);
+  $('tab3d').onclick = () => tab(true);
   document.querySelectorAll('input,select').forEach((e) => e.addEventListener('input', render));
   render();
 })();

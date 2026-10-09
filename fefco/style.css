@@ -20,3 +20,9 @@ button{width:100%;padding:12px;border:0;border-radius:8px;background:var(--brand
 .warn{background:#fff4d6;border:1px solid #f0d27a;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:.85rem}
 #svg{width:100%;height:auto;max-height:80vh;display:block}
 @media(max-width:800px){main{grid-template-columns:1fr}}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{width:auto;padding:8px 16px;background:transparent;color:var(--brand);border:1px solid var(--line);font-weight:600}
+.tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.v3d{width:100%;touch-action:none;cursor:grab;border:1px solid var(--line);border-radius:8px;background:#f7f9fa}
+.fold{display:flex;align-items:center;gap:12px;margin-top:12px}.fold input{margin:0;padding:0}
+[hidden]{display:none!important}

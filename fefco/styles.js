@@ -78,6 +78,16 @@
       params: [], build: (d) => cross(Object.assign({}, d, { jeu: 0 })) },
   };
 
+  // Données de pliage 3D : famille + profondeur de rabat par type de panneau.
+  const fam = (c, f, fl) => { STYLES[c].fam = f; if (fl) STYLES[c].flap = fl; };
+  fam('0200', 'slotted', () => 0);
+  fam('0201', 'slotted', (k, d) => d.W / 2);
+  fam('0202', 'slotted', (k, d) => (d.W + d.o) / 2);
+  fam('0203', 'slotted', (k, d) => (k === 'L' ? d.W : 0));
+  fam('0205', 'slotted', (k, d) => (k === 'W' ? d.L / 2 : 0));
+  fam('0300', 'cross');
+  fam('0400', 'cross');
+
   root.FEFCO_STYLES = STYLES;
   if (typeof module !== 'undefined') module.exports = STYLES;
 })(typeof window !== 'undefined' ? window : globalThis);

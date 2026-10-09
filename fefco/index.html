@@ -40,10 +40,21 @@
   </section>
   <section class="panel plan">
     <div id="warn" class="warn" hidden>Géométrie à valider avec le PDF FEFCO avant usage en production.</div>
+    <div class="tabs" role="tablist">
+      <button type="button" id="tab2d" class="tab on" role="tab">Plan à plat</button>
+      <button type="button" id="tab3d" class="tab" role="tab">Vue 3D</button>
+    </div>
     <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Plan à plat"></svg>
+    <div id="pane3d" hidden>
+      <div id="v3d" class="v3d" aria-label="Vue 3D, glisser pour tourner"></div>
+      <label class="fold" for="fold">Pliage <input id="fold" type="range" min="0" max="100" value="100"></label>
+      <p class="hint">Glisse pour tourner, molette pour zoomer. Le curseur replie le plan en carton.</p>
+    </div>
   </section>
 </main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="styles.js"></script>
+<script src="app3d.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
