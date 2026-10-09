@@ -192,6 +192,32 @@
     a.download = `FEFCO-${st.code}-${st.L}x${st.W}x${st.H}.svg`; a.click();
   };
 
+  /* ---------- Menu : Outil / Guide ---------- */
+  function miniPlan() {
+    const r = S['0201'].build({ L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0 });
+    const fs = 52, pad = 120, x0 = -pad, y0 = -40, w = r.coupe + pad + 230, h = r.laize + 230;
+    const T = (x, y, t, c, rot) => `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="middle" class="${c}"${rot ? ` transform="rotate(-90 ${x} ${y})"` : ''}>${t}</text>`;
+    let s = '';
+    r.rects.forEach((q) => { const l = q.label.t; s += `<rect class="pn${l === '½W' ? ' fl' : ''}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}"/>` + T(q.x + q.w / 2, q.y + q.h / 2, l, 'tx'); });
+    r.creases.forEach((c) => { s += `<line class="cr" x1="${c[0]}" y1="${c[1]}" x2="${c[2]}" y2="${c[3]}"/>`; });
+    const bx = r.coupe + 50, by = r.laize + 50;
+    s += `<line class="dm" x1="${bx}" y1="0" x2="${bx}" y2="${r.laize}"/>` + T(bx + 60, r.laize / 2, 'LAIZE = W + H', 'dt', 1);
+    s += `<line class="dm" x1="0" y1="${by}" x2="${r.coupe}" y2="${by}"/>` + T(r.coupe / 2, by + 62, 'COUPE = 2L + 2W + joint', 'dt');
+    s += T(-60, (r.bodyY[0] + r.bodyY[1]) / 2, 'H', 'dt');
+    $('miniPlan').innerHTML = `<svg viewBox="${x0} ${y0} ${w} ${h}" role="img">${s}</svg>`;
+  }
+  function page(p, scrollTo) {
+    const g = p === 'guide';
+    $('viewTool').hidden = g; $('viewGuide').hidden = !g;
+    document.querySelectorAll('.nav button').forEach((b) => b.classList.toggle('on', b.dataset.page === p));
+    try { history.replaceState(null, '', g ? '#guide' : location.pathname + location.search); } catch (e) {}
+    if (g) { if (!$('miniPlan').firstChild) miniPlan(); window.scrollTo(0, 0); if (scrollTo) $(scrollTo).scrollIntoView(); }
+    else if (st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.show();
+  }
+  document.querySelectorAll('[data-page]').forEach((b) => b.addEventListener('click', () => page(b.dataset.page)));
+  document.querySelectorAll('.toc [data-s]').forEach((b) => b.addEventListener('click', () => $(b.dataset.s).scrollIntoView({ behavior: 'smooth' })));
+  $('tryEx').onclick = () => { ['L', 'W', 'H'].forEach((k, i) => sync(k, [400, 300, 250][i])); st.code = '0201'; refresh({ lib: true }); page('tool'); };
+
   /* ---------- Démarrage ---------- */
   ['L', 'W', 'H', 'j', 'o', 'jeu', 'qty'].forEach((k) => sync(k, st[k]));
   $('nCodes').textContent = codes.length;
@@ -199,4 +225,5 @@
   if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').checked);
   setView(st.view);
   refresh();
+  if (location.hash === '#guide') page('guide');
 })();

@@ -11,10 +11,11 @@
 <header class="top">
   <div class="logo">SNOTRAC<small>EXPERT EMBALLAGES</small></div>
   <div class="title">Dieline Studio <span>bibliothèque FEFCO</span></div>
+  <nav class="nav" aria-label="Menu"><button type="button" data-page="tool" class="on">Outil</button><button type="button" data-page="guide">Guide</button></nav>
   <div class="count" title="Codes FEFCO disponibles dans la bibliothèque"><b id="nCodes">0</b><span>codes disponibles</span></div>
   <button id="theme" class="ghost" type="button" aria-label="Changer de thème">Thème</button>
 </header>
-<div class="shell">
+<div class="shell" id="viewTool">
   <aside class="lib" aria-label="Bibliothèque FEFCO">
     <div class="lib-head">
       <label class="sr" for="q">Rechercher un code</label>
@@ -74,6 +75,112 @@
     </section>
     <p class="note">Dimensions intérieures en mm, au format L × W × H. Les codes marqués « à valider » doivent être confirmés avec le PDF FEFCO avant production.</p>
   </main>
+</div>
+<div class="guide" id="viewGuide" hidden>
+  <aside class="toc" aria-label="Sommaire">
+    <b>Sommaire</b>
+    <button type="button" data-s="g1">À quoi sert l'outil</button>
+    <button type="button" data-s="g2">Le code FEFCO</button>
+    <button type="button" data-s="g3">Les dimensions L, W, H</button>
+    <button type="button" data-s="g4">Laize et coupe</button>
+    <button type="button" data-s="g5">Surface et volume</button>
+    <button type="button" data-s="g6">Lire le plan</button>
+    <button type="button" data-s="g7">La vue 3D</button>
+    <button type="button" data-s="g8">Formules par code</button>
+    <button type="button" data-s="g9">Questions fréquentes</button>
+    <button type="button" class="primary sm" data-page="tool">Ouvrir l'outil</button>
+  </aside>
+  <article class="doc">
+    <h2>Guide d'utilisation</h2>
+    <p class="lead">Dieline Studio calcule le format à plat d'un carton à partir de ses dimensions intérieures. Il dessine le plan coté, donne la laize, la coupe et la surface, et montre la boîte repliée en 3D.</p>
+
+    <section id="g1"><h3>À quoi sert l'outil</h3>
+      <p>Pour une demande de prix ou une fabrication, il faut connaître le format de la feuille de carton. Ce format change dès que L, W ou H change. L'outil le recalcule en direct et le dessine, pour que le commercial n'ait plus besoin de demander les chiffres.</p>
+      <div class="steps">
+        <div><i>1</i><b>Choisir le code</b><span>Clique sur un carton dans la bibliothèque à gauche.</span></div>
+        <div><i>2</i><b>Saisir L, W, H</b><span>Tape les dimensions intérieures en millimètres.</span></div>
+        <div><i>3</i><b>Lire le résultat</b><span>Plan coté, laize, coupe, surface et total pour ta quantité.</span></div>
+        <div><i>4</i><b>Partager</b><span>« Copier le récapitulatif » puis colle-le dans un mail.</span></div>
+      </div>
+    </section>
+
+    <section id="g2"><h3>Le code FEFCO</h3>
+      <p>La FEFCO est la fédération européenne du carton ondulé. Son code est le système international qui classe les modèles de cartons : un numéro à 4 chiffres par modèle. Il évite les malentendus entre fournisseurs et clients, même quand ils ne parlent pas la même langue.</p>
+      <ul>
+        <li><b>La série</b> est donnée par les deux premiers chiffres : 02 caisses à rabats, 03 boîtes télescopiques, 04 plateaux et boîtes à rabat, 07 caisses prêtes à coller, etc.</li>
+        <li><b>La version</b> s'écrit après un point, par exemple 0201.2 : c'est une variante du modèle de base.</li>
+        <li><b>M, A, M/A</b> indiquent le montage : M manuel, A automatique, M/A les deux.</li>
+        <li><b>« à valider »</b> signale un code dont la géométrie doit encore être confirmée avec le PDF officiel.</li>
+      </ul>
+    </section>
+
+    <section id="g3"><h3>Les dimensions L, W, H</h3>
+      <p>Toutes les dimensions sont des cotes <b>intérieures</b>, en millimètres, notées L × W × H.</p>
+      <div class="defs">
+        <div><b>L</b><span>Longueur. Les deux grandes faces.</span></div>
+        <div><b>W</b><span>Largeur. Les deux petites faces.</span></div>
+        <div><b>H</b><span>Hauteur du carton.</span></div>
+        <div><b>½W</b><span>Profondeur des rabats d'une caisse standard : ils se rejoignent au milieu quand on ferme.</span></div>
+      </div>
+    </section>
+
+    <section id="g4"><h3>Laize et coupe</h3>
+      <p>Une fois déplié, le carton est un rectangle à plat. Ses deux côtés ont chacun un nom de métier :</p>
+      <div class="two">
+        <div class="mini" id="miniPlan" aria-label="Plan du 0201 avec laize et coupe"></div>
+        <div>
+          <p><b class="bl">La laize</b> est le côté <b>vertical</b> : la hauteur du plan, rabats compris.</p>
+          <p><b class="bl">La coupe</b> est le côté <b>horizontal</b> : le tour du carton, soit 2 L + 2 W, plus le joint.</p>
+          <p>Pour un 0201, la laize vaut <code>W + H</code> et la coupe <code>2L + 2W + joint</code>.</p>
+          <button type="button" class="ghost sm" id="tryEx">Essayer avec 400 × 300 × 250</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="g5"><h3>Surface et volume</h3>
+      <ul>
+        <li><b>La surface</b> est laize × coupe, en m². C'est la quantité de carton ondulé d'une pièce. Elle donne aussi des informations techniques sur le carton à choisir.</li>
+        <li><b>Le total</b> multiplie la surface par la quantité saisie : utile pour estimer les m² à commander.</li>
+        <li><b>Le volume utile</b> est L × W × H en litres. C'est le volume de l'intérieur du carton.</li>
+      </ul>
+    </section>
+
+    <section id="g6"><h3>Lire le plan</h3>
+      <div class="legend">
+        <div><svg viewBox="0 0 40 8"><line x1="0" y1="4" x2="40" y2="4" stroke="var(--cut)" stroke-width="2"/></svg><span>Trait noir : ligne de coupe, contour du carton.</span></div>
+        <div><svg viewBox="0 0 40 8"><line x1="0" y1="4" x2="40" y2="4" stroke="var(--crease)" stroke-width="2" stroke-dasharray="6 4"/></svg><span>Rouge pointillé : ligne de pli.</span></div>
+        <div><svg viewBox="0 0 40 8"><line x1="0" y1="4" x2="40" y2="4" stroke="var(--dim)" stroke-width="2"/></svg><span>Bleu : cotes. Laize à droite, coupe en bas, H à gauche.</span></div>
+      </div>
+      <p>Survole un panneau pour voir son nom et ses dimensions. La molette zoome, un glisser déplace le plan, un double-clic le recentre. Passer la souris sur « Laize » ou « Coupe » dans les résultats met la cote correspondante en évidence.</p>
+    </section>
+
+    <section id="g7"><h3>La vue 3D</h3>
+      <p>La boîte se replie toute seule en boucle : d'abord les parois, puis les rabats. Touche le curseur « Pliage » pour choisir toi-même la position, et le bouton pour relancer la lecture. Tu peux tourner la boîte en glissant et zoomer à la molette. « Les deux » affiche le plan et la 3D côte à côte.</p>
+    </section>
+
+    <section id="g8"><h3>Formules par code</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Code</th><th>Laize (vertical)</th><th>Coupe (horizontal)</th><th>État</th></tr></thead>
+        <tbody>
+          <tr><td>0200</td><td>H</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0201</td><td>W + H</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0202</td><td>H + W + o</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0203</td><td>H + 2W</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0205</td><td>H + L</td><td>2L + 2W + joint</td><td>à valider</td></tr>
+          <tr><td>0300</td><td>W + 2H (+ jeu)</td><td>L + 2H (+ jeu)</td><td>à valider</td></tr>
+          <tr><td>0400</td><td>W + 2H</td><td>L + 2H</td><td>à valider</td></tr>
+        </tbody></table></div>
+      <p class="hint">o = recouvrement des rabats du 0202. Joint = languette de collage. Ces valeurs se règlent dans l'outil quand le code les utilise.</p>
+    </section>
+
+    <section id="g9"><h3>Questions fréquentes</h3>
+      <details><summary>Pourquoi le joint est à 35 mm ?</summary><p>C'est une valeur par défaut, modifiable. Mets la valeur de ton atelier.</p></details>
+      <details><summary>L'épaisseur du carton est-elle prise en compte ?</summary><p>Pas encore. Les formules suivent le plan FEFCO théorique. Si tes règles ajoutent des corrections d'épaisseur ou de pli, il faudra les ajouter pour chaque code.</p></details>
+      <details><summary>La chute et la perte machine sont-elles comptées ?</summary><p>Non. La surface est celle du format de la pièce, sans chute.</p></details>
+      <details><summary>Pourquoi certains codes sont « à valider » ?</summary><p>Leur géométrie n'a pas encore été comparée aux dessins du PDF FEFCO. Vérifie-les avant de t'en servir en production.</p></details>
+      <details><summary>Comment ajouter d'autres codes ?</summary><p>Chaque code est décrit par ses panneaux et ses rabats. Il suffit de la page correspondante du PDF FEFCO pour l'ajouter. Le compteur en haut montre combien de codes sont disponibles.</p></details>
+    </section>
+  </article>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="styles.js"></script>
