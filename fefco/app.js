@@ -193,7 +193,7 @@
     if (!playing) return;
     const dt = last ? Math.min(t - last, 60) : 0; last = t;
     if (hold > 0) hold -= dt;
-    else if (!$('pane3d').hidden) {
+    else if (!$('pane3d').hidden && $('pane3d').offsetParent) {
       let v = +fold.value / 100 + dir * dt / 3400;
       if (v >= 1) { v = 1; dir = -1; hold = 1400; } else if (v <= 0) { v = 0; dir = 1; hold = 900; }
       fold.value = v * 100; fold.dispatchEvent(new Event('input'));
@@ -422,6 +422,8 @@
     $('quick').innerHTML = html; $('quick').hidden = !html;
   }
   function selectCode(c) { st.code = c; resetView(); refresh({ lib: true }); }
+  function clearModel() { st.code = ''; resetView(); refresh({ lib: true }); window.scrollTo(0, 0); toast('Modèle désélectionné'); }
+  $('unsel').onclick = clearModel; $('unselCard').onclick = clearModel;
   $('quick').addEventListener('click', (e) => { const b = e.target.closest('.qc'); if (b) selectCode(b.dataset.c); });
   $('fav').onclick = () => {
     const i = favs.indexOf(st.code);

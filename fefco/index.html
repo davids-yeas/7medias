@@ -27,11 +27,14 @@
     <div id="libList" class="lib-list"></div>
   </aside>
   <main class="work">
+    <div class="cmwrap">
     <button type="button" id="curModel" class="curmodel" aria-label="Modèle sélectionné. Changer de modèle.">
       <span class="cm-thumb" id="cmThumb"></span>
       <span class="cm-txt"><small id="cmLabel">Modèle sélectionné</small><b id="cmCode">0201</b><i class="tag" id="cmWarn" hidden>à valider</i><span id="cmTitle"></span></span>
       <span class="cm-chg" id="cmChg">Changer<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
     </button>
+      <button type="button" id="unselCard" class="ibtn" aria-label="Désélectionner le modèle" title="Désélectionner le modèle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
     <section class="dims" aria-label="Dimensions intérieures">
       <label class="clientf" for="client"><span>Client <i>facultatif</i></span><input id="client" type="text" maxlength="60" placeholder="Nom du client ou référence" autocomplete="off" autocapitalize="words"></label>
       <div class="dim" data-k="L"><label for="L">Longueur <b>L</b></label><div class="ctl"><input id="L" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
@@ -58,7 +61,7 @@
           <button type="button" data-v="3d">3D</button>
           <button type="button" data-v="both">Les deux</button>
         </div>
-        <div class="ident"><b id="idCode">0201</b><span id="idTitle"></span><i id="idWarn" class="tag" hidden>à valider</i></div>
+        <div class="ident"><b id="idCode">0201</b><span id="idTitle"></span><i id="idWarn" class="tag" hidden>à valider</i><button type="button" id="unsel" class="ibtn xs" aria-label="Désélectionner le modèle" title="Désélectionner le modèle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
         <div class="tools">
           <button type="button" id="fav" class="ibtn" aria-pressed="false" aria-label="Ajouter aux favoris" title="Ajouter aux favoris"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8L12 3.5Z"/></svg></button>
           <button type="button" id="pdf" class="ibtn" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></button>
@@ -240,6 +243,7 @@
         <li><b>Sur ordinateur :</b> la liste des modèles est à gauche, avec une recherche par code, nom ou série. Les accents n'ont pas d'importance : « telescop » trouve les boîtes télescopiques.</li>
         <li><b>Sur téléphone :</b> un champ de recherche et une carte « Modèle sélectionné ». Le bouton « Changer » ouvre la bibliothèque. Taper dans la recherche affiche les modèles qui correspondent, un toucher en sélectionne un.</li>
         <li><b>À l'ouverture :</b> aucun modèle n'est sélectionné. Le Studio affiche la carte « Aucun modèle sélectionné » : choisis un modèle (liste, recherche, favoris, récents ou bibliothèque) et les dimensions, les résultats et le plan apparaissent.</li>
+        <li><b>Désélectionner :</b> la croix à côté du nom du modèle (au-dessus du plan, et à côté de la carte sur téléphone) retire le modèle choisi et ramène à la carte « Aucun modèle sélectionné ».</li>
         <li><b>Favoris :</b> l'étoile au-dessus du plan marque le modèle en cours.</li>
         <li><b>Récents :</b> les 6 derniers modèles utilisés.</li>
       </ul>
