@@ -34,7 +34,7 @@
         <label data-p="j" for="j"><span>Joint <b>j</b></span><input id="j" type="number" min="0"></label>
         <label data-p="o" for="o"><span>Recouvrement <b>o</b></span><input id="o" type="number" min="0"></label>
         <label data-p="jeu" for="jeu"><span>Jeu <b>+</b></span><input id="jeu" type="number" min="0"></label>
-        <label for="qty"><span>Quantité</span><input id="qty" type="number" min="1"></label>
+        <label for="qty"><span>Quantité</span><input id="qty" type="number" min="1" placeholder="ex. 500" inputmode="numeric"></label>
       </div>
     </section>
 
@@ -72,7 +72,7 @@
       <div class="m" id="mCoupe"><span>Coupe</span><b id="coupe">–</b><em>horizontal · mm</em></div>
       <div class="m hot"><span>Surface</span><b id="surf">–</b><em>m² par pièce</em></div>
       <div class="m"><span>Volume utile</span><b id="vol">–</b><em>litres</em></div>
-      <div class="m"><span>Total <u id="qtyLbl">×1</u></span><b id="tot">–</b><em>m² de carton</em></div>
+      <div class="m"><span>Total <u id="qtyLbl">×1</u></span><b id="tot">–</b><em>m² de carton · saisis une quantité</em></div>
       <button type="button" id="copy" class="primary">Copier le récapitulatif</button>
     </section>
     <p class="note">Dimensions intérieures en mm, au format L × W × H. Les codes marqués « à valider » doivent être confirmés avec le PDF FEFCO avant production.</p>

@@ -1,10 +1,11 @@
 (function () {
   const S = window.FEFCO_STYLES, $ = (id) => document.getElementById(id);
   const codes = Object.keys(S);
-  const DEF = { code: '0201', L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, qty: 1000, view: 'plan' };
+  const DEF = { code: '0201', L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, qty: 0, view: 'plan' };
   const st = Object.assign({}, DEF);
   try { Object.assign(st, JSON.parse(localStorage.getItem('dieline') || '{}')); } catch (e) {}
   if (!S[st.code]) st.code = DEF.code;
+  if (st.qty === 1000) st.qty = 0; // ancienne valeur par défaut
   const save = () => { try { localStorage.setItem('dieline', JSON.stringify(st)); } catch (e) {} };
   const fmt = (n, d = 1) => (Math.round(n * 10 ** d) / 10 ** d).toLocaleString('fr-FR', { maximumFractionDigits: d });
   const num = (v) => Math.max(0, parseFloat(v) || 0);
@@ -41,8 +42,8 @@
     $('coupe').textContent = fmt(cur.coupe);
     $('surf').textContent = fmt(surf, 3);
     $('vol').textContent = fmt(st.L * st.W * st.H / 1e6, 1);
-    $('qtyLbl').textContent = '×' + fmt(st.qty, 0);
-    $('tot').textContent = fmt(surf * st.qty, 1);
+    $('qtyLbl').textContent = st.qty ? '×' + fmt(st.qty, 0) : '';
+    $('tot').textContent = st.qty ? fmt(surf * st.qty, 1) : '–';
     $('idCode').textContent = st.code;
     $('idTitle').textContent = S[st.code].title;
     $('idWarn').hidden = S[st.code].conf === 'ok';
@@ -123,7 +124,7 @@
   });
 
   /* ---------- Saisie ---------- */
-  const sync = (k, v) => { st[k] = v; if ($(k)) $(k).value = v; };
+  const sync = (k, v) => { st[k] = v; if ($(k)) $(k).value = k === 'qty' && !v ? '' : v; };
   ['L', 'W', 'H'].forEach((k) => {
     $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); });
   });
@@ -173,7 +174,7 @@
   /* ---------- Récapitulatif, thème, export ---------- */
   $('copy').onclick = () => {
     const s = cur.laize * cur.coupe / 1e6;
-    const txt = `FEFCO ${st.code} – ${S[st.code].title}\nDimensions int. : ${fmt(st.L, 0)} × ${fmt(st.W, 0)} × ${fmt(st.H, 0)} mm\nLaize : ${fmt(cur.laize)} mm\nCoupe : ${fmt(cur.coupe)} mm\nSurface : ${fmt(s, 3)} m²\nQuantité : ${fmt(st.qty, 0)} → ${fmt(s * st.qty, 1)} m²`;
+    const txt = `FEFCO ${st.code} – ${S[st.code].title}\nDimensions int. : ${fmt(st.L, 0)} × ${fmt(st.W, 0)} × ${fmt(st.H, 0)} mm\nLaize : ${fmt(cur.laize)} mm\nCoupe : ${fmt(cur.coupe)} mm\nSurface : ${fmt(s, 3)} m²${st.qty ? `\nQuantité : ${fmt(st.qty, 0)} → ${fmt(s * st.qty, 1)} m²` : ''}`;
     const done = () => { $('copy').textContent = 'Copié ✓'; setTimeout(() => ($('copy').textContent = 'Copier le récapitulatif'), 1600); };
     const fallback = () => { const a = document.createElement('textarea'); a.value = txt; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); done(); } catch (e) {} a.remove(); };
     if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
