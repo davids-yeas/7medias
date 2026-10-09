@@ -43,7 +43,8 @@ input[type=search],input[type=number]{width:100%;background:var(--panel2);color:
 .dims{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 20px}
 .dim label{display:flex;justify-content:flex-start;gap:10px;align-items:baseline;font:600 .75rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .dim label b{color:var(--teal);font-size:.95rem}
-.ctl{display:grid;grid-template-columns:minmax(0,1fr) 84px auto;gap:10px;align-items:center}
+.ctl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.ctl input[type=number]{font-size:1.25rem;font-weight:500;padding:10px 12px}
 .ctl em{font:400 .75rem var(--mono);font-style:normal;color:var(--muted)}
 input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
 input[type=range]{width:100%;accent-color:var(--orange);height:24px;margin:0}

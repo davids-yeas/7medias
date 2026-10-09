@@ -123,10 +123,9 @@
   });
 
   /* ---------- Saisie ---------- */
-  const sync = (k, v) => { st[k] = v; if ($(k)) $(k).value = v; if ($(k + 'r')) $(k + 'r').value = v; };
+  const sync = (k, v) => { st[k] = v; if ($(k)) $(k).value = v; };
   ['L', 'W', 'H'].forEach((k) => {
-    $(k + 'r').addEventListener('input', (e) => { sync(k, num(e.target.value)); refresh(); });
-    $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); $(k + 'r').value = st[k]; refresh(); });
+    $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); });
   });
   ['j', 'o', 'jeu', 'qty'].forEach((k) => $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); }));
   $('libList').addEventListener('click', (e) => {
