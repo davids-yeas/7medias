@@ -419,3 +419,7 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
 .dock{grid-template-columns:repeat(4,1fr);width:min(500px,calc(100vw - 24px))}
 .dock .lens{width:calc((100% - 14px)/4)}
 @media(max-width:480px){.dock span:not(.lens){font-size:.6rem;letter-spacing:.03em}.dock button{padding-inline:2px}}
+
+/* Raccourcis (favoris, récents) : tout en haut, au-dessus de la recherche */
+.shell>.quick{grid-column:1/-1}
+@media(min-width:861px){.shell>.quick{flex-direction:row;flex-wrap:wrap;gap:8px 28px}.shell>.quick .qrow{flex:0 1 auto}}
