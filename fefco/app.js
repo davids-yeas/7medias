@@ -235,7 +235,64 @@
   const MODES = { M: 'Manuel', A: 'Automatique', 'M/A': 'Manuel ou auto' };
   const statusOf = (c) => (!S[c] ? 'ajouter' : S[c].conf === 'ok' ? 'dispo' : 'valider');
   const STAT = { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter' };
-  const chip = (grp, v, l, n) => `<button type="button" class="chip${cat[grp] === v ? ' on' : ''}" data-g="${grp}" data-v="${v}">${l}<small>${n}</small></button>`;
+  /* ---------- Bulles d'information ---------- */
+  const TIPS = {
+    s: {
+      all: 'Toutes les séries du code FEFCO.',
+      '0100': 'Rouleaux et feuilles de carton ondulé vendus en l\'état, avant transformation.',
+      '0200': 'Caisses à rabats : une seule pièce avec un joint (collé, agrafé ou ruban) et des rabats en haut et en bas. Livrées à plat, prêtes à l\'emploi, à fermer avec les rabats.',
+      '0300': 'Boîtes télescopiques : en général plusieurs pièces, par exemple un fond et un couvercle, qui s\'emboîtent l\'une sur l\'autre.',
+      '0400': 'Boîtes à rabat et plateaux : en général une seule pièce. Le fond est articulé pour former deux ou toutes les parois et le couvercle. Languettes, poignées ou panneaux d\'affichage possibles.',
+      '0500': 'Boîtes coulissantes : plusieurs pièces (intérieurs et fourreaux) qui coulissent les unes dans les autres. Comprend aussi les fourreaux extérieurs pour d\'autres caisses.',
+    },
+    m: {
+      all: 'Tous les modes de montage.',
+      M: 'Montage généralement manuel : le carton est monté et fermé à la main.',
+      A: 'Montage généralement automatique : le carton est monté sur une machine.',
+      'M/A': 'Peut être monté à la main ou en machine.',
+    },
+    t: {
+      all: 'Tous les statuts.',
+      dispo: 'Plan disponible dans l\'outil. La géométrie suit les cotes du code FEFCO.',
+      valider: 'Plan disponible, mais sa géométrie doit encore être confirmée avec le PDF FEFCO.',
+      ajouter: 'Code relevé dans le PDF. Son plan n\'est pas encore dans l\'outil.',
+    },
+  };
+  const GROUP_TITLE = { s: 'Séries', m: 'Montage', t: 'Statut' };
+  const tipEl = document.createElement('div');
+  tipEl.id = 'tip'; tipEl.setAttribute('role', 'tooltip'); tipEl.hidden = true; document.body.appendChild(tipEl);
+  let tipFor = null;
+  function showTip(target, html) {
+    tipEl.innerHTML = html; tipEl.hidden = false; tipFor = target;
+    const r = target.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight, m = 8;
+    let x = r.left + r.width / 2 - w / 2; x = Math.max(m, Math.min(x, innerWidth - w - m));
+    let y = r.bottom + 8; if (y + h > innerHeight - 100) y = Math.max(m, r.top - h - 8);
+    tipEl.style.left = x + 'px'; tipEl.style.top = y + 'px';
+  }
+  function hideTip() { tipEl.hidden = true; tipFor = null; }
+  function groupHtml(g) {
+    const names = g === 's' ? CAT.series : g === 'm' ? MODES : { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter' };
+    return `<b>${GROUP_TITLE[g]}</b>` + Object.keys(TIPS[g]).filter((k) => k !== 'all').map((k) => `<p><u>${g === 's' ? k + ' · ' : ''}${names[k] || k}</u> ${TIPS[g][k]}</p>`).join('');
+  }
+  const canHover = matchMedia('(hover:hover)').matches;
+  document.addEventListener('mouseover', (e) => {
+    if (!canHover) return;
+    const t = e.target.closest('[data-tip]'); if (t && t.dataset.tip) showTip(t, t.dataset.tip); else if (tipFor && !e.target.closest('.info')) hideTip();
+  });
+  document.addEventListener('focusin', (e) => { const t = e.target.closest('[data-tip]'); if (t && t.dataset.tip && canHover) showTip(t, t.dataset.tip); });
+  document.addEventListener('focusout', () => { if (canHover) hideTip(); });
+  document.addEventListener('click', (e) => {
+    const i = e.target.closest('.info');
+    if (i) {
+      e.preventDefault(); e.stopPropagation();
+      if (tipFor === i) { hideTip(); return; }
+      showTip(i, i.dataset.tipgroup ? groupHtml(i.dataset.tipgroup) : i.dataset.tip);
+    } else hideTip();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
+  window.addEventListener('scroll', hideTip, { passive: true });
+
+  const chip = (grp, v, l, n) => `<button type="button" class="chip${cat[grp] === v ? ' on' : ''}" data-g="${grp}" data-v="${v}" data-tip="${(TIPS[grp][v] || '').replace(/"/g, '&quot;')}">${l}<small>${n}</small></button>`;
   function matches(x, skip) {
     const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const q = norm($('cq').value.trim());
@@ -259,7 +316,7 @@
     let html = '', last = '', n = 0;
     CAT.list.forEach((x) => {
       if (!matches(x)) return;
-      if (x.s !== last) { html += `<div class="cat-s">${x.s} · ${CAT.series[x.s]}</div>`; last = x.s; }
+      if (x.s !== last) { html += `<div class="cat-s">${x.s} · ${CAT.series[x.s]}<button type="button" class="info" data-tip="${TIPS.s[x.s].replace(/"/g, '&quot;')}" aria-label="Aide : série ${x.s}">i</button></div>`; last = x.s; }
       n++;
       const ok = !!S[x.c], mode = x.m ? `<small>${MODES[x.m]}</small>` : '', warn = ok && S[x.c].conf !== 'ok' ? '<i class="tag">à valider</i>' : '';
       const sel = x.c === st.code;

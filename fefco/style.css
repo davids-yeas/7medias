@@ -356,3 +356,14 @@ button.m.copied::after{content:"Copié ✓";position:absolute;top:8px;right:8px;
 .playbtn .i-play{fill:currentColor;display:none}
 .playbtn[data-playing="false"] .i-play{display:block}
 .playbtn[data-playing="false"] .i-pause{display:none}
+
+/* ---------- Bulles d'information ---------- */
+.info{display:inline-grid;place-items:center;width:18px;height:18px;margin-left:6px;padding:0;border-radius:50%;background:transparent;color:var(--muted);border:1px solid var(--line);font:600 .66rem var(--mono);text-transform:none;letter-spacing:0;cursor:pointer;vertical-align:middle}
+.info:hover,.info:focus-visible{color:var(--orange);border-color:var(--orange)}
+.cat-s .info{margin-left:2px;flex:none}
+#tip{position:fixed;z-index:40;max-width:min(300px,calc(100vw - 16px));padding:10px 12px;border-radius:10px;font:400 .8rem/1.45 var(--body);color:var(--ink);text-transform:none;letter-spacing:0;background:color-mix(in srgb,var(--panel2) 94%,transparent);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);pointer-events:none}
+#tip b{display:block;font:600 .7rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
+#tip p{margin:6px 0 0}
+#tip u{text-decoration:none;font-weight:600;color:var(--teal)}
+.flabel{flex:0 0 96px;white-space:nowrap}
+@media(max-width:860px){.flabel{flex:none}}
