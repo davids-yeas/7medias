@@ -211,7 +211,7 @@
     $('dock').style.setProperty('--i', Object.keys(VIEWS).indexOf(p));
     try { history.replaceState(null, '', HASH[p] || location.pathname + location.search); } catch (e) {}
     if (p === 'guide' && !$('miniPlan').firstChild) miniPlan();
-    if (p === 'lib') renderCat();
+    if (p === 'lib') { renderCat(); renderSource(); }
     window.scrollTo(0, 0);
     if (scrollTo) $(scrollTo).scrollIntoView();
     if (p === 'tool' && st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.show();
@@ -258,6 +258,14 @@
     });
     $('catCount').textContent = `${n} code${n > 1 ? 's' : ''} affiché${n > 1 ? 's' : ''}`;
     $('catGrid').innerHTML = html || '<p class="note">Aucun code ne correspond à ces filtres. Retire un filtre ou clique sur « Réinitialiser ».</p>';
+  }
+  /* Tableau récapitulatif de la source (pages du PDF, codes relevés, plans de l'outil) */
+  const PDF = [['0100', 'Rouleaux et feuilles commerciaux', '9'], ['0200', 'Caisses à rabats', '15'], ['0300', 'Boîtes télescopiques', '30'], ['0400', 'Boîtes à rabat et plateaux', '41'], ['0500', 'Boîtes coulissantes', '74'], ['0600', 'Boîtes rigides', '80'], ['0700', 'Caisses prêtes à coller', '86'], ['0800', 'Retail et e-commerce', '103'], ['0900', 'Aménagements intérieurs', '123']];
+  function renderSource() {
+    $('srcTable').tBodies[0].innerHTML = PDF.map(([s, n, p]) => {
+      const rel = CAT.list.filter((x) => x.s === s).length, tool = codes.filter((c) => c.slice(0, 2) + '00' === s).length;
+      return `<tr><td>${s}</td><td>${n}</td><td>${p}</td>` + (rel ? `<td>${rel}</td>` : '<td class="todo">à relever</td>') + `<td>${tool}</td></tr>`;
+    }).join('');
   }
   $('cq').addEventListener('input', renderCat);
   $('catReset').onclick = () => { $('cq').value = ''; cat.s = cat.m = cat.t = 'all'; renderCat(); };
