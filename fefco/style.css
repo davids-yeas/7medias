@@ -323,7 +323,12 @@ button.m.copied::after{content:"Copié ✓";position:absolute;top:8px;right:8px;
 .curmodel{display:none}
 .cc.sel{border-color:var(--orange);box-shadow:0 0 0 2px color-mix(in srgb,var(--orange) 35%,transparent)}
 @media(max-width:860px){
-  #viewTool .lib{display:none}
+  #viewTool .lib{display:block;position:static;max-height:none}
+  #viewTool .lib-head{border-bottom:0}
+  #viewTool .lib-list{display:none}
+  #viewTool .lib.searching .lib-head{border-bottom:1px solid var(--line)}
+  #viewTool .lib.searching .lib-list{display:flex;flex-direction:column;overflow-x:visible;overflow-y:auto;max-height:46vh;padding-bottom:8px}
+  #viewTool .lib.searching .item{flex:none}
   .curmodel{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;color:var(--ink);background:var(--panel);border:1px solid var(--orange);border-radius:10px;padding:10px 12px;font:inherit}
   .cm-thumb svg{width:76px;height:52px;display:block;color:var(--teal)}
   .cm-txt{display:flex;flex-direction:column;gap:1px;min-width:0}

@@ -22,11 +22,12 @@
     return `<svg viewBox="${-m} ${-m} ${r.coupe + 2 * m} ${r.laize + 2 * m}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${s}</svg>`;
   };
   function buildLib(filter) {
-    const f = (filter || '').trim().toLowerCase();
+    const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const f = norm((filter || '').trim());
     let html = '', last = '';
     codes.forEach((c) => {
       const t = S[c];
-      if (f && !(c + ' ' + t.title + ' ' + t.serie).toLowerCase().includes(f)) return;
+      if (f && !norm(c + ' ' + t.title + ' ' + t.serie).includes(f)) return;
       if (t.serie !== last) { html += `<div class="grp">${t.serie}</div>`; last = t.serie; }
       html += `<button type="button" class="item${c === st.code ? ' on' : ''}" data-c="${c}">${thumb(c)}<div><b>${c}</b>${t.conf !== 'ok' ? '<i class="tag">à valider</i>' : ''}<span>${t.title}</span></div></button>`;
     });
@@ -128,11 +129,14 @@
     $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); });
   });
   ['j', 'o', 'jeu'].forEach((k) => $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); }));
+  const mobile = () => matchMedia('(max-width:860px)').matches;
   $('libList').addEventListener('click', (e) => {
     const b = e.target.closest('.item'); if (!b) return;
-    st.code = b.dataset.c; resetView(); refresh({ lib: true });
+    st.code = b.dataset.c; resetView();
+    if (mobile()) { $('q').value = ''; document.querySelector('#viewTool .lib').classList.remove('searching'); $('q').blur(); }
+    refresh({ lib: true });
   });
-  $('q').addEventListener('input', () => buildLib($('q').value));
+  $('q').addEventListener('input', () => { buildLib($('q').value); document.querySelector('#viewTool .lib').classList.toggle('searching', !!$('q').value.trim()); });
 
   /* ---------- Affichage Plan / 3D / Les deux ---------- */
   function setView(v) {
