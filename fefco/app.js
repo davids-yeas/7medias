@@ -418,20 +418,14 @@
   function scheduleLog(now) { clearTimeout(logTimer); if (now) logCalc(); else logTimer = setTimeout(logCalc, 1500); }
   function logCalc() {
     if (!cur) return;
-    const e = Object.assign({ t: Date.now() }, curEntry());
+    const e = Object.assign({ t: Date.now(), by: cloud.name }, curEntry());
     const p = cloud.on ? hist.find((x) => x.dev === DEV) : hist[0];
     if (p && ['c', 'L', 'W', 'H', 'j', 'o', 'jeu'].every((k) => p[k] === e[k]) && (p.cl || '') === (e.cl || '')) return;
     if (cloud.on) { cloudInsert(e); return; }
     hist.unshift(e); hist = hist.slice(0, 40); persist();
     if (!$('viewHist').hidden) renderHist();
   }
-  const ago = (t) => {
-    const s = (Date.now() - t) / 1000;
-    if (s < 60) return "à l'instant";
-    if (s < 3600) return `il y a ${Math.floor(s / 60)} min`;
-    if (s < 86400) return `il y a ${Math.floor(s / 3600)} h`;
-    return new Date(t).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  };
+  const stamp = (t) => { const d = new Date(t); return `${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })} · ${d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`; };
   const IC_COPY = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
   const IC_PDF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>';
   const IC_DEL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg>';
@@ -446,9 +440,11 @@
     const q = norm($('hq').value.trim()).split(/\s+/).filter(Boolean);
     const shown = hist.map((h, i) => [h, i]).filter(([h]) => { const hay = norm(`${h.cl} ${h.c} ${S[h.c].title} ${h.by}`); return q.every((w) => hay.includes(w)); });
     if (!shown.length) { el.innerHTML = '<p class="note empty">Aucun calcul ne correspond à cette recherche.</p>'; return; }
-    el.innerHTML = shown.map(([h, i]) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span>${h.cl ? `<span class="hcl">${esc(h.cl)}</span>` : ''}<span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span></span><span class="htime">${ago(h.t)}${cloud.on && h.by ? ` · <span class="hby">${esc(h.by)}</span>` : ''}</span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button>${!cloud.on || h.dev === DEV ? `<button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button>` : ''}</div></div>`).join('');
+    el.innerHTML = shown.map(([h, i]) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span>${h.cl ? `<span class="hcl">${esc(h.cl)}</span>` : ''}<span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span><span class="hm"><time datetime="${new Date(h.t).toISOString()}">${stamp(h.t)}</time>${h.by ? `<span>Fait par <b>${esc(h.by)}</b></span>` : ''}</span></span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button>${!cloud.on || h.dev === DEV ? `<button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button>` : ''}</div></div>`).join('');
   }
   $('hq').addEventListener('input', renderHist);
+  $('who').value = cloud.name;
+  $('who').addEventListener('input', () => { cloud.name = $('who').value.trim().slice(0, 24); store.set('dieline-name', cloud.name); if (cloud.on) renderAuth(); });
   $('histList').addEventListener('click', (e) => {
     const act = e.target.closest('[data-act]'), main = e.target.closest('.hmain');
     if (act) {
@@ -527,18 +523,17 @@
     if (!cloud.available) { box.hidden = true; return; }
     box.hidden = false;
     if (cloud.on) box.innerHTML = `<div class="ab-in"><span><span class="dot"></span>Historique partagé avec l'équipe${cloud.name ? ` · ${esc(cloud.name)}` : ''}</span><button type="button" id="authOut" class="ghost sm">Verrouiller</button></div>`;
-    else box.innerHTML = `<form id="authForm" autocomplete="off"><label for="authCode">Historique partagé : saisis le code d'accès</label><div class="ab-row"><input id="authCode" class="code" type="text" inputmode="text" maxlength="6" minlength="6" pattern="[A-Za-z0-9]{6}" required autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="6 caractères" aria-label="Code d'accès à 6 caractères"><input id="authName" type="text" maxlength="24" placeholder="Ton prénom (facultatif)" value="${esc(cloud.name)}" aria-label="Ton prénom"><button class="primary sm" type="submit">Déverrouiller</button></div><p class="hint">6 caractères : chiffres et lettres. Demande le code à ton responsable. Sans code, l'historique reste sur cet appareil.</p></form>`;
+    else box.innerHTML = `<form id="authForm" autocomplete="off"><label for="authCode">Historique partagé : saisis le code d'accès</label><div class="ab-row"><input id="authCode" class="code" type="text" inputmode="text" maxlength="6" minlength="6" pattern="[A-Za-z0-9]{6}" required autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="6 caractères" aria-label="Code d'accès à 6 caractères"><button class="primary sm" type="submit">Déverrouiller</button></div><p class="hint">6 caractères : chiffres et lettres. Demande le code à ton responsable. Sans code, l'historique reste sur cet appareil.</p></form>`;
   }
   $('histAuth').addEventListener('input', (e) => { if (e.target.id === 'authCode') e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); });
   $('histAuth').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const code = $('authCode').value.trim().toUpperCase(), name = $('authName').value.trim().slice(0, 24);
+    const code = $('authCode').value.trim().toUpperCase();
     if (!/^[A-Z0-9]{6}$/.test(code)) { toast('Le code fait 6 caractères'); return; }
     const r = await api({ action: 'list', code });
     if (r.status === 401) { toast('Code incorrect'); $('authCode').select(); return; }
     if (r.status === 429) { toast('Trop d\'essais, réessaie dans quelques minutes'); return; }
     if (!r.ok) { toast('Historique partagé indisponible'); return; }
-    cloud.name = name; store.set('dieline-name', name);
     unlock(code, r.data.items); toast('Historique partagé activé');
   });
   $('histAuth').addEventListener('click', (e) => { if (e.target.closest('#authOut')) lock('Historique partagé verrouillé'); });

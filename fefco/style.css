@@ -446,3 +446,13 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
 .hsearch{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px 12px;font:inherit}
 .hcl{font:600 .85rem var(--body);color:var(--teal);overflow-wrap:anywhere}
 .hcl::before{content:"Client · ";font:500 .66rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+/* ---------- Historique : date, heure, client, fait par ---------- */
+.hmain{grid-template-columns:64px minmax(0,1fr)}
+.hm{display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:3px;font:400 .72rem var(--mono);color:var(--muted)}
+.hm time{color:var(--ink)}
+.hm b{color:var(--teal);font-weight:600}
+.who{display:flex;align-items:center;gap:10px}
+.who span{flex:none;font:600 .72rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.who input{flex:1;max-width:260px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:9px 12px;font:inherit}
+@media(max-width:600px){.hmain{grid-template-columns:56px minmax(0,1fr)}.who input{max-width:none}}
