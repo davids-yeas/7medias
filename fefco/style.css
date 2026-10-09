@@ -490,3 +490,17 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
   .cmwrap .curmodel{flex:1;width:auto;min-width:0}
   .work:not(.nomodel) #unselCard{display:grid}
 }
+
+/* ---------- Réinitialiser les dimensions ---------- */
+.dimhead{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dimhead>span{font:600 .75rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.dimhead>span i{font:400 .7rem var(--mono);font-style:normal;text-transform:none;letter-spacing:0;margin-left:4px}
+.dimhead .ghost{display:inline-flex;align-items:center;gap:6px}
+.dimhead .ghost svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dimhead .ghost:hover{color:var(--orange);border-color:var(--orange)}
+.nodims-card{display:none;flex-direction:column;gap:4px;background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:16px;color:var(--muted)}
+.nodims-card b{font:700 1rem var(--display);color:var(--ink)}
+.nodims-card strong{color:var(--orange)}
+.work.nodims>.nodims-card{display:flex}
+.work.nodims>.metrics,.work.nodims>.stagebox{display:none}
+.work.nomodel>.nodims-card{display:none!important}

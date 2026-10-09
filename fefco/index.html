@@ -36,6 +36,7 @@
       <button type="button" id="unselCard" class="ibtn" aria-label="Désélectionner le modèle" title="Désélectionner le modèle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <section class="dims" aria-label="Dimensions intérieures">
+      <div class="dimhead"><span>Dimensions intérieures <i>mm</i></span><button type="button" id="dimReset" class="ghost sm" title="Effacer les dimensions et revenir aux réglages par défaut"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg>Réinitialiser</button></div>
       <label class="clientf" for="client"><span>Client <i>facultatif</i></span><input id="client" type="text" maxlength="60" placeholder="Nom du client ou référence" autocomplete="off" autocapitalize="words"></label>
       <div class="dim" data-k="L"><label for="L">Longueur <b>L</b></label><div class="ctl"><input id="L" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
       <div class="dim" data-k="W"><label for="W">Largeur <b>W</b></label><div class="ctl"><input id="W" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
@@ -46,6 +47,8 @@
         <label data-p="jeu" for="jeu"><span>Jeu <b>+</b></span><input id="jeu" type="number" min="0"></label>
       </div>
     </section>
+
+    <div id="noDims" class="nodims-card" role="status"><b>Saisis les dimensions</b><span>Il manque : <strong id="noDimsList"></strong>. Le plan, la 3D et les résultats s'affichent dès que L, W et H sont renseignées.</span></div>
 
     <section class="metrics" aria-label="Résultats">
       <button type="button" class="m" id="mLaize" title="Cliquer pour copier le récapitulatif"><span>Laize</span><b id="laize">–</b><em>vertical · mm</em></button>
@@ -243,6 +246,7 @@
         <li><b>Sur ordinateur :</b> la liste des modèles est à gauche, avec une recherche par code, nom ou série. Les accents n'ont pas d'importance : « telescop » trouve les boîtes télescopiques.</li>
         <li><b>Sur téléphone :</b> un champ de recherche et une carte « Modèle sélectionné ». Le bouton « Changer » ouvre la bibliothèque. Taper dans la recherche affiche les modèles qui correspondent, un toucher en sélectionne un.</li>
         <li><b>À l'ouverture :</b> aucun modèle n'est sélectionné. Le Studio affiche la carte « Aucun modèle sélectionné » : choisis un modèle (liste, recherche, favoris, récents ou bibliothèque) et les dimensions, les résultats et le plan apparaissent.</li>
+        <li><b>Réinitialiser :</b> le bouton en haut des dimensions efface L, W et H et remet le joint, le recouvrement et le jeu à leurs valeurs de départ. Le nom du client est conservé.</li>
         <li><b>Désélectionner :</b> la croix à côté du nom du modèle (au-dessus du plan, et à côté de la carte sur téléphone) retire le modèle choisi et ramène à la carte « Aucun modèle sélectionné ».</li>
         <li><b>Favoris :</b> l'étoile au-dessus du plan marque le modèle en cours.</li>
         <li><b>Récents :</b> les 6 derniers modèles utilisés.</li>

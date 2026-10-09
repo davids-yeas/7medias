@@ -54,6 +54,14 @@
   }
 
   /* ---------- Calcul + mise à jour ---------- */
+  function syncModelUI() {
+    const t = S[st.code];
+    $('cmThumb').innerHTML = thumb(st.code); $('cmCode').textContent = st.code; $('cmTitle').textContent = t.title; $('cmWarn').hidden = t.conf === 'ok';
+    $('idCode').textContent = st.code; $('idTitle').textContent = t.title; $('idWarn').hidden = t.conf === 'ok';
+    document.querySelectorAll('[data-p]').forEach((l) => { l.style.display = t.params.includes(l.dataset.p) ? '' : 'none'; });
+    if (st.code !== lastCode) { lastCode = st.code; recent = [st.code].concat(recent.filter((c) => c !== st.code)).slice(0, 6); store.set('dieline-recent', recent); }
+    syncFav(); renderQuick();
+  }
   function compute() {
     cur = S[st.code].build(dims());
     const surf = cur.laize * cur.coupe / 1e6;
@@ -61,14 +69,11 @@
     $('coupe').textContent = fmt(cur.coupe);
     $('surf').textContent = fmt(surf, 3);
     $('vol').textContent = fmt(st.L * st.W * st.H / 1e6, 1);
-    $('cmThumb').innerHTML = thumb(st.code); $('cmCode').textContent = st.code; $('cmTitle').textContent = S[st.code].title; $('cmWarn').hidden = S[st.code].conf === 'ok';
-    $('idCode').textContent = st.code;
-    $('idTitle').textContent = S[st.code].title;
-    $('idWarn').hidden = S[st.code].conf === 'ok';
-    document.querySelectorAll('[data-p]').forEach((l) => { l.style.display = S[st.code].params.includes(l.dataset.p) ? '' : 'none'; });
-    if (st.code !== lastCode) { lastCode = st.code; recent = [st.code].concat(recent.filter((c) => c !== st.code)).slice(0, 6); store.set('dieline-recent', recent); }
-    syncFav(); renderQuick();
     return surf;
+  }
+  function showNoDims(missing) {
+    document.querySelector('.work').classList.toggle('nodims', missing.length > 0);
+    if (missing.length) $('noDimsList').textContent = missing.join(', ');
   }
   function showEmpty(on) {
     document.querySelector('.work').classList.toggle('nomodel', on);
@@ -82,9 +87,12 @@
     }
   }
   function refresh(opts = {}) {
-    if (!S[st.code]) { showEmpty(true); renderQuick(); if (opts.lib) buildLib($('q').value); return; }
+    if (!S[st.code]) { showEmpty(true); showNoDims([]); renderQuick(); if (opts.lib) buildLib($('q').value); return; }
     showEmpty(false);
-    if (!st.L || !st.W || !st.H) return;
+    syncModelUI();
+    const missing = ['L', 'W', 'H'].filter((k) => !st[k]);
+    showNoDims(missing);
+    if (missing.length) { save(); return; }
     compute(); drawPlan();
     if (st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.update(st.code, dims());
     if (opts.lib) buildLib($('q').value);
@@ -159,7 +167,12 @@
   });
 
   /* ---------- Saisie ---------- */
-  const sync = (k, v) => { st[k] = v; if ($(k)) $(k).value = v; };
+  const sync = (k, v) => { st[k] = v; if ($(k)) $(k).value = !v && ['L', 'W', 'H'].includes(k) ? '' : v; };
+  $('dimReset').onclick = () => {
+    ['L', 'W', 'H'].forEach((k) => sync(k, 0)); $('L').value = $('W').value = $('H').value = '';
+    sync('j', DEF.j); sync('o', DEF.o); sync('jeu', DEF.jeu);
+    resetView(); refresh(); toast('Dimensions effacées'); $('L').focus();
+  };
   $('client').addEventListener('input', (e) => { st.client = e.target.value.slice(0, 60); refresh(); });
   ['L', 'W', 'H'].forEach((k) => {
     $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); });
