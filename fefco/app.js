@@ -4,11 +4,24 @@
   const DEF = { code: '0201', L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, view: 'plan' };
   const st = Object.assign({}, DEF);
   try { Object.assign(st, JSON.parse(localStorage.getItem('dieline') || '{}')); } catch (e) {}
+  try { // lien de partage : ?c=0201&L=400&W=300&H=250
+    const q = new URLSearchParams(location.search);
+    if (S[q.get('c')]) { st.code = q.get('c'); ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => { if (q.has(k)) st[k] = Math.max(0, parseFloat(q.get(k)) || 0); }); }
+  } catch (e) {}
   if (!S[st.code]) st.code = DEF.code;
   const save = () => { try { localStorage.setItem('dieline', JSON.stringify(st)); } catch (e) {} };
   const fmt = (n, d = 1) => (Math.round(n * 10 ** d) / 10 ** d).toLocaleString('fr-FR', { maximumFractionDigits: d });
   const num = (v) => Math.max(0, parseFloat(v) || 0);
   const dims = () => ({ L: st.L, W: st.W, H: st.H, j: st.j, o: st.o, jeu: st.jeu });
+  /* ---------- Stockage local : favoris, récents, historique ---------- */
+  const store = {
+    get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  };
+  let favs = store.get('dieline-fav', []).filter((c) => S[c]);
+  let recent = store.get('dieline-recent', []).filter((c) => S[c]);
+  let hist = store.get('dieline-hist', []).filter((h) => S[h.c]);
+  let lastCode = null, ready = false, logTimer = null;
   let cur = null;                       // dernier résultat de calcul
   const view = { z: 1, px: 0, py: 0 };  // zoom / déplacement du plan
 
@@ -47,6 +60,8 @@
     $('idTitle').textContent = S[st.code].title;
     $('idWarn').hidden = S[st.code].conf === 'ok';
     document.querySelectorAll('[data-p]').forEach((l) => { l.style.display = S[st.code].params.includes(l.dataset.p) ? '' : 'none'; });
+    if (st.code !== lastCode) { lastCode = st.code; recent = [st.code].concat(recent.filter((c) => c !== st.code)).slice(0, 6); store.set('dieline-recent', recent); }
+    syncFav(); renderQuick();
     return surf;
   }
   function refresh(opts = {}) {
@@ -55,6 +70,7 @@
     if (st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.update(st.code, dims());
     if (opts.lib) buildLib($('q').value);
     save();
+    if (ready) scheduleLog();
   }
 
   /* ---------- Plan 2D ---------- */
@@ -175,26 +191,31 @@
   $('auto').onclick = (e) => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); if (window.FEFCO_3D) window.FEFCO_3D.setAuto(on); };
 
   /* ---------- Récapitulatif, thème, export ---------- */
-  function copyRecap(card) {
-    const s = cur.laize * cur.coupe / 1e6;
-    const txt = `FEFCO ${st.code} – ${S[st.code].title}\nDimensions int. : ${fmt(st.L, 0)} × ${fmt(st.W, 0)} × ${fmt(st.H, 0)} mm\nLaize : ${fmt(cur.laize)} mm\nCoupe : ${fmt(cur.coupe)} mm\nSurface : ${fmt(s, 3)} m²\nVolume utile : ${fmt(st.L * st.W * st.H / 1e6, 1)} L`;
-    const done = () => { card.classList.add('copied'); setTimeout(() => card.classList.remove('copied'), 1600); };
+  function recapText(e) {
+    const su = e.la * e.co / 1e6;
+    return `FEFCO ${e.c} – ${S[e.c].title}\nDimensions int. : ${fmt(e.L, 0)} × ${fmt(e.W, 0)} × ${fmt(e.H, 0)} mm\nLaize : ${fmt(e.la)} mm\nCoupe : ${fmt(e.co)} mm\nSurface : ${fmt(su, 3)} m²\nVolume utile : ${fmt(e.L * e.W * e.H / 1e6, 1)} L`;
+  }
+  const curEntry = () => ({ c: st.code, L: st.L, W: st.W, H: st.H, j: st.j, o: st.o, jeu: st.jeu, la: cur.laize, co: cur.coupe });
+  function copyText(txt, done) {
     const fallback = () => { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove(); };
     if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
+  }
+  function copyRecap(card) {
+    scheduleLog(true);
+    copyText(recapText(curEntry()), () => { card.classList.add('copied'); setTimeout(() => card.classList.remove('copied'), 1600); });
   }
   document.querySelectorAll('.metrics .m').forEach((c) => c.addEventListener('click', () => copyRecap(c)));
   $('theme').onclick = () => {
     const root = document.documentElement, dark = getComputedStyle(root).colorScheme.includes('dark');
     root.dataset.theme = dark ? 'light' : 'dark';
   };
-  if ($('dl')) $('dl').onclick = () => {
+  if ($('dl')) $('dl').onclick = async () => {
     const c = $('svg').cloneNode(true);
     c.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     const css = 'rect,polygon{fill:none;stroke:#111;stroke-width:1.5}.cr{stroke:#d62f2f;stroke-dasharray:6 4}.dm{stroke:#1f5fd6}.dt{fill:#1f5fd6;font-family:monospace}.tx{fill:#111;font-family:monospace}';
     c.insertAdjacentHTML('afterbegin', `<style>${css}</style>`);
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([c.outerHTML], { type: 'image/svg+xml' }));
-    a.download = `FEFCO-${st.code}-${st.L}x${st.W}x${st.H}.svg`; a.click();
+    const r = await saveFile(new Blob([c.outerHTML], { type: 'image/svg+xml' }), `FEFCO-${st.code}-${st.L}x${st.W}x${st.H}.svg`);
+    toast(r === 'declined' ? 'Export annulé' : 'Plan SVG prêt');
   };
 
   /* ---------- Menu : Outil / Guide ---------- */
@@ -212,13 +233,14 @@
     $('miniPlan').innerHTML = `<svg viewBox="${x0} ${y0} ${w} ${h}" role="img">${s}</svg>`;
   }
   let srcInit = false;
-  const VIEWS = { tool: 'viewTool', lib: 'viewLib', guide: 'viewGuide' }, HASH = { tool: '', lib: '#library', guide: '#guide' };
+  const VIEWS = { tool: 'viewTool', lib: 'viewLib', hist: 'viewHist', guide: 'viewGuide' }, HASH = { tool: '', lib: '#library', hist: '#history', guide: '#guide' };
   function page(p, scrollTo, focusSel) {
     Object.keys(VIEWS).forEach((k) => { $(VIEWS[k]).hidden = k !== p; });
     document.querySelectorAll('.dock button').forEach((b) => b.classList.toggle('on', b.dataset.page === p));
     $('dock').style.setProperty('--i', Object.keys(VIEWS).indexOf(p));
     try { history.replaceState(null, '', HASH[p] || location.pathname + location.search); } catch (e) {}
     if (p === 'guide' && !$('miniPlan').firstChild) miniPlan();
+    if (p === 'hist') renderHist();
     if (p === 'lib') { renderCat(); renderSource(); if (!srcInit) { $('srcBox').open = !matchMedia('(max-width:860px)').matches; srcInit = true; } }
     window.scrollTo(0, 0);
     if (scrollTo) $(scrollTo).scrollIntoView();
@@ -234,7 +256,7 @@
   const CAT = window.FEFCO_CATALOG, cat = { s: 'all', m: 'all', t: 'all' };
   const MODES = { M: 'Manuel', A: 'Automatique', 'M/A': 'Manuel ou auto' };
   const statusOf = (c) => (!S[c] ? 'ajouter' : S[c].conf === 'ok' ? 'dispo' : 'valider');
-  const STAT = { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter' };
+  const STAT = { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter', fav: '★ Favoris' };
   /* ---------- Bulles d'information ---------- */
   const TIPS = {
     s: {
@@ -256,6 +278,7 @@
       dispo: 'Plan disponible dans l\'outil. La géométrie suit les cotes du code FEFCO.',
       valider: 'Plan disponible, mais sa géométrie doit encore être confirmée avec le PDF FEFCO.',
       ajouter: 'Code relevé dans le PDF. Son plan n\'est pas encore dans l\'outil.',
+      fav: 'Les modèles que tu as marqués d\'une étoile.',
     },
   };
   const GROUP_TITLE = { s: 'Séries', m: 'Montage', t: 'Statut' };
@@ -271,7 +294,7 @@
   }
   function hideTip() { tipEl.hidden = true; tipFor = null; }
   function groupHtml(g) {
-    const names = g === 's' ? CAT.series : g === 'm' ? MODES : { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter' };
+    const names = g === 's' ? CAT.series : g === 'm' ? MODES : { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter', fav: 'Favoris' };
     return `<b>${GROUP_TITLE[g]}</b>` + Object.keys(TIPS[g]).filter((k) => k !== 'all').map((k) => `<p><u>${g === 's' ? k + ' · ' : ''}${names[k] || k}</u> ${TIPS[g][k]}</p>`).join('');
   }
   function serieHtml(s) {
@@ -314,7 +337,7 @@
     }
     if (skip !== 's' && cat.s !== 'all' && x.s !== cat.s) return false;
     if (skip !== 'm' && cat.m !== 'all' && x.m !== cat.m) return false;
-    if (skip !== 't' && cat.t !== 'all' && statusOf(x.c) !== cat.t) return false;
+    if (skip !== 't' && cat.t !== 'all' && (cat.t === 'fav' ? !favs.includes(x.c) : statusOf(x.c) !== cat.t)) return false;
     return true;
   }
   function renderCat() {
@@ -324,7 +347,7 @@
     const cnt = (skip, f) => CAT.list.filter((x) => matches(x, skip) && f(x)).length;
     $('fSerie').innerHTML = chip('s', 'all', 'Toutes', cnt('s', () => true)) + Object.keys(CAT.series).map((s) => chip('s', s, s, cnt('s', (x) => x.s === s))).join('');
     $('fMode').innerHTML = chip('m', 'all', 'Tous', cnt('m', () => true)) + Object.keys(MODES).map((m) => chip('m', m, MODES[m], cnt('m', (x) => x.m === m))).join('');
-    $('fStatus').innerHTML = chip('t', 'all', 'Tous', cnt('t', () => true)) + Object.keys(STAT).map((t) => chip('t', t, STAT[t], cnt('t', (x) => statusOf(x.c) === t))).join('');
+    $('fStatus').innerHTML = chip('t', 'all', 'Tous', cnt('t', () => true)) + Object.keys(STAT).map((t) => chip('t', t, STAT[t], cnt('t', (x) => (t === 'fav' ? favs.includes(x.c) : statusOf(x.c) === t)))).join('');
     let html = '', last = '', n = 0;
     CAT.list.forEach((x) => {
       if (!matches(x)) return;
@@ -333,7 +356,7 @@
       const ok = !!S[x.c], mode = x.m ? `<small>${MODES[x.m]}</small>` : '', warn = ok && S[x.c].conf !== 'ok' ? '<i class="tag">à valider</i>' : '';
       const sel = x.c === st.code;
       html += ok
-        ? `<button type="button" class="cc ok${sel ? ' sel' : ''}" data-c="${x.c}">${thumb(x.c)}<b>${x.c}${warn}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">${sel ? 'Sélectionné' : 'Choisir ce modèle'}</span></button>`
+        ? `<button type="button" class="cc ok${sel ? ' sel' : ''}" data-c="${x.c}">${thumb(x.c)}<b>${x.c}${warn}${favs.includes(x.c) ? '<span class="fstar" aria-label="favori">★</span>' : ''}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">${sel ? 'Sélectionné' : 'Choisir ce modèle'}</span></button>`
         : `<div class="cc off"><div class="ph">plan à ajouter</div><b>${x.c}</b>${mode}<span class="st">À ajouter</span></div>`;
     });
     const nf = (($('cq').value.trim() ? 1 : 0) + (cat.s !== 'all') + (cat.m !== 'all') + (cat.t !== 'all'));
@@ -360,6 +383,191 @@
     st.code = b.dataset.c; resetView(); refresh({ lib: true }); page('tool');
   });
 
+  /* ---------- Raccourcis : favoris et derniers modèles ---------- */
+  function syncFav() {
+    const on = favs.includes(st.code), b = $('fav');
+    b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? 'Retirer des favoris' : 'Ajouter aux favoris'); b.title = on ? 'Retirer des favoris' : 'Ajouter aux favoris';
+  }
+  function renderQuick() {
+    const chips = (list) => list.map((c) => `<button type="button" class="qc${c === st.code ? ' on' : ''}" data-c="${c}" title="${S[c].title}">${c}</button>`).join('');
+    const rec = recent.filter((c) => c !== st.code && !favs.includes(c));
+    let html = '';
+    if (favs.length) html += `<div class="qrow"><span class="ql">★ Favoris</span><div class="qchips">${chips(favs)}</div></div>`;
+    if (rec.length) html += `<div class="qrow"><span class="ql">Récents</span><div class="qchips">${chips(rec)}</div></div>`;
+    $('quick').innerHTML = html; $('quick').hidden = !html;
+  }
+  function selectCode(c) { st.code = c; resetView(); refresh({ lib: true }); }
+  $('quick').addEventListener('click', (e) => { const b = e.target.closest('.qc'); if (b) selectCode(b.dataset.c); });
+  $('fav').onclick = () => {
+    const i = favs.indexOf(st.code);
+    if (i >= 0) favs.splice(i, 1); else favs.unshift(st.code);
+    store.set('dieline-fav', favs); syncFav(); renderQuick();
+    toast(i >= 0 ? 'Retiré des favoris' : 'Ajouté aux favoris');
+  };
+
+  /* ---------- Historique des calculs ---------- */
+  function scheduleLog(now) { clearTimeout(logTimer); if (now) logCalc(); else logTimer = setTimeout(logCalc, 1500); }
+  function logCalc() {
+    if (!cur) return;
+    const e = Object.assign({ t: Date.now() }, curEntry()), p = hist[0];
+    if (p && ['c', 'L', 'W', 'H', 'j', 'o', 'jeu'].every((k) => p[k] === e[k])) return;
+    hist.unshift(e); hist = hist.slice(0, 40); store.set('dieline-hist', hist);
+    if (!$('viewHist').hidden) renderHist();
+  }
+  const ago = (t) => {
+    const s = (Date.now() - t) / 1000;
+    if (s < 60) return "à l'instant";
+    if (s < 3600) return `il y a ${Math.floor(s / 60)} min`;
+    if (s < 86400) return `il y a ${Math.floor(s / 3600)} h`;
+    return new Date(t).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  };
+  const IC_COPY = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
+  const IC_DEL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg>';
+  function renderHist() {
+    const el = $('histList');
+    $('histClear').hidden = !hist.length;
+    if (!hist.length) { el.innerHTML = '<p class="note empty">Aucun calcul pour l\'instant. Choisis un modèle et saisis des dimensions : chaque calcul s\'enregistre ici.</p>'; return; }
+    el.innerHTML = hist.map((h, i) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span><span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span></span><span class="htime">${ago(h.t)}</span></button><div class="hact"><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button><button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button></div></div>`).join('');
+  }
+  $('histList').addEventListener('click', (e) => {
+    const act = e.target.closest('[data-act]'), main = e.target.closest('.hmain');
+    if (act) {
+      const i = +act.dataset.i, h = hist[i]; if (!h) return;
+      if (act.dataset.act === 'copy') copyText(recapText(h), () => toast('Récapitulatif copié'));
+      else { hist.splice(i, 1); store.set('dieline-hist', hist); renderHist(); toast('Calcul supprimé'); }
+    } else if (main) {
+      const i = +main.dataset.i, h = hist[i]; if (!h) return;
+      hist.splice(i, 1); store.set('dieline-hist', hist);
+      st.code = h.c; ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, h[k]));
+      resetView(); refresh({ lib: true }); page('tool'); toast('Calcul rouvert');
+    }
+  });
+  let clearT = null;
+  $('histClear').onclick = () => {
+    const b = $('histClear');
+    if (!clearT) { b.textContent = 'Confirmer ?'; b.classList.add('active'); clearT = setTimeout(() => { clearT = null; b.textContent = 'Tout effacer'; b.classList.remove('active'); }, 3000); return; }
+    clearTimeout(clearT); clearT = null; b.textContent = 'Tout effacer'; b.classList.remove('active');
+    hist = []; store.set('dieline-hist', hist); renderHist(); toast('Historique effacé');
+  };
+
+  /* ---------- Messages, enregistrement de fichiers, lien ---------- */
+  let toastT = null;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2400); }
+  async function saveFile(data, filename) {
+    try { // dans Claude : le viewer demande confirmation avant d'enregistrer
+      if (window.claude && window.claude.use) { const d = await window.claude.use('downloads'); if (d) { await d.save({ filename, data }); return 'saved'; } }
+    } catch (e) { if (e && e.code === 'declined') return 'declined'; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(data); a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000); return 'saved';
+  }
+  if ($('lk')) $('lk').onclick = () => {
+    const q = new URLSearchParams({ c: st.code, L: st.L, W: st.W, H: st.H });
+    S[st.code].params.forEach((k) => q.set(k, st[k]));
+    copyText(location.href.split(/[?#]/)[0] + '?' + q, () => toast('Lien copié'));
+  };
+
+  /* ---------- Fiche PDF ---------- */
+  function logoData() {
+    try {
+      const img = document.querySelector('.logo img.lg-l'); if (!img || !img.naturalWidth) return null;
+      const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0);
+      return { url: c.toDataURL('image/png'), w: 46, h: 46 * img.naturalHeight / img.naturalWidth };
+    } catch (e) { return null; }
+  }
+  const pf = (n, d) => fmt(n, d).replace(/[\u202F\u00A0]/g, ' '); // le PDF n'affiche pas les espaces insécables
+  function buildPdf() {
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true }), r = cur, t = S[st.code];
+    const PW = 210, PH = 297, M = 14, surf = r.laize * r.coupe / 1e6;
+    const INK = [29, 43, 51], TEAL = [15, 74, 99], ORANGE = [201, 79, 34], BLUE = [31, 95, 214], RED = [214, 47, 47], MUTED = [90, 107, 116], LINE = [213, 222, 227];
+    let y = M;
+    const logo = logoData();
+    if (logo) doc.addImage(logo.url, 'PNG', M, y, logo.w, logo.h);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...MUTED);
+    doc.text('Fiche modèle FEFCO', PW - M, y + 4, { align: 'right' });
+    doc.text(new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }), PW - M, y + 8, { align: 'right' });
+    y += 19; doc.setDrawColor(...ORANGE); doc.setLineWidth(0.8); doc.line(M, y, PW - M, y);
+    y += 13; doc.setFont('helvetica', 'bold'); doc.setFontSize(30); doc.setTextColor(...TEAL); doc.text(st.code, M, y);
+    y += 7; doc.setFontSize(13); doc.setTextColor(...INK); doc.text(t.title, M, y);
+    y += 5.5; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED);
+    doc.text(`${t.serie}  |  Montage ${t.mode === 'M' ? 'manuel' : t.mode === 'A' ? 'automatique' : 'manuel ou automatique'}`, M, y);
+    if (t.conf !== 'ok') {
+      y += 4; doc.setFillColor(255, 244, 214); doc.setDrawColor(240, 210, 122); doc.setLineWidth(0.2); doc.rect(M, y, PW - 2 * M, 7.5, 'FD');
+      doc.setTextColor(90, 67, 0); doc.setFontSize(8.5); doc.text('Géométrie à valider avec le PDF FEFCO avant toute production.', M + 3, y + 5); y += 7.5;
+    }
+    y += 9; doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...INK);
+    let dimTxt = `Dimensions intérieures (L × W × H) : ${pf(st.L, 0)} × ${pf(st.W, 0)} × ${pf(st.H, 0)} mm`;
+    doc.text(dimTxt, M, y);
+    const extra = [t.params.includes('j') ? `joint ${pf(st.j, 0)} mm` : '', t.params.includes('o') ? `recouvrement ${pf(st.o, 0)} mm` : '', t.params.includes('jeu') ? `jeu ${pf(st.jeu, 0)} mm` : ''].filter(Boolean).join('  |  ');
+    if (extra) { y += 5; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED); doc.text(extra, M, y); }
+    y += 6;
+    const boxes = [['LAIZE (VERTICAL)', pf(r.laize) + ' mm'], ['COUPE (HORIZONTAL)', pf(r.coupe) + ' mm'], ['SURFACE', pf(surf, 3) + ' m²'], ['VOLUME UTILE', pf(st.L * st.W * st.H / 1e6, 1) + ' L']];
+    const bw = (PW - 2 * M - 3 * 4) / 4;
+    boxes.forEach((b, i) => {
+      const x = M + i * (bw + 4);
+      doc.setDrawColor(...(i === 2 ? ORANGE : LINE)); doc.setLineWidth(i === 2 ? 0.6 : 0.3); doc.roundedRect(x, y, bw, 17, 1.5, 1.5);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...MUTED); doc.text(b[0], x + 3, y + 5.5);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(...(i === 2 ? ORANGE : INK)); doc.text(b[1], x + 3, y + 13);
+    });
+    y += 17 + 9;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...TEAL); doc.text('PLAN À PLAT COTÉ', M, y); y += 3;
+
+    // plan : mise à l'échelle dans la zone restante
+    const fsm = Math.max(r.coupe, r.laize) / 52, hasH = !!r.bodyY, off = fsm * 2.6;
+    const mL = hasH ? fsm * 5 : fsm * 1.5, mR = fsm * 5, mT = fsm * 1.5, mB = fsm * 5;
+    const mW = r.coupe + mL + mR, mH = r.laize + mT + mB;
+    const aw = PW - 2 * M, ah = PH - M - 14 - y;
+    const sc = Math.min(aw / mW, ah / mH);
+    const ox = M + (aw - mW * sc) / 2 + mL * sc, oy = y + 4 + mT * sc;
+    const X = (v) => ox + v * sc, Y = (v) => oy + v * sc;
+    const fsMm = Math.max(2.1, Math.min(fsm * sc, 3.6)), fsPt = fsMm * 2.83465;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(fsPt);
+    const lab = (cx, cy, w, h, l) => {
+      if (!l) return;
+      const txt = l.txt || (l.v == null ? l.t : `${l.t} = ${pf(l.v)}`), rot = l.rot || h > w * 1.6, tw = doc.getTextWidth(txt);
+      if ((rot ? h : w) * sc < tw * 1.15 || (rot ? w : h) * sc < fsMm * 1.4) return;
+      doc.setTextColor(...INK);
+      if (rot) doc.text(txt, X(cx) + fsMm * 0.35, Y(cy) + tw / 2, { angle: 90 }); else doc.text(txt, X(cx), Y(cy) + fsMm * 0.35, { align: 'center' });
+    };
+    doc.setLineWidth(0.3); doc.setDrawColor(...INK);
+    r.rects.forEach((q) => {
+      const l = q.label || {}, flap = l.t && l.t !== 'L' && l.t !== 'W' && l.t !== 'H' && l.t !== 'L×W';
+      doc.setFillColor(...(flap ? [250, 240, 234] : [234, 242, 246])); doc.rect(X(q.x), Y(q.y), q.w * sc, q.h * sc, 'FD'); lab(q.x + q.w / 2, q.y + q.h / 2, q.w, q.h, q.label);
+    });
+    r.polys.forEach((p) => {
+      const pts = p.pts, seg = pts.slice(1).map((a, i) => [(a[0] - pts[i][0]) * sc, (a[1] - pts[i][1]) * sc]);
+      doc.setFillColor(250, 240, 234); doc.lines(seg, X(pts[0][0]), Y(pts[0][1]), [1, 1], 'FD', true);
+      const xs = pts.map((a) => a[0]), ys = pts.map((a) => a[1]);
+      lab((Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2, Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), p.label);
+    });
+    doc.setDrawColor(...RED); doc.setLineWidth(0.3); doc.setLineDashPattern([1.6, 1.2], 0);
+    r.creases.forEach((c) => doc.line(X(c[0]), Y(c[1]), X(c[2]), Y(c[3])));
+    doc.setLineDashPattern([], 0);
+    // cotes bleues
+    doc.setDrawColor(...BLUE); doc.setTextColor(...BLUE); doc.setLineWidth(0.3); doc.setFont('helvetica', 'bold');
+    const tk = fsMm * 0.5, vdim = (xm, a, b, txt, side) => {
+      doc.line(X(xm), Y(a), X(xm), Y(b)); doc.line(X(xm) - tk, Y(a), X(xm) + tk, Y(a)); doc.line(X(xm) - tk, Y(b), X(xm) + tk, Y(b));
+      const tw = doc.getTextWidth(txt); doc.text(txt, X(xm) + side * fsMm * 1.15, Y((a + b) / 2) + tw / 2, { angle: 90 });
+    };
+    vdim(r.coupe + off, 0, r.laize, `LAIZE ${pf(r.laize)}`, 1);
+    const by = r.laize + off;
+    doc.line(X(0), Y(by), X(r.coupe), Y(by)); doc.line(X(0), Y(by) - tk, X(0), Y(by) + tk); doc.line(X(r.coupe), Y(by) - tk, X(r.coupe), Y(by) + tk);
+    doc.text(`COUPE ${pf(r.coupe)}`, X(r.coupe / 2), Y(by) + fsMm * 1.5, { align: 'center' });
+    if (hasH) vdim(-off - fsm * 0.8, r.bodyY[0], r.bodyY[1], `H = ${pf(r.bodyY[1] - r.bodyY[0])}`, -1);
+
+    // pied de page
+    doc.setDrawColor(...LINE); doc.setLineWidth(0.3); doc.line(M, PH - M - 6, PW - M, PH - M - 6);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...MUTED);
+    doc.text('Plan reconstruit à partir des cotes et formules du code FEFCO (12e édition, 2022). Document indicatif : le PDF FEFCO reste la référence.', M, PH - M - 2);
+    doc.text('Snotrac Studio', PW - M, PH - M - 2, { align: 'right' });
+    return doc.output('blob');
+  }
+  $('pdf').onclick = async () => {
+    if (!window.jspdf) { toast('Export PDF indisponible : bibliothèque non chargée'); return; }
+    scheduleLog(true);
+    try { const r = await saveFile(buildPdf(), `FEFCO-${st.code}-${st.L}x${st.W}x${st.H}.pdf`); toast(r === 'declined' ? 'Export annulé' : 'Fiche PDF prête'); }
+    catch (e) { toast('Export PDF impossible'); }
+  };
+
   /* ---------- Démarrage ---------- */
   ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, st[k]));
   $('nCodes').textContent = codes.length;
@@ -367,5 +575,6 @@
   if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').getAttribute('aria-pressed') === 'true');
   setView(st.view);
   refresh();
-  if (location.hash === '#guide') page('guide'); else if (location.hash === '#library') page('lib'); else $('dock').style.setProperty('--i', 0);
+  ready = true;
+  if (location.hash === '#guide') page('guide'); else if (location.hash === '#library') page('lib'); else if (location.hash === '#history') page('hist'); else $('dock').style.setProperty('--i', 0);
 })();

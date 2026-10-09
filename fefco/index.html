@@ -31,6 +31,7 @@
       <span class="cm-txt"><small>Modèle sélectionné</small><b id="cmCode">0201</b><i class="tag" id="cmWarn" hidden>à valider</i><span id="cmTitle"></span></span>
       <span class="cm-chg">Changer<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
     </button>
+    <div id="quick" class="quick" hidden></div>
     <section class="dims" aria-label="Dimensions intérieures">
       <div class="dim" data-k="L"><label for="L">Longueur <b>L</b></label><div class="ctl"><input id="L" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
       <div class="dim" data-k="W"><label for="W">Largeur <b>W</b></label><div class="ctl"><input id="W" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
@@ -58,8 +59,11 @@
         </div>
         <div class="ident"><b id="idCode">0201</b><span id="idTitle"></span><i id="idWarn" class="tag" hidden>à valider</i></div>
         <div class="tools">
+          <button type="button" id="fav" class="ibtn" aria-pressed="false" aria-label="Ajouter aux favoris" title="Ajouter aux favoris"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8L12 3.5Z"/></svg></button>
+          <button type="button" id="pdf" class="ibtn" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></button>
+          <!--lk--><button type="button" id="lk" class="ibtn" aria-label="Copier le lien de cette fiche" title="Copier le lien de cette fiche"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></button><!--/lk-->
+          <button type="button" id="dl" class="ibtn" aria-label="Télécharger le plan en SVG" title="Télécharger le plan en SVG"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 11 12 15.5 16.5 11M5 20h14"/></svg></button>
           <button type="button" id="reset" class="ghost sm">Recentrer</button>
-          <!--dl--><button type="button" id="dl" class="ghost sm">SVG</button><!--/dl-->
         </div>
       </div>
       <div id="stage" class="stage">
@@ -127,6 +131,16 @@
   <div id="catGrid" class="catgrid"></div>
   <p class="note">Les séries 0600 (rigides), 0700 (prêtes à coller), 0800 (retail et e-commerce) et 0900 (aménagements intérieurs) sont à relever dans le PDF.</p>
 </div>
+<div class="histpage" id="viewHist" hidden>
+  <div class="libhead">
+    <div>
+      <h2>Historique</h2>
+      <p class="lead">Tes derniers calculs, enregistrés sur cet appareil. Touche une ligne pour la rouvrir.</p>
+    </div>
+    <button type="button" id="histClear" class="ghost sm">Tout effacer</button>
+  </div>
+  <div id="histList" class="histlist"></div>
+</div>
 <div class="guide" id="viewGuide" hidden>
   <aside class="toc" aria-label="Sommaire">
     <b>Sommaire</b>
@@ -138,6 +152,7 @@
     <button type="button" data-s="g6">Lire le plan</button>
     <button type="button" data-s="g7">La vue 3D</button>
     <button type="button" data-s="g8">Formules par code</button>
+    <button type="button" data-s="g10">Favoris, historique, fiche PDF</button>
     <button type="button" data-s="g9">Questions fréquentes</button>
     <button type="button" class="primary sm" data-page="tool">Ouvrir l'outil</button>
   </aside>
@@ -223,6 +238,16 @@
       <p class="hint">o = recouvrement des rabats du 0202. Joint = languette de collage. Ces valeurs se règlent dans l'outil quand le code les utilise.</p>
     </section>
 
+    <section id="g10"><h3>Favoris, historique, fiche PDF</h3>
+      <ul>
+        <li><b>Favoris :</b> l'étoile au-dessus du plan marque le modèle en cours. Les favoris et les derniers modèles utilisés s'affichent en raccourcis sous la carte du modèle.</li>
+        <li><b>Historique :</b> l'onglet du même nom garde tes derniers calculs (code, dimensions, laize, coupe, surface). Touche une ligne pour la rouvrir, copie son récapitulatif ou supprime-la.</li>
+        <li><b>Fiche PDF :</b> le bouton document exporte une fiche d'une page avec le logo, les dimensions, les résultats et le plan coté.</li>
+        <li><b>Lien :</b> sur la version hébergée, le bouton lien copie une adresse qui rouvre le même modèle avec les mêmes dimensions.</li>
+      </ul>
+      <p class="hint">Favoris, récents et historique sont enregistrés dans ce navigateur, sur cet appareil. Ils ne sont pas partagés avec les autres personnes.</p>
+    </section>
+
     <section id="g9"><h3>Questions fréquentes</h3>
       <details><summary>Pourquoi le joint est à 35 mm ?</summary><p>C'est une valeur par défaut, modifiable. Mets la valeur de ton atelier.</p></details>
       <details><summary>L'épaisseur du carton est-elle prise en compte ?</summary><p>Pas encore. Les formules suivent le plan FEFCO théorique. Si tes règles ajoutent des corrections d'épaisseur ou de pli, il faudra les ajouter pour chaque code.</p></details>
@@ -232,13 +257,16 @@
     </section>
   </article>
 </div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <nav class="dock" id="dock" aria-label="Navigation">
   <span class="lens" aria-hidden="true"></span>
   <button type="button" data-page="tool" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9L12 3Zm0 0v9m0 9v-9m8.5-4.5L12 12 3.5 7.5"/></svg><span>Outil</span></button>
   <button type="button" data-page="lib"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Bibliothèque</span></button>
+  <button type="button" data-page="hist"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>Historique</span></button>
   <button type="button" data-page="guide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 0 4 21.5v-16ZM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 1 1.5 1.5v-16Z"/></svg><span>Guide</span></button>
 </nav>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="styles.js"></script>
 <script src="catalog.js"></script>
 <script src="app3d.js"></script>
