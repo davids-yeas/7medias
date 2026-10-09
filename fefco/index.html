@@ -135,10 +135,11 @@
   <div class="libhead">
     <div>
       <h2>Historique</h2>
-      <p class="lead">Tes derniers calculs, enregistrés sur cet appareil. Touche une ligne pour la rouvrir.</p>
+      <p class="lead" id="histLead">Tes derniers calculs, enregistrés sur cet appareil. Touche une ligne pour la rouvrir.</p>
     </div>
     <button type="button" id="histClear" class="ghost sm">Tout effacer</button>
   </div>
+  <div id="histAuth" class="authbox" hidden></div>
   <div id="histList" class="histlist"></div>
 </div>
 <div class="guide" id="viewGuide" hidden>
@@ -243,6 +244,7 @@
         <li><b>Favoris :</b> l'étoile au-dessus du plan marque le modèle en cours. Les favoris et les derniers modèles utilisés s'affichent en raccourcis sous la carte du modèle.</li>
         <li><b>Historique :</b> l'onglet du même nom garde tes derniers calculs (code, dimensions, laize, coupe, surface). Touche une ligne pour la rouvrir, copie son récapitulatif ou supprime-la.</li>
         <li><b>Fiche PDF :</b> le bouton document exporte une fiche d'une page avec le logo, les dimensions, les résultats et le plan coté.</li>
+        <li><b>Historique partagé :</b> sur la version hébergée, un code d'accès de 6 caractères (chiffres et lettres) partage l'historique avec toute l'équipe. Chacun ne supprime que ses calculs.</li>
         <li><b>Lien :</b> sur la version hébergée, le bouton lien copie une adresse qui rouvre le même modèle avec les mêmes dimensions.</li>
       </ul>
       <p class="hint">Favoris, récents et historique sont enregistrés dans ce navigateur, sur cet appareil. Ils ne sont pas partagés avec les autres personnes.</p>
@@ -270,6 +272,7 @@
 <script src="styles.js"></script>
 <script src="catalog.js"></script>
 <script src="app3d.js"></script>
+<script src="config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

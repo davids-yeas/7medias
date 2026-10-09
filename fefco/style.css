@@ -423,3 +423,17 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
 /* Raccourcis (favoris, récents) : tout en haut, au-dessus de la recherche */
 .shell>.quick{grid-column:1/-1}
 @media(min-width:861px){.shell>.quick{flex-direction:row;flex-wrap:wrap;gap:8px 28px}.shell>.quick .qrow{flex:0 1 auto}}
+
+/* ---------- Historique partagé : connexion ---------- */
+.authbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.authbox label{display:block;font-weight:600;margin-bottom:8px}
+.ab-row{display:flex;gap:8px;flex-wrap:wrap}
+.ab-row input{flex:1 1 220px;min-width:0;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font:inherit}
+.authbox .hint{margin:8px 0 0}
+.ab-in{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.ab-in .dot{width:8px;height:8px;border-radius:50%;background:#3ecf8e;flex:none}
+.ab-in>span:first-child{display:flex;gap:8px;align-items:center;min-width:0;overflow-wrap:anywhere}
+.hby{color:var(--teal);font-weight:600}
+
+.ab-row input.code{flex:0 0 150px;font:600 1.1rem var(--mono);letter-spacing:.3em;text-transform:uppercase;text-align:center}
+@media(max-width:600px){.ab-row input.code{flex:1 1 100%}}

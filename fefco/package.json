@@ -1,0 +1,7 @@
+{
+  "name": "snotrac-studio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Snotrac Studio : plans FEFCO, laize, coupe, surface",
+  "engines": { "node": ">=18" }
+}

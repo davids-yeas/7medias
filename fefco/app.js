@@ -22,6 +22,11 @@
   let recent = store.get('dieline-recent', []).filter((c) => S[c]);
   let hist = store.get('dieline-hist', []).filter((h) => S[h.c]);
   let lastCode = null, ready = false, logTimer = null;
+  const CFG = window.SNOTRAC_CONFIG || {};
+  const cloud = { available: false, on: false, code: '', name: store.get('dieline-name', '') };
+  const DEV = store.get('dieline-dev', '') || (() => { const d = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); store.set('dieline-dev', d); return d; })();
+  let localHist = hist;                 // historique de cet appareil (hors partage)
+  const persist = () => { if (!cloud.on) store.set('dieline-hist', hist); };
   let cur = null;                       // dernier résultat de calcul
   const view = { z: 1, px: 0, py: 0 };  // zoom / déplacement du plan
 
@@ -240,7 +245,7 @@
     $('dock').style.setProperty('--i', Object.keys(VIEWS).indexOf(p));
     try { history.replaceState(null, '', HASH[p] || location.pathname + location.search); } catch (e) {}
     if (p === 'guide' && !$('miniPlan').firstChild) miniPlan();
-    if (p === 'hist') renderHist();
+    if (p === 'hist') { renderHist(); refreshCloud(); }
     if (p === 'lib') { renderCat(); renderSource(); if (!srcInit) { $('srcBox').open = !matchMedia('(max-width:860px)').matches; srcInit = true; } }
     window.scrollTo(0, 0);
     if (scrollTo) $(scrollTo).scrollIntoView();
@@ -409,9 +414,11 @@
   function scheduleLog(now) { clearTimeout(logTimer); if (now) logCalc(); else logTimer = setTimeout(logCalc, 1500); }
   function logCalc() {
     if (!cur) return;
-    const e = Object.assign({ t: Date.now() }, curEntry()), p = hist[0];
+    const e = Object.assign({ t: Date.now() }, curEntry());
+    const p = cloud.on ? hist.find((x) => x.dev === DEV) : hist[0];
     if (p && ['c', 'L', 'W', 'H', 'j', 'o', 'jeu'].every((k) => p[k] === e[k])) return;
-    hist.unshift(e); hist = hist.slice(0, 40); store.set('dieline-hist', hist);
+    if (cloud.on) { cloudInsert(e); return; }
+    hist.unshift(e); hist = hist.slice(0, 40); persist();
     if (!$('viewHist').hidden) renderHist();
   }
   const ago = (t) => {
@@ -424,11 +431,14 @@
   const IC_COPY = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
   const IC_PDF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>';
   const IC_DEL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg>';
+  const clearLabel = () => (cloud.on ? 'Effacer les miens' : 'Tout effacer');
   function renderHist() {
     const el = $('histList');
-    $('histClear').hidden = !hist.length;
+    $('histClear').hidden = !(cloud.on ? hist.some((h) => h.dev === DEV) : hist.length);
+    $('histClear').textContent = clearT ? 'Confirmer ?' : clearLabel();
+    $('histLead').textContent = cloud.on ? "Les calculs de toute l'équipe, en direct. Touche une ligne pour la rouvrir." : 'Tes derniers calculs, enregistrés sur cet appareil. Touche une ligne pour la rouvrir.';
     if (!hist.length) { el.innerHTML = '<p class="note empty">Aucun calcul pour l\'instant. Choisis un modèle et saisis des dimensions : chaque calcul s\'enregistre ici.</p>'; return; }
-    el.innerHTML = hist.map((h, i) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span><span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span></span><span class="htime">${ago(h.t)}</span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button><button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button></div></div>`).join('');
+    el.innerHTML = hist.map((h, i) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span><span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span></span><span class="htime">${ago(h.t)}${cloud.on && h.by ? ` · <span class="hby">${esc(h.by)}</span>` : ''}</span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button>${!cloud.on || h.dev === DEV ? `<button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button>` : ''}</div></div>`).join('');
   }
   $('histList').addEventListener('click', (e) => {
     const act = e.target.closest('[data-act]'), main = e.target.closest('.hmain');
@@ -436,10 +446,10 @@
       const i = +act.dataset.i, h = hist[i]; if (!h) return;
       if (act.dataset.act === 'pdf') exportPdf(h);
       else if (act.dataset.act === 'copy') copyText(recapText(h), () => toast('Récapitulatif copié'));
-      else { hist.splice(i, 1); store.set('dieline-hist', hist); renderHist(); toast('Calcul supprimé'); }
+      else deleteEntry(i);
     } else if (main) {
       const i = +main.dataset.i, h = hist[i]; if (!h) return;
-      hist.splice(i, 1); store.set('dieline-hist', hist);
+      if (!cloud.on) { hist.splice(i, 1); persist(); }
       st.code = h.c; ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, h[k]));
       resetView(); refresh({ lib: true }); page('tool'); toast('Calcul rouvert');
     }
@@ -447,10 +457,94 @@
   let clearT = null;
   $('histClear').onclick = () => {
     const b = $('histClear');
-    if (!clearT) { b.textContent = 'Confirmer ?'; b.classList.add('active'); clearT = setTimeout(() => { clearT = null; b.textContent = 'Tout effacer'; b.classList.remove('active'); }, 3000); return; }
-    clearTimeout(clearT); clearT = null; b.textContent = 'Tout effacer'; b.classList.remove('active');
-    hist = []; store.set('dieline-hist', hist); renderHist(); toast('Historique effacé');
+    if (!clearT) { b.textContent = 'Confirmer ?'; b.classList.add('active'); clearT = setTimeout(() => { clearT = null; b.textContent = clearLabel(); b.classList.remove('active'); }, 3000); return; }
+    clearTimeout(clearT); clearT = null; b.textContent = clearLabel(); b.classList.remove('active');
+    if (cloud.on) clearMine(); else { hist = []; persist(); renderHist(); toast('Historique effacé'); }
   };
+
+
+  /* ---------- Historique partagé par code d'accès (API Vercel) ---------- */
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  async function api(body) {
+    try {
+      const r = await fetch('/api/history', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      let data = {}; try { data = await r.json(); } catch (e) {}
+      return { ok: r.ok, status: r.status, data };
+    } catch (e) { return { ok: false, status: 0, data: {} }; }
+  }
+  function addCloud(h) {
+    if (!S[h.c] || hist.some((x) => x.id === h.id)) return;
+    hist.unshift(h); hist.sort((a, b) => b.t - a.t); hist = hist.slice(0, 100);
+    if (!$('viewHist').hidden) renderHist();
+  }
+  async function cloudInsert(e) {
+    const r = await api({ action: 'add', code: cloud.code, dev: DEV, by: cloud.name, entry: { c: e.c, L: e.L, W: e.W, H: e.H, j: e.j, o: e.o, jeu: e.jeu, la: e.la, co: e.co } });
+    if (r.status === 401) { lock('Code modifié : saisis le nouveau code'); return; }
+    if (!r.ok) { toast('Synchronisation impossible'); return; }
+    addCloud(r.data.item);
+  }
+  async function deleteEntry(i) {
+    const h = hist[i]; if (!h) return;
+    if (cloud.on) {
+      const r = await api({ action: 'delete', code: cloud.code, dev: DEV, id: h.id });
+      if (!r.ok) { toast('Suppression impossible'); return; }
+      hist = hist.filter((x) => x.id !== h.id);
+    } else { hist.splice(i, 1); persist(); }
+    renderHist(); toast('Calcul supprimé');
+  }
+  async function clearMine() {
+    const r = await api({ action: 'clear', code: cloud.code, dev: DEV });
+    if (!r.ok) { toast('Suppression impossible'); return; }
+    hist = hist.filter((x) => x.dev !== DEV); renderHist(); toast('Tes calculs sont effacés');
+  }
+  async function refreshCloud() {
+    if (!cloud.on) return;
+    const r = await api({ action: 'list', code: cloud.code });
+    if (r.status === 401) { lock('Code modifié : saisis le nouveau code'); return; }
+    if (r.ok) { hist = r.data.items.filter((h) => S[h.c]); if (!$('viewHist').hidden) renderHist(); }
+  }
+  function unlock(code, items) {
+    if (!cloud.on) localHist = hist;
+    cloud.on = true; cloud.code = code; hist = items.filter((h) => S[h.c]);
+    store.set('dieline-code', code); renderAuth(); renderHist();
+  }
+  function lock(msg) {
+    if (!cloud.on) return;
+    cloud.on = false; cloud.code = ''; store.set('dieline-code', ''); hist = localHist;
+    renderAuth(); renderHist(); if (msg) toast(msg);
+  }
+  function renderAuth() {
+    const box = $('histAuth');
+    if (!cloud.available) { box.hidden = true; return; }
+    box.hidden = false;
+    if (cloud.on) box.innerHTML = `<div class="ab-in"><span><span class="dot"></span>Historique partagé avec l'équipe${cloud.name ? ` · ${esc(cloud.name)}` : ''}</span><button type="button" id="authOut" class="ghost sm">Verrouiller</button></div>`;
+    else box.innerHTML = `<form id="authForm" autocomplete="off"><label for="authCode">Historique partagé : saisis le code d'accès</label><div class="ab-row"><input id="authCode" class="code" type="text" inputmode="text" maxlength="6" minlength="6" pattern="[A-Za-z0-9]{6}" required autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="6 caractères" aria-label="Code d'accès à 6 caractères"><input id="authName" type="text" maxlength="24" placeholder="Ton prénom (facultatif)" value="${esc(cloud.name)}" aria-label="Ton prénom"><button class="primary sm" type="submit">Déverrouiller</button></div><p class="hint">6 caractères : chiffres et lettres. Demande le code à ton responsable. Sans code, l'historique reste sur cet appareil.</p></form>`;
+  }
+  $('histAuth').addEventListener('input', (e) => { if (e.target.id === 'authCode') e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); });
+  $('histAuth').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = $('authCode').value.trim().toUpperCase(), name = $('authName').value.trim().slice(0, 24);
+    if (!/^[A-Z0-9]{6}$/.test(code)) { toast('Le code fait 6 caractères'); return; }
+    const r = await api({ action: 'list', code });
+    if (r.status === 401) { toast('Code incorrect'); $('authCode').select(); return; }
+    if (r.status === 429) { toast('Trop d\'essais, réessaie dans quelques minutes'); return; }
+    if (!r.ok) { toast('Historique partagé indisponible'); return; }
+    cloud.name = name; store.set('dieline-name', name);
+    unlock(code, r.data.items); toast('Historique partagé activé');
+  });
+  $('histAuth').addEventListener('click', (e) => { if (e.target.closest('#authOut')) lock('Historique partagé verrouillé'); });
+  async function initCloud() {
+    renderAuth();
+    if (!CFG.sharedHistory) return;
+    const s = await api({ action: 'status' });
+    cloud.available = !!(s.ok && s.data.configured);
+    if (!cloud.available) { renderAuth(); return; }
+    const saved = store.get('dieline-code', '');
+    if (saved) { const r = await api({ action: 'list', code: saved }); if (r.ok) unlock(saved, r.data.items); else store.set('dieline-code', ''); }
+    renderAuth();
+    setInterval(() => { if (cloud.on && !document.hidden && !$('viewHist').hidden) refreshCloud(); }, 8000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('viewHist').hidden) refreshCloud(); });
+  }
 
   /* ---------- Messages, enregistrement de fichiers, lien ---------- */
   let toastT = null;
@@ -581,5 +675,6 @@
   setView(st.view);
   refresh();
   ready = true;
+  initCloud();
   if (location.hash === '#guide') page('guide'); else if (location.hash === '#library') page('lib'); else if (location.hash === '#history') page('hist'); else $('dock').style.setProperty('--i', 0);
 })();
