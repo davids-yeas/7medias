@@ -1,7 +1,7 @@
 (function () {
   const S = window.FEFCO_STYLES, $ = (id) => document.getElementById(id);
   const codes = Object.keys(S);
-  const DEF = { code: '0201', L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, view: 'plan' };
+  const DEF = { code: '0201', L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, client: '', view: 'plan' };
   const st = Object.assign({}, DEF);
   try { Object.assign(st, JSON.parse(localStorage.getItem('dieline') || '{}')); } catch (e) {}
   try { // lien de partage : ?c=0201&L=400&W=300&H=250
@@ -146,6 +146,7 @@
 
   /* ---------- Saisie ---------- */
   const sync = (k, v) => { st[k] = v; if ($(k)) $(k).value = v; };
+  $('client').addEventListener('input', (e) => { st.client = e.target.value.slice(0, 60); refresh(); });
   ['L', 'W', 'H'].forEach((k) => {
     $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); });
   });
@@ -198,9 +199,9 @@
   /* ---------- Récapitulatif, thème, export ---------- */
   function recapText(e) {
     const su = e.la * e.co / 1e6;
-    return `FEFCO ${e.c} – ${S[e.c].title}\nDimensions int. : ${fmt(e.L, 0)} × ${fmt(e.W, 0)} × ${fmt(e.H, 0)} mm\nLaize : ${fmt(e.la)} mm\nCoupe : ${fmt(e.co)} mm\nSurface : ${fmt(su, 3)} m²\nVolume utile : ${fmt(e.L * e.W * e.H / 1e6, 1)} L`;
+    return `FEFCO ${e.c} – ${S[e.c].title}${e.cl ? `\nClient : ${e.cl}` : ''}\nDimensions int. : ${fmt(e.L, 0)} × ${fmt(e.W, 0)} × ${fmt(e.H, 0)} mm\nLaize : ${fmt(e.la)} mm\nCoupe : ${fmt(e.co)} mm\nSurface : ${fmt(su, 3)} m²\nVolume utile : ${fmt(e.L * e.W * e.H / 1e6, 1)} L`;
   }
-  const curEntry = () => ({ c: st.code, L: st.L, W: st.W, H: st.H, j: st.j, o: st.o, jeu: st.jeu, la: cur.laize, co: cur.coupe });
+  const curEntry = () => ({ c: st.code, L: st.L, W: st.W, H: st.H, j: st.j, o: st.o, jeu: st.jeu, la: cur.laize, co: cur.coupe, cl: (st.client || '').trim() });
   function copyText(txt, done) {
     const fallback = () => { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove(); };
     if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
@@ -419,7 +420,7 @@
     if (!cur) return;
     const e = Object.assign({ t: Date.now() }, curEntry());
     const p = cloud.on ? hist.find((x) => x.dev === DEV) : hist[0];
-    if (p && ['c', 'L', 'W', 'H', 'j', 'o', 'jeu'].every((k) => p[k] === e[k])) return;
+    if (p && ['c', 'L', 'W', 'H', 'j', 'o', 'jeu'].every((k) => p[k] === e[k]) && (p.cl || '') === (e.cl || '')) return;
     if (cloud.on) { cloudInsert(e); return; }
     hist.unshift(e); hist = hist.slice(0, 40); persist();
     if (!$('viewHist').hidden) renderHist();
@@ -441,8 +442,13 @@
     $('histClear').textContent = clearT ? 'Confirmer ?' : clearLabel();
     $('histLead').textContent = cloud.on ? "Les calculs de toute l'équipe, en direct. Touche une ligne pour la rouvrir." : 'Tes derniers calculs, enregistrés sur cet appareil. Touche une ligne pour la rouvrir.';
     if (!hist.length) { el.innerHTML = '<p class="note empty">Aucun calcul pour l\'instant. Choisis un modèle et saisis des dimensions : chaque calcul s\'enregistre ici.</p>'; return; }
-    el.innerHTML = hist.map((h, i) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span><span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span></span><span class="htime">${ago(h.t)}${cloud.on && h.by ? ` · <span class="hby">${esc(h.by)}</span>` : ''}</span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button>${!cloud.on || h.dev === DEV ? `<button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button>` : ''}</div></div>`).join('');
+    const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const q = norm($('hq').value.trim()).split(/\s+/).filter(Boolean);
+    const shown = hist.map((h, i) => [h, i]).filter(([h]) => { const hay = norm(`${h.cl} ${h.c} ${S[h.c].title} ${h.by}`); return q.every((w) => hay.includes(w)); });
+    if (!shown.length) { el.innerHTML = '<p class="note empty">Aucun calcul ne correspond à cette recherche.</p>'; return; }
+    el.innerHTML = shown.map(([h, i]) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span>${h.cl ? `<span class="hcl">${esc(h.cl)}</span>` : ''}<span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span></span><span class="htime">${ago(h.t)}${cloud.on && h.by ? ` · <span class="hby">${esc(h.by)}</span>` : ''}</span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button>${!cloud.on || h.dev === DEV ? `<button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button>` : ''}</div></div>`).join('');
   }
+  $('hq').addEventListener('input', renderHist);
   $('histList').addEventListener('click', (e) => {
     const act = e.target.closest('[data-act]'), main = e.target.closest('.hmain');
     if (act) {
@@ -453,7 +459,7 @@
     } else if (main) {
       const i = +main.dataset.i, h = hist[i]; if (!h) return;
       if (!cloud.on) { hist.splice(i, 1); persist(); }
-      st.code = h.c; ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, h[k]));
+      st.code = h.c; ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, h[k])); sync('client', h.cl || '');
       resetView(); refresh({ lib: true }); page('tool'); toast('Calcul rouvert');
     }
   });
@@ -481,7 +487,7 @@
     if (!$('viewHist').hidden) renderHist();
   }
   async function cloudInsert(e) {
-    const r = await api({ action: 'add', code: cloud.code, dev: DEV, by: cloud.name, entry: { c: e.c, L: e.L, W: e.W, H: e.H, j: e.j, o: e.o, jeu: e.jeu, la: e.la, co: e.co } });
+    const r = await api({ action: 'add', code: cloud.code, dev: DEV, by: cloud.name, entry: { c: e.c, L: e.L, W: e.W, H: e.H, j: e.j, o: e.o, jeu: e.jeu, la: e.la, co: e.co, cl: e.cl || '' } });
     if (r.status === 401) { lock('Code modifié : saisis le nouveau code'); return; }
     if (!r.ok) { toast('Synchronisation impossible'); return; }
     addCloud(r.data.item);
@@ -596,6 +602,7 @@
       doc.setTextColor(90, 67, 0); doc.setFontSize(8.5); doc.text('Géométrie à valider avec le PDF FEFCO avant toute production.', M + 3, y + 5); y += 7.5;
     }
     y += 9; doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...INK);
+    if (E.cl) { doc.text('Client : ' + E.cl.replace(/[^\u0020-\u00FF]/g, '?'), M, y); y += 6.5; }
     let dimTxt = `Dimensions intérieures (L × W × H) : ${pf(E.L, 0)} × ${pf(E.W, 0)} × ${pf(E.H, 0)} mm`;
     doc.text(dimTxt, M, y);
     const extra = [t.params.includes('j') ? `joint ${pf(E.j, 0)} mm` : '', t.params.includes('o') ? `recouvrement ${pf(E.o, 0)} mm` : '', t.params.includes('jeu') ? `jeu ${pf(E.jeu, 0)} mm` : ''].filter(Boolean).join('  |  ');
@@ -665,13 +672,14 @@
   async function exportPdf(e) {
     if (!window.jspdf) { toast('Export PDF indisponible : bibliothèque non chargée'); return; }
     const E = e || curEntry();
-    try { const r = await saveFile(buildPdf(e), `FEFCO-${E.c}-${E.L}x${E.W}x${E.H}.pdf`); toast(r === 'declined' ? 'Export annulé' : 'Fiche PDF prête'); }
+    try { const r = await saveFile(buildPdf(e), `FEFCO-${E.c}-${E.L}x${E.W}x${E.H}${E.cl ? '-' + E.cl.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) : ''}.pdf`); toast(r === 'declined' ? 'Export annulé' : 'Fiche PDF prête'); }
     catch (err) { toast('Export PDF impossible'); }
   }
   $('pdf').onclick = () => { scheduleLog(true); exportPdf(); };
 
   /* ---------- Démarrage ---------- */
   ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, st[k]));
+  sync('client', st.client || '');
   $('nCodes').textContent = codes.length;
   buildLib('');
   if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').getAttribute('aria-pressed') === 'true');

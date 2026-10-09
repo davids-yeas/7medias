@@ -30,7 +30,7 @@ redemanderont le nouveau code.
 - Sans `ACCESS_CODE` ni base, l'historique reste local à chaque appareil (aucune erreur).
 - Le code est vérifié côté serveur. Après 15 essais faux en 10 minutes depuis une même adresse IP, l'accès est bloqué temporairement.
 - Chacun voit tous les calculs de l'équipe, mais ne supprime que les siens (identifiés par appareil).
-- Sont enregistrés : modèle, dimensions, laize, coupe, prénom facultatif. Pas de nom de client : ne le saisis pas.
+- Sont enregistrés : modèle, dimensions, laize, coupe, prénom facultatif et nom du client si le champ « Client » est rempli. Ne mets pas d'information sensible dans ce champ.
 - Le code est un mot de passe partagé : adapté à un usage interne, pas à des données sensibles.
 - Favoris et derniers modèles restent propres à chaque appareil.
 

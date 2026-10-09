@@ -51,7 +51,7 @@ module.exports = async function handler(req, res) {
       for (const k of ['L', 'W', 'H', 'j', 'o', 'jeu', 'la', 'co']) { v[k] = num(e[k]); if (v[k] === null) return res.status(400).json({ error: 'Valeur invalide : ' + k }); }
       if (!/^\d{4}(\.\d{1,2})?$/.test(String(e.c))) return res.status(400).json({ error: 'Code invalide' });
       if (!dev) return res.status(400).json({ error: 'Appareil manquant' });
-      const item = Object.assign({ id: crypto.randomUUID(), t: Date.now(), c: String(e.c) }, v, { by: txt(body.by, 24), dev });
+      const item = Object.assign({ id: crypto.randomUUID(), t: Date.now(), c: String(e.c) }, v, { cl: txt(e.cl, 60), by: txt(body.by, 24), dev });
       await redis(['LPUSH', KEY, JSON.stringify(item)]);
       await redis(['LTRIM', KEY, 0, MAX_KEPT - 1]);
       return res.status(200).json({ item });

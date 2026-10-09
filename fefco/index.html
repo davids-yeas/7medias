@@ -33,6 +33,7 @@
       <span class="cm-chg">Changer<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
     </button>
     <section class="dims" aria-label="Dimensions intérieures">
+      <label class="clientf" for="client"><span>Client <i>facultatif</i></span><input id="client" type="text" maxlength="60" placeholder="Nom du client ou référence" autocomplete="off" autocapitalize="words"></label>
       <div class="dim" data-k="L"><label for="L">Longueur <b>L</b></label><div class="ctl"><input id="L" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
       <div class="dim" data-k="W"><label for="W">Largeur <b>W</b></label><div class="ctl"><input id="W" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
       <div class="dim" data-k="H"><label for="H">Hauteur <b>H</b></label><div class="ctl"><input id="H" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
@@ -140,6 +141,7 @@
     <button type="button" id="histClear" class="ghost sm">Tout effacer</button>
   </div>
   <div id="histAuth" class="authbox" hidden></div>
+  <input id="hq" type="search" class="hsearch" placeholder="Rechercher un client, un code…" autocomplete="off" aria-label="Rechercher dans l'historique">
   <div id="histList" class="histlist"></div>
 </div>
 <div class="guide" id="viewGuide" hidden>
@@ -274,6 +276,7 @@
     <section id="g11"><h3>Historique et partage</h3>
       <ul>
         <li><b>Enregistrement automatique :</b> un calcul est gardé 1,5 seconde après ta dernière saisie, ou tout de suite quand tu copies ou exportes. Les 40 derniers sont conservés.</li>
+        <li><b>Nom du client :</b> le champ « Client », en haut des dimensions, est facultatif. Il est enregistré avec chaque calcul, affiché dans l'historique, repris dans la fiche PDF et le récapitulatif, et la recherche de l'historique le retrouve.</li>
         <li><b>Chaque ligne :</b> touche-la pour rouvrir le calcul dans le Studio. Les trois icônes exportent la fiche PDF, copient le récapitulatif ou suppriment la ligne. « Tout effacer » demande une confirmation.</li>
         <li><b>Historique partagé :</b> sur la version hébergée, saisis le <b>code d'accès de 6 caractères</b> (chiffres et lettres) et, si tu veux, ton prénom. Toute l'équipe voit alors les mêmes calculs, mis à jour en moins de 8 secondes. Chacun ne supprime que les siens. « Verrouiller » repasse en historique local.</li>
         <li><b>Sans code :</b> l'historique, comme les favoris et les récents, reste sur l'appareil que tu utilises.</li>
@@ -312,7 +315,7 @@
         <li>Relier une base Redis (Upstash, offre gratuite) au projet.</li>
         <li>Définir le code d'accès dans la variable <code>ACCESS_CODE</code> (6 caractères), puis redéployer.</li>
       </ul>
-      <p class="hint">Pour changer le code, modifie la variable et redéploie : les appareils connectés redemandent le nouveau. Après 15 essais faux en 10 minutes depuis une même adresse, l'accès est bloqué un moment. L'historique ne contient ni nom de client ni donnée sensible : seulement le modèle, les dimensions et les résultats.</p>
+      <p class="hint">Pour changer le code, modifie la variable et redéploie : les appareils connectés redemandent le nouveau. Après 15 essais faux en 10 minutes depuis une même adresse, l'accès est bloqué un moment. L'historique partagé contient le modèle, les dimensions, les résultats, le prénom et le nom du client si tu l'as saisi : ne mets pas d'information sensible dans ce champ.</p>
     </section>
 
     <section id="g15"><h3>Questions fréquentes</h3>
