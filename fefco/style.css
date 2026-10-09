@@ -247,3 +247,8 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
 @media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .logo img.lg-l{display:block}:root:not([data-theme="dark"]) .logo img.lg-d{display:none}}
 :root[data-theme="light"] .logo img.lg-l{display:block}:root[data-theme="light"] .logo img.lg-d{display:none}
 @media(max-width:860px){.logo img{height:34px}.logo{padding:0}}
+
+/* En-tête transparent : le logo est posé directement sur le fond de la page */
+.top{position:static;background:transparent;border-bottom:0;padding:14px 16px 10px}
+.top::after{display:none}
+.lib{top:16px}
