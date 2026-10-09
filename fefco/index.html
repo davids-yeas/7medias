@@ -70,13 +70,19 @@
           <button type="button" id="pdf" class="ibtn" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></button>
           <!--lk--><button type="button" id="lk" class="ibtn" aria-label="Copier le lien de cette fiche" title="Copier le lien de cette fiche"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></button><!--/lk-->
           <button type="button" id="dl" class="ibtn" aria-label="Télécharger le plan en SVG" title="Télécharger le plan en SVG"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 11 12 15.5 16.5 11M5 20h14"/></svg></button>
-          <button type="button" id="reset" class="ghost sm">Recentrer</button>
         </div>
       </div>
       <div id="stage" class="stage">
         <div class="pane" id="panePlan">
+          <div class="ptools" role="toolbar" aria-label="Zoom et déplacement du plan">
+            <button type="button" id="zout" class="ibtn" aria-label="Zoom arrière" title="Zoom arrière"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8 11h6"/></svg></button>
+            <span id="zpct" class="zpct" aria-live="polite">100 %</span>
+            <button type="button" id="zin" class="ibtn" aria-label="Zoom avant" title="Zoom avant"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8 11h6M11 8v6"/></svg></button>
+            <button type="button" id="hand" class="ibtn" aria-pressed="true" aria-label="Main : déplacer le plan" title="Main : déplacer le plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg></button>
+            <button type="button" id="reset" class="ibtn" aria-label="Recentrer le plan" title="Recentrer le plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg></button>
+          </div>
           <svg id="svg" role="img" aria-label="Plan à plat coté"></svg>
-          <div id="readout" class="readout">Survole un panneau pour voir sa cote. Molette : zoom. Glisser : déplacer.</div>
+          <div id="readout" class="readout">Survole un panneau pour voir sa cote. Zoom : molette, pincement ou boutons + et −. Main : glisser pour déplacer.</div>
         </div>
         <div class="pane" id="pane3d" hidden>
           <div id="v3d" class="v3d" aria-label="Vue 3D. Glisser pour tourner."></div>
@@ -262,7 +268,9 @@
       </div>
       <ul>
         <li><b>Survol :</b> passer sur un panneau affiche son nom et ses dimensions. Passer sur la carte « Laize » ou « Coupe » met la cote correspondante en évidence.</li>
-        <li><b>Zoom :</b> molette (ordinateur). Glisser déplace le plan, un double-clic ou « Recentrer » le remet en place.</li>
+        <li><b>Zoom :</b> les boutons loupe + et − au-dessus du plan (le pourcentage s'affiche entre les deux), la molette sur ordinateur, ou le pincement à deux doigts sur téléphone.</li>
+        <li><b>Main :</b> le bouton main active le déplacement du plan : glisse avec la souris ou le doigt. Sur téléphone, elle est éteinte au départ pour que ton doigt fasse défiler la page ; allume-la pour déplacer le plan.</li>
+        <li><b>Recentrer :</b> le bouton flèche circulaire ou un double-clic remet le plan à sa place.</li>
         <li><b>Résultats :</b> le cadre du plan épouse la forme du carton. Les quatre cartes (Laize, Coupe, Surface, Volume utile) sont au-dessus du plan : un toucher sur l'une d'elles copie le récapitulatif.</li>
       </ul>
     </section>

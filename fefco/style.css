@@ -504,3 +504,13 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
 .work.nodims>.nodims-card{display:flex}
 .work.nodims>.metrics,.work.nodims>.stagebox{display:none}
 .work.nomodel>.nodims-card{display:none!important}
+
+/* ---------- Zoom et main sur le plan ---------- */
+.ptools{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:8px 10px 0}
+.ptools .ibtn{width:34px;height:34px}
+.ptools .ibtn:disabled{opacity:.35;pointer-events:none}
+.ptools .ibtn[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:var(--onorange)}
+.zpct{min-width:3.4rem;text-align:center;font:500 .75rem var(--mono);color:var(--muted)}
+#svg{touch-action:pan-y;cursor:default}
+#svg.hand{touch-action:none;cursor:grab}
+#svg.drag{cursor:grabbing}

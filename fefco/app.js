@@ -143,18 +143,38 @@
     const w = b.w / view.z, h = b.h / view.z;
     const x = b.x + (b.w - w) / 2 - view.px * b.w, y = b.y + (b.h - h) / 2 - view.py * b.h;
     $('svg').setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+    const zp = $('zpct'); if (zp) { zp.textContent = Math.round(view.z * 100) + ' %'; $('zin').disabled = view.z >= 12; $('zout').disabled = view.z <= 0.5; }
   }
-  const svg = $('svg');
-  svg.addEventListener('wheel', (e) => { e.preventDefault(); view.z = Math.max(0.5, Math.min(12, view.z * (e.deltaY < 0 ? 1.15 : 1 / 1.15))); applyView(); }, { passive: false });
-  let drag = null;
-  svg.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; svg.setPointerCapture(e.pointerId); svg.classList.add('drag'); });
-  svg.addEventListener('pointermove', (e) => {
-    if (drag) {
-      const r = svg.getBoundingClientRect(), b = view.base, sc = Math.max(b.w / view.z / r.width, b.h / view.z / r.height);
-      view.px += (e.clientX - drag.x) * sc / b.w; view.py += (e.clientY - drag.y) * sc / b.h; drag = { x: e.clientX, y: e.clientY }; applyView();
-    }
+  const svg = $('svg'), ZMIN = 0.5, ZMAX = 12;
+  const setZoom = (z) => { view.z = Math.max(ZMIN, Math.min(ZMAX, z)); applyView(); };
+  svg.addEventListener('wheel', (e) => { e.preventDefault(); setZoom(view.z * (e.deltaY < 0 ? 1.15 : 1 / 1.15)); }, { passive: false });
+  $('zin').onclick = () => setZoom(view.z * 1.35);
+  $('zout').onclick = () => setZoom(view.z / 1.35);
+  // Main : active le déplacement (souris ou doigt). Sur écran tactile elle est éteinte au départ pour laisser la page défiler.
+  let handOn = matchMedia('(hover:hover)').matches;
+  const syncHand = () => { $('hand').setAttribute('aria-pressed', handOn); svg.classList.toggle('hand', handOn); };
+  $('hand').onclick = () => { handOn = !handOn; syncHand(); toast(handOn ? 'Main active : glisse et pince le plan' : 'Main éteinte : la page défile'); };
+  syncHand();
+  const ptrs = new Map(); let pinch0 = null;
+  svg.addEventListener('pointerdown', (e) => {
+    if (!handOn) return;
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+    svg.classList.add('drag');
+    if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; pinch0 = { d: Math.hypot(p.x - q.x, p.y - q.y) || 1, z: view.z }; }
   });
-  svg.addEventListener('pointerup', () => { drag = null; svg.classList.remove('drag'); });
+  svg.addEventListener('pointermove', (e) => {
+    const p = ptrs.get(e.pointerId); if (!p) return;
+    if (ptrs.size === 2 && pinch0) {
+      ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const [a1, b1] = [...ptrs.values()]; setZoom(pinch0.z * Math.hypot(a1.x - b1.x, a1.y - b1.y) / pinch0.d); return;
+    }
+    const r = svg.getBoundingClientRect(), b = view.base, sc = Math.max(b.w / view.z / r.width, b.h / view.z / r.height);
+    view.px += (e.clientX - p.x) * sc / b.w; view.py += (e.clientY - p.y) * sc / b.h;
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); applyView();
+  });
+  const endPtr = (e) => { ptrs.delete(e.pointerId); pinch0 = null; if (!ptrs.size) svg.classList.remove('drag'); };
+  svg.addEventListener('pointerup', endPtr); svg.addEventListener('pointercancel', endPtr);
   svg.addEventListener('dblclick', resetView);
   function resetView() { view.z = 1; view.px = 0; view.py = 0; applyView(); }
   $('reset').onclick = resetView;
