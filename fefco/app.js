@@ -170,13 +170,14 @@
   $('auto').onchange = (e) => window.FEFCO_3D && window.FEFCO_3D.setAuto(e.target.checked);
 
   /* ---------- Récapitulatif, thème, export ---------- */
-  $('copy').onclick = () => {
+  function copyRecap(card) {
     const s = cur.laize * cur.coupe / 1e6;
-    const txt = `FEFCO ${st.code} – ${S[st.code].title}\nDimensions int. : ${fmt(st.L, 0)} × ${fmt(st.W, 0)} × ${fmt(st.H, 0)} mm\nLaize : ${fmt(cur.laize)} mm\nCoupe : ${fmt(cur.coupe)} mm\nSurface : ${fmt(s, 3)} m²`;
-    const done = () => { $('copy').textContent = 'Copié ✓'; setTimeout(() => ($('copy').textContent = 'Copier le récapitulatif'), 1600); };
-    const fallback = () => { const a = document.createElement('textarea'); a.value = txt; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); done(); } catch (e) {} a.remove(); };
+    const txt = `FEFCO ${st.code} – ${S[st.code].title}\nDimensions int. : ${fmt(st.L, 0)} × ${fmt(st.W, 0)} × ${fmt(st.H, 0)} mm\nLaize : ${fmt(cur.laize)} mm\nCoupe : ${fmt(cur.coupe)} mm\nSurface : ${fmt(s, 3)} m²\nVolume utile : ${fmt(st.L * st.W * st.H / 1e6, 1)} L`;
+    const done = () => { card.classList.add('copied'); setTimeout(() => card.classList.remove('copied'), 1600); };
+    const fallback = () => { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove(); };
     if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
-  };
+  }
+  document.querySelectorAll('.metrics .m').forEach((c) => c.addEventListener('click', () => copyRecap(c)));
   $('theme').onclick = () => {
     const root = document.documentElement, dark = getComputedStyle(root).colorScheme.includes('dark');
     root.dataset.theme = dark ? 'light' : 'dark';

@@ -284,3 +284,10 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
 .stage.both #panePlan{display:flex;flex-direction:column;justify-content:center}
 .stage.both #pane3d{height:auto;min-height:340px}
 @media(max-width:1100px){.stage.both #pane3d{height:380px}}
+
+/* Cartes de résultat cliquables : copient le récapitulatif */
+button.m{position:relative;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:border-color .15s,transform .15s}
+button.m:hover{border-color:var(--teal)}
+button.m.hot:hover{border-color:var(--orange)}
+button.m:active{transform:scale(.98)}
+button.m.copied::after{content:"Copié ✓";position:absolute;top:8px;right:8px;background:var(--orange);color:var(--onorange);font:600 .7rem var(--display);letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 10px}
