@@ -80,12 +80,14 @@
             <button type="button" id="zin" class="ibtn" aria-label="Zoom avant" title="Zoom avant"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8 11h6M11 8v6"/></svg></button>
             <button type="button" id="hand" class="ibtn" aria-pressed="true" aria-label="Main : déplacer le plan" title="Main : déplacer le plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg></button>
             <button type="button" id="reset" class="ibtn" aria-label="Recentrer le plan" title="Recentrer le plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg></button>
+            <button type="button" id="fsPlan" class="ibtn fsbtn" aria-pressed="false" aria-label="Plein écran" title="Plein écran"><svg class="i-exp" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="i-shr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button>
           </div>
           <svg id="svg" role="img" aria-label="Plan à plat coté"></svg>
           <div id="readout" class="readout">Survole un panneau pour voir sa cote. Zoom : molette, pincement ou boutons + et −. Main : glisser pour déplacer.</div>
         </div>
         <div class="pane" id="pane3d" hidden>
           <div id="v3d" class="v3d" aria-label="Vue 3D. Glisser pour tourner."></div>
+          <button type="button" id="fs3d" class="ibtn fsbtn fs3d" aria-pressed="false" aria-label="Plein écran" title="Plein écran"><svg class="i-exp" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="i-shr" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button>
           <div class="fold3d">
             <button type="button" id="play" class="tgl playbtn" data-playing="true" aria-label="Pause" title="Pause"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></button>
             <button type="button" id="auto" class="tgl" aria-pressed="true" aria-label="Rotation automatique" title="Rotation automatique"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.5h-4.5"/></svg></button>
@@ -270,6 +272,7 @@
         <li><b>Survol :</b> passer sur un panneau affiche son nom et ses dimensions. Passer sur la carte « Laize » ou « Coupe » met la cote correspondante en évidence.</li>
         <li><b>Zoom :</b> les boutons loupe + et − au-dessus du plan (le pourcentage s'affiche entre les deux), la molette sur ordinateur, ou le pincement à deux doigts sur téléphone.</li>
         <li><b>Main :</b> le bouton main active le déplacement du plan : glisse avec la souris ou le doigt. Sur téléphone, elle est éteinte au départ pour que ton doigt fasse défiler la page ; allume-la pour déplacer le plan.</li>
+        <li><b>Plein écran :</b> l'icône aux quatre coins agrandit le plan (dans sa barre de zoom) ou la vue 3D (en haut à droite) sur tout l'écran. Les boutons de zoom, de main et de lecture restent disponibles. Touche l'icône de nouveau, ou la touche Échap, pour revenir.</li>
         <li><b>Recentrer :</b> le bouton flèche circulaire ou un double-clic remet le plan à sa place.</li>
         <li><b>Résultats :</b> le cadre du plan épouse la forme du carton. Les quatre cartes (Laize, Coupe, Surface, Volume utile) sont au-dessus du plan : un toucher sur l'une d'elles copie le récapitulatif.</li>
       </ul>

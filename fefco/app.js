@@ -178,6 +178,19 @@
   svg.addEventListener('dblclick', resetView);
   function resetView() { view.z = 1; view.px = 0; view.py = 0; applyView(); }
   $('reset').onclick = resetView;
+  /* ---------- Plein écran (plan et 3D) ---------- */
+  function setFull(id, on) {
+    const pane = $(id), btn = $(id === 'panePlan' ? 'fsPlan' : 'fs3d');
+    pane.classList.toggle('full', on); document.documentElement.classList.toggle('nofs', on);
+    btn.setAttribute('aria-pressed', on); btn.setAttribute('aria-label', on ? 'Quitter le plein écran' : 'Plein écran'); btn.title = on ? 'Quitter le plein écran' : 'Plein écran';
+    if (typeof hideTip === 'function') hideTip();
+    if (id === 'pane3d' && window.FEFCO_3D) setTimeout(() => window.FEFCO_3D.show(), 60);
+    if (id === 'panePlan') applyView();
+  }
+  const toggleFull = (id) => setFull(id, !$(id).classList.contains('full'));
+  $('fsPlan').onclick = () => toggleFull('panePlan');
+  $('fs3d').onclick = () => toggleFull('pane3d');
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ['panePlan', 'pane3d'].forEach((id) => { if ($(id).classList.contains('full')) setFull(id, false); }); });
   const ro = $('readout'), roDef = ro.textContent;
   svg.addEventListener('mouseover', (e) => { const i = e.target.dataset && e.target.dataset.i; if (i) { ro.textContent = i; ro.classList.add('live'); } });
   svg.addEventListener('mouseout', (e) => { if (e.target.dataset && e.target.dataset.i) { ro.textContent = roDef; ro.classList.remove('live'); } });

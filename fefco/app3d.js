@@ -14,7 +14,7 @@
   const pivot = new THREE.Group(); scene.add(pivot);
   const mat = new THREE.MeshLambertMaterial({ color: 0xc9a36b, side: THREE.DoubleSide });
   const edgeMat = new THREE.LineBasicMaterial({ color: 0x4a3a22 });
-  const state = { rx: -0.45, ry: 0.55, dist: 1, fold: 1, sc: null, d: null, code: null };
+  const state = { rx: -0.45, ry: 0.55, dist: 1, zoomK: 1, fold: 1, sc: null, d: null, code: null };
   let hinge = {};   // groupes à animer
 
   function panel(parent, x0, y0, w, h, pts) {
@@ -50,7 +50,7 @@
       if (i === 0) hinge.root = g;
     });
     hinge.bodies = bodies; hinge.flaps = flaps; hinge.fam = 'slotted';
-    return { cx: d.L / 2, cy: H / 2, cz: -d.W / 2, size: Math.max(d.L, d.W, H) * 2 };
+    return { cx: d.L / 2, cy: H / 2, cz: -d.W / 2, fx: d.L + d.W - d.j / 2, fy: H / 2, fz: 0, bx: d.L, by: d.W, bz: H, openH: H + 2 * Math.max(st.flap('L', d), st.flap('W', d)), stage: 0.6, size: Math.max(d.L, d.W, H) * 2 };
   }
 
   function buildCross(st, d) {
@@ -64,7 +64,7 @@
     const gl = grp(pivot, 0, 0); panel(gl, -H, 0, H, W); gl.userData = { key: 'y', s: 1 };
     const gr = grp(pivot, L, 0); panel(gr, 0, 0, H, W); gr.userData = { key: 'y', s: -1 };
     hinge.walls.push(gl, gr); hinge.fam = 'cross';
-    return { cx: L / 2, cy: W / 2, cz: H / 2, size: Math.max(L, W, H) * 2 };
+    return { cx: L / 2, cy: W / 2, cz: H / 2, fx: L / 2, fy: W / 2, fz: 0, bx: L, by: W, bz: H, openH: H, stage: 1, size: Math.max(L, W, H) * 2 };
   }
 
   function pose() {
@@ -87,15 +87,30 @@
     hinge = {};
     const st = window.FEFCO_STYLES[code];
     const c = st.fam === 'cross' ? buildCross(st, d) : buildSlotted(st, d);
-    state.center = c; state.dist = c.size * 1.7;
-    pose(); frame();
+    const r = st.build(d);
+    c.rBox = Math.hypot(c.bx || d.L, c.by || d.W, c.bz || d.H) / 2;           // carton fermé
+    c.rFlat = Math.hypot(r.coupe, r.laize) / 2;                                // carton à plat
+    state.center = c; state.zoomK = 1;
+    pose(); fit(); frame();
+  }
+  // Distance de la caméra pour que le carton reste entier dans la vue (portrait ou paysage).
+  function fit() {
+    const c = state.center; if (!c) return;
+    const half = Math.min(THREE.MathUtils.degToRad(camera.fov) / 2, Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * Math.min(camera.aspect, 1.6)));
+    const need = (r) => (r * 1.22) / Math.sin(half);
+    c.dBox = need(c.rBox); c.dFlat = need(c.rFlat);
+    c.dOpen = need(Math.hypot(c.bx, c.by, c.openH) / 2);
   }
   function frame() {
     const c = state.center; if (!c) return;
-    // on tourne autour du centre de la boîte repliée
-    const cx = c.cx, cy = c.cy, cz = c.cz;
+    // on tourne autour du centre du carton, qui glisse du plan à plat vers le carton fermé
+    // phases : à plat -> corps replié (rabats ouverts) -> carton fermé
+    const f = state.fold, s = (x) => x * x * (3 - 2 * x), mix = (p, q, t) => p + (q - p) * t;
+    const body = s(Math.min(1, f / c.stage)), close = f > c.stage ? s((f - c.stage) / (1 - c.stage)) : 0;
+    const cx = mix(c.fx, c.cx, body), cy = mix(c.fy, c.cy, body), cz = mix(c.fz, c.cz, body);
+    const dist = mix(mix(c.dFlat, c.dOpen, body), c.dBox, close) * state.zoomK;
     pivot.position.set(0, 0, 0);
-    camera.position.set(0, 0, state.dist);
+    camera.position.set(0, 0, dist);
     pivot.rotation.set(state.rx, state.ry, 0, 'XYZ');
     const o = new THREE.Vector3(cx, cy, cz).applyEuler(pivot.rotation);
     pivot.position.set(-o.x, -o.y, -o.z);
@@ -103,7 +118,7 @@
   }
   function resize() {
     const w = box.clientWidth, h = box.clientHeight || 420; if (!w) return;
-    renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); frame();
+    renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); fit(); frame();
   }
   // Rotation à la souris / au doigt
   let drag = null;
@@ -114,7 +129,7 @@
     state.rx = Math.max(-1.5, Math.min(1.5, state.rx)); drag = [e.clientX, e.clientY]; frame();
   });
   box.addEventListener('pointerup', () => { drag = null; });
-  box.addEventListener('wheel', (e) => { e.preventDefault(); state.dist *= e.deltaY > 0 ? 1.08 : 0.92; frame(); }, { passive: false });
+  box.addEventListener('wheel', (e) => { e.preventDefault(); state.zoomK = Math.max(0.35, Math.min(3, state.zoomK * (e.deltaY > 0 ? 1.08 : 0.92))); frame(); }, { passive: false });
   const sl = $('fold');
   if (sl) sl.addEventListener('input', () => { state.fold = sl.value / 100; pose(); frame(); });
   window.addEventListener('resize', resize);

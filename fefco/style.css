@@ -514,3 +514,20 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
 #svg{touch-action:pan-y;cursor:default}
 #svg.hand{touch-action:none;cursor:grab}
 #svg.drag{cursor:grabbing}
+
+/* ---------- Plein écran (plan et vue 3D) ---------- */
+.fsbtn .i-shr{display:none}
+.fsbtn[aria-pressed="true"] .i-exp{display:none}
+.fsbtn[aria-pressed="true"] .i-shr{display:block}
+.fsbtn[aria-pressed="true"]{color:var(--orange);border-color:var(--orange)}
+.fs3d{position:absolute;top:10px;right:10px;z-index:3;background:color-mix(in srgb,var(--panel) 85%,transparent)}
+.pane.full{position:fixed;inset:0;z-index:50;height:auto!important;min-height:0!important;margin:0;border:0;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;padding-top:env(safe-area-inset-top,0px);display:flex;flex-direction:column}
+.pane.full .ptools{padding:10px 12px 6px}
+.pane.full #svg{flex:1;min-height:0;height:auto;max-height:none;aspect-ratio:auto!important}
+.pane.full .readout{display:none}
+.pane.full .fold3d{bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+.pane.full .fs3d{top:calc(12px + env(safe-area-inset-top,0px))}
+.stage.both .pane.full{border-left:0}
+html.nofs,html.nofs body{overflow:hidden}
+.toast{z-index:60}
+#tip{z-index:70}
