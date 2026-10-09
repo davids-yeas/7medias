@@ -122,6 +122,7 @@
   <div class="filters" aria-label="Filtres">
     <div class="frow">
       <input id="cq" type="search" placeholder="Rechercher : code, nom, série…" autocomplete="off" aria-label="Rechercher">
+      <button type="button" id="catFav" class="favtgl" aria-pressed="false" data-tip="Affiche seulement les modèles marqués d'une étoile."><span aria-hidden="true">★</span> Favoris <small>0</small></button>
       <span class="fcount" id="catCount" aria-live="polite"></span>
       <button type="button" id="catReset" class="ghost sm">Réinitialiser</button>
     </div>
@@ -142,7 +143,10 @@
   </div>
   <div id="histAuth" class="authbox" hidden></div>
   <label class="who" for="who"><span>Fait par</span><input id="who" type="text" maxlength="24" placeholder="Ton prénom" autocomplete="given-name" autocapitalize="words"></label>
-  <input id="hq" type="search" class="hsearch" placeholder="Rechercher un client, un code…" autocomplete="off" aria-label="Rechercher dans l'historique">
+  <div class="hfilters">
+    <input id="hq" type="search" class="hsearch" placeholder="Rechercher un client, un code…" autocomplete="off" aria-label="Rechercher dans l'historique">
+    <button type="button" id="histFav" class="favtgl" aria-pressed="false" title="Affiche seulement les calculs des modèles favoris"><span aria-hidden="true">★</span> Favoris <small>0</small></button>
+  </div>
   <div id="histList" class="histlist"></div>
 </div>
 <div class="guide" id="viewGuide" hidden>
@@ -268,7 +272,7 @@
       <p>L'onglet Bibliothèque liste les <b>168 codes</b> relevés dans le PDF FEFCO (12<sup>e</sup> édition, 2022), séries 0100 à 0500. Les séries 0600 à 0900 sont à relever. Seuls les codes qui ont un plan s'ouvrent dans le Studio : les autres sont marqués « À ajouter ».</p>
       <ul>
         <li><b>Source :</b> le bloc en haut donne l'édition, l'éditeur, le fichier utilisé, les conventions et un tableau par série (pages du PDF, codes relevés, plans disponibles). Il est replié par défaut sur téléphone.</li>
-        <li><b>Filtres :</b> Série, Montage (manuel, automatique, les deux) et Statut (Disponible, À valider, À ajouter, Favoris). Chaque bouton indique le nombre de résultats. « Réinitialiser » efface tous les filtres et indique combien sont actifs.</li>
+        <li><b>Filtres :</b> Série, Montage (manuel, automatique, les deux) et Statut (Disponible, À valider, À ajouter), plus le bouton « ★ Favoris » qui ne garde que les modèles marqués d'une étoile. Chaque bouton indique le nombre de résultats. « Réinitialiser » efface tous les filtres et indique combien sont actifs.</li>
         <li><b>Bulles d'information :</b> survole un bouton de filtre (ordinateur) ou touche un « i » ou un titre de série (téléphone) pour lire l'explication de la catégorie.</li>
         <li><b>Choisir :</b> un toucher sur une carte disponible la sélectionne et te ramène au Studio. Ton modèle en cours est entouré d'orange.</li>
       </ul>
@@ -278,6 +282,7 @@
       <ul>
         <li><b>Enregistrement automatique :</b> un calcul est gardé 1,5 seconde après ta dernière saisie, ou tout de suite quand tu copies ou exportes. Les 40 derniers sont conservés.</li>
         <li><b>Fait par :</b> ton prénom, à saisir en haut de l'historique, est enregistré avec chaque calcul. Chaque ligne affiche la date, l'heure, le client et « Fait par ».</li>
+        <li><b>Filtre favoris :</b> le bouton « ★ Favoris », à côté de la recherche, ne garde que les calculs faits avec un modèle favori. Une étoile repère ces modèles sur chaque ligne.</li>
         <li><b>Nom du client :</b> le champ « Client », en haut des dimensions, est facultatif. Il est enregistré avec chaque calcul, affiché dans l'historique, repris dans la fiche PDF et le récapitulatif, et la recherche de l'historique le retrouve.</li>
         <li><b>Chaque ligne :</b> touche-la pour rouvrir le calcul dans le Studio. Les trois icônes exportent la fiche PDF, copient le récapitulatif ou suppriment la ligne. « Tout effacer » demande une confirmation.</li>
         <li><b>Historique partagé :</b> sur la version hébergée, saisis le <b>code d'accès de 6 caractères</b> (chiffres et lettres) et, si tu veux, ton prénom. Toute l'équipe voit alors les mêmes calculs, mis à jour en moins de 8 secondes. Chacun ne supprime que les siens. « Verrouiller » repasse en historique local.</li>

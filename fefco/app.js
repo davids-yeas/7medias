@@ -262,10 +262,10 @@
   $('tryEx').onclick = () => { ['L', 'W', 'H'].forEach((k, i) => sync(k, [400, 300, 250][i])); st.code = '0201'; refresh({ lib: true }); page('tool'); };
 
   /* ---------- Page Bibliothèque ---------- */
-  const CAT = window.FEFCO_CATALOG, cat = { s: 'all', m: 'all', t: 'all' };
+  const CAT = window.FEFCO_CATALOG, cat = { s: 'all', m: 'all', t: 'all', f: false };
   const MODES = { M: 'Manuel', A: 'Automatique', 'M/A': 'Manuel ou auto' };
   const statusOf = (c) => (!S[c] ? 'ajouter' : S[c].conf === 'ok' ? 'dispo' : 'valider');
-  const STAT = { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter', fav: '★ Favoris' };
+  const STAT = { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter' };
   /* ---------- Bulles d'information ---------- */
   const TIPS = {
     s: {
@@ -287,7 +287,6 @@
       dispo: 'Plan disponible dans l\'outil. La géométrie suit les cotes du code FEFCO.',
       valider: 'Plan disponible, mais sa géométrie doit encore être confirmée avec le PDF FEFCO.',
       ajouter: 'Code relevé dans le PDF. Son plan n\'est pas encore dans l\'outil.',
-      fav: 'Les modèles que tu as marqués d\'une étoile.',
     },
   };
   const GROUP_TITLE = { s: 'Séries', m: 'Montage', t: 'Statut' };
@@ -303,7 +302,7 @@
   }
   function hideTip() { tipEl.hidden = true; tipFor = null; }
   function groupHtml(g) {
-    const names = g === 's' ? CAT.series : g === 'm' ? MODES : { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter', fav: 'Favoris' };
+    const names = g === 's' ? CAT.series : g === 'm' ? MODES : { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter' };
     return `<b>${GROUP_TITLE[g]}</b>` + Object.keys(TIPS[g]).filter((k) => k !== 'all').map((k) => `<p><u>${g === 's' ? k + ' · ' : ''}${names[k] || k}</u> ${TIPS[g][k]}</p>`).join('');
   }
   function serieHtml(s) {
@@ -344,9 +343,10 @@
       const hay = norm(x.c + ' ' + CAT.series[x.s] + ' ' + (S[x.c] ? S[x.c].title : '') + ' ' + (MODES[x.m] || ''));
       if (!q.split(/\s+/).every((w) => hay.includes(w))) return false;
     }
+    if (cat.f && !favs.includes(x.c)) return false;
     if (skip !== 's' && cat.s !== 'all' && x.s !== cat.s) return false;
     if (skip !== 'm' && cat.m !== 'all' && x.m !== cat.m) return false;
-    if (skip !== 't' && cat.t !== 'all' && (cat.t === 'fav' ? !favs.includes(x.c) : statusOf(x.c) !== cat.t)) return false;
+    if (skip !== 't' && cat.t !== 'all' && statusOf(x.c) !== cat.t) return false;
     return true;
   }
   function renderCat() {
@@ -356,7 +356,7 @@
     const cnt = (skip, f) => CAT.list.filter((x) => matches(x, skip) && f(x)).length;
     $('fSerie').innerHTML = chip('s', 'all', 'Toutes', cnt('s', () => true)) + Object.keys(CAT.series).map((s) => chip('s', s, s, cnt('s', (x) => x.s === s))).join('');
     $('fMode').innerHTML = chip('m', 'all', 'Tous', cnt('m', () => true)) + Object.keys(MODES).map((m) => chip('m', m, MODES[m], cnt('m', (x) => x.m === m))).join('');
-    $('fStatus').innerHTML = chip('t', 'all', 'Tous', cnt('t', () => true)) + Object.keys(STAT).map((t) => chip('t', t, STAT[t], cnt('t', (x) => (t === 'fav' ? favs.includes(x.c) : statusOf(x.c) === t)))).join('');
+    $('fStatus').innerHTML = chip('t', 'all', 'Tous', cnt('t', () => true)) + Object.keys(STAT).map((t) => chip('t', t, STAT[t], cnt('t', (x) => statusOf(x.c) === t))).join('');
     let html = '', last = '', n = 0;
     CAT.list.forEach((x) => {
       if (!matches(x)) return;
@@ -368,10 +368,11 @@
         ? `<button type="button" class="cc ok${sel ? ' sel' : ''}" data-c="${x.c}">${thumb(x.c)}<b>${x.c}${warn}${favs.includes(x.c) ? '<span class="fstar" aria-label="favori">★</span>' : ''}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">${sel ? 'Sélectionné' : 'Choisir ce modèle'}</span></button>`
         : `<div class="cc off"><div class="ph">plan à ajouter</div><b>${x.c}</b>${mode}<span class="st">À ajouter</span></div>`;
     });
-    const nf = (($('cq').value.trim() ? 1 : 0) + (cat.s !== 'all') + (cat.m !== 'all') + (cat.t !== 'all'));
+    $('catFav').setAttribute('aria-pressed', cat.f); $('catFav').querySelector('small').textContent = favs.length;
+    const nf = (($('cq').value.trim() ? 1 : 0) + (cat.s !== 'all') + (cat.m !== 'all') + (cat.t !== 'all') + (cat.f ? 1 : 0));
     $('catReset').textContent = nf ? `Réinitialiser (${nf})` : 'Réinitialiser'; $('catReset').classList.toggle('active', !!nf);
     $('catCount').textContent = `${n} code${n > 1 ? 's' : ''} affiché${n > 1 ? 's' : ''}`;
-    $('catGrid').innerHTML = html || '<p class="note">Aucun code ne correspond à ces filtres. Retire un filtre ou clique sur « Réinitialiser ».</p>';
+    $('catGrid').innerHTML = html || (cat.f && !favs.length ? '<p class="note">Aucun favori pour l\'instant. Marque un modèle avec l\'étoile dans le Studio.</p>' : '<p class="note">Aucun code ne correspond à ces filtres. Retire un filtre ou clique sur « Réinitialiser ».</p>');
   }
   /* Tableau récapitulatif de la source (pages du PDF, codes relevés, plans de l'outil) */
   const PDF = [['0100', 'Rouleaux et feuilles commerciaux', '9'], ['0200', 'Caisses à rabats', '15'], ['0300', 'Boîtes télescopiques', '30'], ['0400', 'Boîtes à rabat et plateaux', '41'], ['0500', 'Boîtes coulissantes', '74'], ['0600', 'Boîtes rigides', '80'], ['0700', 'Caisses prêtes à coller', '86'], ['0800', 'Retail et e-commerce', '103'], ['0900', 'Aménagements intérieurs', '123']];
@@ -382,7 +383,8 @@
     }).join('');
   }
   $('cq').addEventListener('input', renderCat);
-  $('catReset').onclick = () => { $('cq').value = ''; cat.s = cat.m = cat.t = 'all'; renderCat(); };
+  $('catReset').onclick = () => { $('cq').value = ''; cat.s = cat.m = cat.t = 'all'; cat.f = false; renderCat(); };
+  $('catFav').onclick = () => { cat.f = !cat.f; renderCat(); };
   ['fSerie', 'fMode', 'fStatus'].forEach((id) => $(id).addEventListener('click', (e) => {
     const b = e.target.closest('.chip'); if (!b) return;
     cat[b.dataset.g] = cat[b.dataset.g] === b.dataset.v ? 'all' : b.dataset.v; renderCat();
@@ -438,10 +440,13 @@
     if (!hist.length) { el.innerHTML = '<p class="note empty">Aucun calcul pour l\'instant. Choisis un modèle et saisis des dimensions : chaque calcul s\'enregistre ici.</p>'; return; }
     const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const q = norm($('hq').value.trim()).split(/\s+/).filter(Boolean);
-    const shown = hist.map((h, i) => [h, i]).filter(([h]) => { const hay = norm(`${h.cl} ${h.c} ${S[h.c].title} ${h.by}`); return q.every((w) => hay.includes(w)); });
-    if (!shown.length) { el.innerHTML = '<p class="note empty">Aucun calcul ne correspond à cette recherche.</p>'; return; }
-    el.innerHTML = shown.map(([h, i]) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span>${h.cl ? `<span class="hcl">${esc(h.cl)}</span>` : ''}<span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span><span class="hm"><time datetime="${new Date(h.t).toISOString()}">${stamp(h.t)}</time>${h.by ? `<span>Fait par <b>${esc(h.by)}</b></span>` : ''}</span></span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button>${!cloud.on || h.dev === DEV ? `<button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button>` : ''}</div></div>`).join('');
+    const hfav = $('histFav'); hfav.setAttribute('aria-pressed', histFavOnly); hfav.querySelector('small').textContent = hist.filter((h) => favs.includes(h.c)).length;
+    const shown = hist.map((h, i) => [h, i]).filter(([h]) => { if (histFavOnly && !favs.includes(h.c)) return false; const hay = norm(`${h.cl} ${h.c} ${S[h.c].title} ${h.by}`); return q.every((w) => hay.includes(w)); });
+    if (!shown.length) { el.innerHTML = `<p class="note empty">${histFavOnly && !q.length ? 'Aucun calcul pour tes modèles favoris. Marque un modèle avec l\'étoile dans le Studio.' : 'Aucun calcul ne correspond à cette recherche.'}</p>`; return; }
+    el.innerHTML = shown.map(([h, i]) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b>${favs.includes(h.c) ? '<span class="fstar" aria-label="modèle favori">★</span>' : ''}<em>${S[h.c].title}</em></span>${h.cl ? `<span class="hcl">${esc(h.cl)}</span>` : ''}<span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span><span class="hm"><time datetime="${new Date(h.t).toISOString()}">${stamp(h.t)}</time>${h.by ? `<span>Fait par <b>${esc(h.by)}</b></span>` : ''}</span></span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button>${!cloud.on || h.dev === DEV ? `<button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button>` : ''}</div></div>`).join('');
   }
+  let histFavOnly = false;
+  $('histFav').onclick = () => { histFavOnly = !histFavOnly; renderHist(); };
   $('hq').addEventListener('input', renderHist);
   $('who').value = cloud.name;
   $('who').addEventListener('input', () => { cloud.name = $('who').value.trim().slice(0, 24); store.set('dieline-name', cloud.name); if (cloud.on) renderAuth(); });
