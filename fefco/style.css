@@ -297,3 +297,24 @@ button.m.copied::after{content:"Copié ✓";position:absolute;top:8px;right:8px;
 .count b{font:600 .72rem var(--mono);color:var(--orange)}
 .count span{font:500 .6rem var(--mono);letter-spacing:.08em;color:var(--muted);text-transform:lowercase}
 @media(max-width:860px){.count{padding:0}.count::after{font:500 .6rem var(--mono);letter-spacing:.08em;text-transform:lowercase}}
+
+/* ---------- Mobile : filtres compacts ---------- */
+.source>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.source>summary::-webkit-details-marker{display:none}
+.source>summary::after{content:"+";font:600 1.2rem var(--mono);color:var(--orange);line-height:1}
+.source[open]>summary::after{content:"−"}
+.source[open]>summary{margin-bottom:14px}
+#catReset.active{border-color:var(--orange);color:var(--orange)}
+@media(max-width:860px){
+  .filters{padding:10px;gap:8px}
+  .frow{gap:8px}
+  .frow input[type=search]{flex:1 1 100%;max-width:none}
+  .fcount{flex:1;margin:0;width:auto}
+  .fgroup{flex-direction:column;align-items:stretch;gap:4px}
+  .flabel{flex:none}
+  .fgroup .chips{flex:none;flex-wrap:nowrap;overflow-x:auto;margin:0 -10px;padding:0 10px 2px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+  .chip{flex:none;white-space:nowrap;padding:7px 12px;font-size:.74rem;scroll-snap-align:start}
+  .catgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .cc{padding:8px}
+}
+.source:not([open]){gap:0;padding-block:12px}

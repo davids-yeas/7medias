@@ -206,6 +206,7 @@
     s += T(-60, (r.bodyY[0] + r.bodyY[1]) / 2, 'H', 'dt');
     $('miniPlan').innerHTML = `<svg viewBox="${x0} ${y0} ${w} ${h}" role="img">${s}</svg>`;
   }
+  let srcInit = false;
   const VIEWS = { tool: 'viewTool', lib: 'viewLib', guide: 'viewGuide' }, HASH = { tool: '', lib: '#library', guide: '#guide' };
   function page(p, scrollTo) {
     Object.keys(VIEWS).forEach((k) => { $(VIEWS[k]).hidden = k !== p; });
@@ -213,7 +214,7 @@
     $('dock').style.setProperty('--i', Object.keys(VIEWS).indexOf(p));
     try { history.replaceState(null, '', HASH[p] || location.pathname + location.search); } catch (e) {}
     if (p === 'guide' && !$('miniPlan').firstChild) miniPlan();
-    if (p === 'lib') { renderCat(); renderSource(); }
+    if (p === 'lib') { renderCat(); renderSource(); if (!srcInit) { $('srcBox').open = !matchMedia('(max-width:860px)').matches; srcInit = true; } }
     window.scrollTo(0, 0);
     if (scrollTo) $(scrollTo).scrollIntoView();
     if (p === 'tool' && st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.show();
@@ -258,6 +259,8 @@
         ? `<button type="button" class="cc ok" data-c="${x.c}">${thumb(x.c)}<b>${x.c}${warn}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">Ouvrir dans l'outil</span></button>`
         : `<div class="cc off"><div class="ph">plan à ajouter</div><b>${x.c}</b>${mode}<span class="st">À ajouter</span></div>`;
     });
+    const nf = (($('cq').value.trim() ? 1 : 0) + (cat.s !== 'all') + (cat.m !== 'all') + (cat.t !== 'all'));
+    $('catReset').textContent = nf ? `Réinitialiser (${nf})` : 'Réinitialiser'; $('catReset').classList.toggle('active', !!nf);
     $('catCount').textContent = `${n} code${n > 1 ? 's' : ''} affiché${n > 1 ? 's' : ''}`;
     $('catGrid').innerHTML = html || '<p class="note">Aucun code ne correspond à ces filtres. Retire un filtre ou clique sur « Réinitialiser ».</p>';
   }
