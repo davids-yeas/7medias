@@ -26,6 +26,11 @@
     <div id="libList" class="lib-list"></div>
   </aside>
   <main class="work">
+    <button type="button" id="curModel" class="curmodel" aria-label="Modèle sélectionné. Changer de modèle.">
+      <span class="cm-thumb" id="cmThumb"></span>
+      <span class="cm-txt"><small>Modèle sélectionné</small><b id="cmCode">0201</b><i class="tag" id="cmWarn" hidden>à valider</i><span id="cmTitle"></span></span>
+      <span class="cm-chg">Changer<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
+    </button>
     <section class="dims" aria-label="Dimensions intérieures">
       <div class="dim" data-k="L"><label for="L">Longueur <b>L</b></label><div class="ctl"><input id="L" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
       <div class="dim" data-k="W"><label for="W">Largeur <b>W</b></label><div class="ctl"><input id="W" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>

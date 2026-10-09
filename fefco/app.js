@@ -41,6 +41,7 @@
     $('coupe').textContent = fmt(cur.coupe);
     $('surf').textContent = fmt(surf, 3);
     $('vol').textContent = fmt(st.L * st.W * st.H / 1e6, 1);
+    $('cmThumb').innerHTML = thumb(st.code); $('cmCode').textContent = st.code; $('cmTitle').textContent = S[st.code].title; $('cmWarn').hidden = S[st.code].conf === 'ok';
     $('idCode').textContent = st.code;
     $('idTitle').textContent = S[st.code].title;
     $('idWarn').hidden = S[st.code].conf === 'ok';
@@ -208,7 +209,7 @@
   }
   let srcInit = false;
   const VIEWS = { tool: 'viewTool', lib: 'viewLib', guide: 'viewGuide' }, HASH = { tool: '', lib: '#library', guide: '#guide' };
-  function page(p, scrollTo) {
+  function page(p, scrollTo, focusSel) {
     Object.keys(VIEWS).forEach((k) => { $(VIEWS[k]).hidden = k !== p; });
     document.querySelectorAll('.dock button').forEach((b) => b.classList.toggle('on', b.dataset.page === p));
     $('dock').style.setProperty('--i', Object.keys(VIEWS).indexOf(p));
@@ -217,9 +218,11 @@
     if (p === 'lib') { renderCat(); renderSource(); if (!srcInit) { $('srcBox').open = !matchMedia('(max-width:860px)').matches; srcInit = true; } }
     window.scrollTo(0, 0);
     if (scrollTo) $(scrollTo).scrollIntoView();
+    if (p === 'lib' && focusSel) { const el = document.querySelector('.cc.sel'); if (el) el.scrollIntoView({ block: 'center' }); }
     if (p === 'tool' && st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.show();
   }
   document.querySelectorAll('[data-page]').forEach((b) => b.addEventListener('click', () => page(b.dataset.page)));
+  $('curModel').addEventListener('click', () => page('lib', null, true));
   document.querySelectorAll('.toc [data-s]').forEach((b) => b.addEventListener('click', () => $(b.dataset.s).scrollIntoView({ behavior: 'smooth' })));
   $('tryEx').onclick = () => { ['L', 'W', 'H'].forEach((k, i) => sync(k, [400, 300, 250][i])); st.code = '0201'; refresh({ lib: true }); page('tool'); };
 
@@ -255,8 +258,9 @@
       if (x.s !== last) { html += `<div class="cat-s">${x.s} · ${CAT.series[x.s]}</div>`; last = x.s; }
       n++;
       const ok = !!S[x.c], mode = x.m ? `<small>${MODES[x.m]}</small>` : '', warn = ok && S[x.c].conf !== 'ok' ? '<i class="tag">à valider</i>' : '';
+      const sel = x.c === st.code;
       html += ok
-        ? `<button type="button" class="cc ok" data-c="${x.c}">${thumb(x.c)}<b>${x.c}${warn}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">Ouvrir dans l'outil</span></button>`
+        ? `<button type="button" class="cc ok${sel ? ' sel' : ''}" data-c="${x.c}">${thumb(x.c)}<b>${x.c}${warn}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">${sel ? 'Sélectionné' : 'Choisir ce modèle'}</span></button>`
         : `<div class="cc off"><div class="ph">plan à ajouter</div><b>${x.c}</b>${mode}<span class="st">À ajouter</span></div>`;
     });
     const nf = (($('cq').value.trim() ? 1 : 0) + (cat.s !== 'all') + (cat.m !== 'all') + (cat.t !== 'all'));
