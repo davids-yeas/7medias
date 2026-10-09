@@ -279,6 +279,8 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
 #panePlan{height:auto}
 #svg{width:100%;height:auto;max-height:var(--stageH)}
 #panePlan .readout{position:static;margin:0 12px 12px}
-.stage.both #panePlan{height:var(--stageH)}
-.stage.both #svg{aspect-ratio:auto!important;height:100%;max-height:none}
-.stage.both #panePlan .readout{position:absolute;left:12px;right:12px;bottom:10px;margin:0}
+
+/* « Les deux » : le plan épouse aussi la taille du carton, la 3D prend la même hauteur */
+.stage.both #panePlan{display:flex;flex-direction:column;justify-content:center}
+.stage.both #pane3d{height:auto;min-height:340px}
+@media(max-width:1100px){.stage.both #pane3d{height:380px}}
