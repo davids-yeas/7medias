@@ -1,6 +1,6 @@
 /* Snotrac Studio – charte Snotrac (bleu pétrole + orange brique), interface sombre type CAO. */
 :root{--bg:#0a1217;--panel:#101c23;--panel2:#15252e;--line:#233844;--ink:#e8f1f5;--muted:#8ea3ad;--teal:#5db8de;--orange:#ff7a3d;--onorange:#1a0a02;--face:rgba(93,184,222,.07);--flap:rgba(255,122,61,.07);--hover:rgba(255,122,61,.28);--cut:#e8f1f5;--crease:#ff5d5d;--dim:#6aa5ff;--grid:rgba(120,170,195,.07);--display:'Saira',system-ui,sans-serif;--body:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--stageH:clamp(340px,62vh,640px);color-scheme:dark}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#eef3f6;--panel:#fff;--panel2:#f3f7f9;--line:#d3dde3;--ink:#12232c;--muted:#5a6b74;--teal:#0f4a63;--orange:#c94f22;--onorange:#fff;--face:rgba(15,74,99,.06);--flap:rgba(201,79,34,.07);--hover:rgba(201,79,34,.22);--cut:#111;--crease:#d62f2f;--dim:#1f5fd6;--grid:rgba(15,74,99,.07);color-scheme:light}}
+
 :root[data-theme="light"]{--bg:#eef3f6;--panel:#fff;--panel2:#f3f7f9;--line:#d3dde3;--ink:#12232c;--muted:#5a6b74;--teal:#0f4a63;--orange:#c94f22;--onorange:#fff;--face:rgba(15,74,99,.06);--flap:rgba(201,79,34,.07);--hover:rgba(201,79,34,.22);--cut:#111;--crease:#d62f2f;--dim:#1f5fd6;--grid:rgba(15,74,99,.07);color-scheme:light}
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -159,7 +159,7 @@ body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
   -webkit-backdrop-filter:blur(22px) saturate(190%) brightness(1.05);backdrop-filter:blur(22px) saturate(190%) brightness(1.05);
   border:1px solid var(--g-edge);
   box-shadow:inset 0 1px 0 var(--g-hi),inset 0 -1px 0 rgba(255,255,255,.08),inset 0 0 18px rgba(255,255,255,.07),0 12px 34px var(--g-shadow),0 2px 6px rgba(0,0,0,.25)}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .dock{--g-bg:rgba(255,255,255,.42);--g-edge:rgba(255,255,255,.75);--g-hi:rgba(255,255,255,.95);--g-lens:rgba(15,74,99,.10);--g-ink:#12232c;--g-shadow:rgba(15,40,55,.28)}}
+
 :root[data-theme="light"] .dock{--g-bg:rgba(255,255,255,.42);--g-edge:rgba(255,255,255,.75);--g-hi:rgba(255,255,255,.95);--g-lens:rgba(15,74,99,.10);--g-ink:#12232c;--g-shadow:rgba(15,40,55,.28)}
 .dock .lens{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/3);border-radius:26px;pointer-events:none;
   transform:translateX(calc(var(--i,0)*100%));transition:transform .55s cubic-bezier(.34,1.45,.5,1);
@@ -220,7 +220,7 @@ body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
   --g-bg:rgba(18,32,40,.72);--g-edge:rgba(255,255,255,.42);--g-hi:rgba(255,255,255,.7);--g-lens:rgba(255,122,61,.38);--g-ink:#f3f8fb;--g-shadow:rgba(0,0,0,.6);
   background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.05));background-color:var(--g-bg);
   box-shadow:inset 0 1px 0 var(--g-hi),inset 0 -1px 0 rgba(255,255,255,.12),0 0 0 1px rgba(0,0,0,.25),0 16px 40px var(--g-shadow),0 4px 10px rgba(0,0,0,.35)}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .dock{--g-bg:rgba(255,255,255,.78);--g-edge:rgba(255,255,255,.95);--g-hi:#fff;--g-lens:rgba(201,79,34,.20);--g-ink:#12232c;--g-shadow:rgba(15,40,55,.38)}}
+
 :root[data-theme="light"] .dock{--g-bg:rgba(255,255,255,.78);--g-edge:rgba(255,255,255,.95);--g-hi:#fff;--g-lens:rgba(201,79,34,.20);--g-ink:#12232c;--g-shadow:rgba(15,40,55,.38)}
 .dock .lens{top:7px;bottom:7px;left:7px;width:calc((100% - 14px)/3);border:1px solid color-mix(in srgb,var(--orange) 70%,transparent)}
 .dock button{padding:11px 4px 10px;opacity:.9}
@@ -243,7 +243,7 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
 .logo{background:none;box-shadow:none;border-radius:0;padding:0}
 .logo img{height:44px;width:auto}
 .logo img.lg-l{display:none}.logo img.lg-d{display:block}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .logo img.lg-l{display:block}:root:not([data-theme="dark"]) .logo img.lg-d{display:none}}
+
 :root[data-theme="light"] .logo img.lg-l{display:block}:root[data-theme="light"] .logo img.lg-d{display:none}
 @media(max-width:860px){.logo img{height:34px}.logo{padding:0}}
 
@@ -256,7 +256,7 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
 .ghost.icon{width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%}
 .ghost.icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ghost.icon .ic-moon{display:none}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .ghost.icon .ic-sun{display:none}:root:not([data-theme="dark"]) .ghost.icon .ic-moon{display:block}}
+
 :root[data-theme="light"] .ghost.icon .ic-sun{display:none}:root[data-theme="light"] .ghost.icon .ic-moon{display:block}
 
 /* ---------- Source de la bibliothèque ---------- */

@@ -210,9 +210,12 @@
     copyText(recapText(curEntry()), () => { card.classList.add('copied'); setTimeout(() => card.classList.remove('copied'), 1600); });
   }
   document.querySelectorAll('.metrics .m').forEach((c) => c.addEventListener('click', () => copyRecap(c)));
+  // Thème sombre par défaut, quel que soit le réglage de l'appareil ; le choix de la personne est mémorisé.
+  const savedTheme = store.get('dieline-theme', '');
+  document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark';
   $('theme').onclick = () => {
-    const root = document.documentElement, dark = getComputedStyle(root).colorScheme.includes('dark');
-    root.dataset.theme = dark ? 'light' : 'dark';
+    const root = document.documentElement, next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next; store.set('dieline-theme', next);
   };
   if ($('dl')) $('dl').onclick = async () => {
     const c = $('svg').cloneNode(true);
