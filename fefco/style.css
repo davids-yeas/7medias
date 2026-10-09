@@ -410,7 +410,7 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
 .hact{display:flex;gap:6px}
 .note.empty{padding:24px;text-align:center;background:var(--panel);border:1px dashed var(--line);border-radius:10px}
 #histClear.active{border-color:var(--orange);color:var(--orange)}
-@media(max-width:600px){.hmain{grid-template-columns:56px minmax(0,1fr)}.htime{grid-column:2}.hmain svg{width:56px}.hact{flex-direction:column}}
+@media(max-width:600px){.hrow{grid-template-columns:minmax(0,1fr);padding:6px 6px 8px}.hmain{grid-template-columns:56px minmax(0,1fr)}.htime{grid-column:2}.hmain svg{width:56px}.hact{justify-content:flex-end;padding-right:4px}}
 
 /* ---------- Message éphémère ---------- */
 .toast{position:fixed;left:50%;bottom:calc(112px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;max-width:calc(100vw - 32px);padding:9px 16px;border-radius:999px;background:var(--ink);color:var(--bg);font:600 .8rem var(--body);box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:none}

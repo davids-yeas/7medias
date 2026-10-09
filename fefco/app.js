@@ -422,18 +422,20 @@
     return new Date(t).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   };
   const IC_COPY = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
+  const IC_PDF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>';
   const IC_DEL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg>';
   function renderHist() {
     const el = $('histList');
     $('histClear').hidden = !hist.length;
     if (!hist.length) { el.innerHTML = '<p class="note empty">Aucun calcul pour l\'instant. Choisis un modèle et saisis des dimensions : chaque calcul s\'enregistre ici.</p>'; return; }
-    el.innerHTML = hist.map((h, i) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span><span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span></span><span class="htime">${ago(h.t)}</span></button><div class="hact"><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button><button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button></div></div>`).join('');
+    el.innerHTML = hist.map((h, i) => `<div class="hrow"><button type="button" class="hmain" data-i="${i}">${thumb(h.c)}<span class="ht"><span class="hh"><b>${h.c}</b><em>${S[h.c].title}</em></span><span class="hd">${fmt(h.L, 0)} × ${fmt(h.W, 0)} × ${fmt(h.H, 0)} mm</span><span class="hr">Laize ${fmt(h.la)} · Coupe ${fmt(h.co)} · <u>${fmt(h.la * h.co / 1e6, 3)} m²</u></span></span><span class="htime">${ago(h.t)}</span></button><div class="hact"><button type="button" class="ibtn" data-act="pdf" data-i="${i}" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF">${IC_PDF}</button><button type="button" class="ibtn" data-act="copy" data-i="${i}" aria-label="Copier le récapitulatif" title="Copier le récapitulatif">${IC_COPY}</button><button type="button" class="ibtn" data-act="del" data-i="${i}" aria-label="Supprimer ce calcul" title="Supprimer ce calcul">${IC_DEL}</button></div></div>`).join('');
   }
   $('histList').addEventListener('click', (e) => {
     const act = e.target.closest('[data-act]'), main = e.target.closest('.hmain');
     if (act) {
       const i = +act.dataset.i, h = hist[i]; if (!h) return;
-      if (act.dataset.act === 'copy') copyText(recapText(h), () => toast('Récapitulatif copié'));
+      if (act.dataset.act === 'pdf') exportPdf(h);
+      else if (act.dataset.act === 'copy') copyText(recapText(h), () => toast('Récapitulatif copié'));
       else { hist.splice(i, 1); store.set('dieline-hist', hist); renderHist(); toast('Calcul supprimé'); }
     } else if (main) {
       const i = +main.dataset.i, h = hist[i]; if (!h) return;
@@ -475,8 +477,10 @@
     } catch (e) { return null; }
   }
   const pf = (n, d) => fmt(n, d).replace(/[\u202F\u00A0]/g, ' '); // le PDF n'affiche pas les espaces insécables
-  function buildPdf() {
-    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true }), r = cur, t = S[st.code];
+  function buildPdf(e) { // e : un calcul de l'historique ; sans argument, le calcul en cours
+    const E = e || curEntry(), t = S[E.c];
+    const r = e ? t.build({ L: E.L, W: E.W, H: E.H, j: E.j, o: E.o, jeu: E.jeu }) : cur;
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
     const PW = 210, PH = 297, M = 14, surf = r.laize * r.coupe / 1e6;
     const INK = [29, 43, 51], TEAL = [15, 74, 99], ORANGE = [201, 79, 34], BLUE = [31, 95, 214], RED = [214, 47, 47], MUTED = [90, 107, 116], LINE = [213, 222, 227];
     let y = M;
@@ -486,7 +490,7 @@
     doc.text('Fiche modèle FEFCO', PW - M, y + 4, { align: 'right' });
     doc.text(new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }), PW - M, y + 8, { align: 'right' });
     y += 19; doc.setDrawColor(...ORANGE); doc.setLineWidth(0.8); doc.line(M, y, PW - M, y);
-    y += 13; doc.setFont('helvetica', 'bold'); doc.setFontSize(30); doc.setTextColor(...TEAL); doc.text(st.code, M, y);
+    y += 13; doc.setFont('helvetica', 'bold'); doc.setFontSize(30); doc.setTextColor(...TEAL); doc.text(E.c, M, y);
     y += 7; doc.setFontSize(13); doc.setTextColor(...INK); doc.text(t.title, M, y);
     y += 5.5; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED);
     doc.text(`${t.serie}  |  Montage ${t.mode === 'M' ? 'manuel' : t.mode === 'A' ? 'automatique' : 'manuel ou automatique'}`, M, y);
@@ -495,12 +499,12 @@
       doc.setTextColor(90, 67, 0); doc.setFontSize(8.5); doc.text('Géométrie à valider avec le PDF FEFCO avant toute production.', M + 3, y + 5); y += 7.5;
     }
     y += 9; doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...INK);
-    let dimTxt = `Dimensions intérieures (L × W × H) : ${pf(st.L, 0)} × ${pf(st.W, 0)} × ${pf(st.H, 0)} mm`;
+    let dimTxt = `Dimensions intérieures (L × W × H) : ${pf(E.L, 0)} × ${pf(E.W, 0)} × ${pf(E.H, 0)} mm`;
     doc.text(dimTxt, M, y);
-    const extra = [t.params.includes('j') ? `joint ${pf(st.j, 0)} mm` : '', t.params.includes('o') ? `recouvrement ${pf(st.o, 0)} mm` : '', t.params.includes('jeu') ? `jeu ${pf(st.jeu, 0)} mm` : ''].filter(Boolean).join('  |  ');
+    const extra = [t.params.includes('j') ? `joint ${pf(E.j, 0)} mm` : '', t.params.includes('o') ? `recouvrement ${pf(E.o, 0)} mm` : '', t.params.includes('jeu') ? `jeu ${pf(E.jeu, 0)} mm` : ''].filter(Boolean).join('  |  ');
     if (extra) { y += 5; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED); doc.text(extra, M, y); }
     y += 6;
-    const boxes = [['LAIZE (VERTICAL)', pf(r.laize) + ' mm'], ['COUPE (HORIZONTAL)', pf(r.coupe) + ' mm'], ['SURFACE', pf(surf, 3) + ' m²'], ['VOLUME UTILE', pf(st.L * st.W * st.H / 1e6, 1) + ' L']];
+    const boxes = [['LAIZE (VERTICAL)', pf(r.laize) + ' mm'], ['COUPE (HORIZONTAL)', pf(r.coupe) + ' mm'], ['SURFACE', pf(surf, 3) + ' m²'], ['VOLUME UTILE', pf(E.L * E.W * E.H / 1e6, 1) + ' L']];
     const bw = (PW - 2 * M - 3 * 4) / 4;
     boxes.forEach((b, i) => {
       const x = M + i * (bw + 4);
@@ -561,12 +565,13 @@
     doc.text('Snotrac Studio', PW - M, PH - M - 2, { align: 'right' });
     return doc.output('blob');
   }
-  $('pdf').onclick = async () => {
+  async function exportPdf(e) {
     if (!window.jspdf) { toast('Export PDF indisponible : bibliothèque non chargée'); return; }
-    scheduleLog(true);
-    try { const r = await saveFile(buildPdf(), `FEFCO-${st.code}-${st.L}x${st.W}x${st.H}.pdf`); toast(r === 'declined' ? 'Export annulé' : 'Fiche PDF prête'); }
-    catch (e) { toast('Export PDF impossible'); }
-  };
+    const E = e || curEntry();
+    try { const r = await saveFile(buildPdf(e), `FEFCO-${E.c}-${E.L}x${E.W}x${E.H}.pdf`); toast(r === 'declined' ? 'Export annulé' : 'Fiche PDF prête'); }
+    catch (err) { toast('Export PDF impossible'); }
+  }
+  $('pdf').onclick = () => { scheduleLog(true); exportPdf(); };
 
   /* ---------- Démarrage ---------- */
   ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, st[k]));
