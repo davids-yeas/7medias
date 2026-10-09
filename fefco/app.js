@@ -172,7 +172,7 @@
   play.onclick = () => { userPaused = playing; setPlay(!playing); };
   fold.addEventListener('pointerdown', () => { userPaused = true; setPlay(false); });
   fold.addEventListener('keydown', () => { userPaused = true; setPlay(false); });
-  $('auto').onchange = (e) => window.FEFCO_3D && window.FEFCO_3D.setAuto(e.target.checked);
+  $('auto').onclick = (e) => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); if (window.FEFCO_3D) window.FEFCO_3D.setAuto(on); };
 
   /* ---------- Récapitulatif, thème, export ---------- */
   function copyRecap(card) {
@@ -295,7 +295,7 @@
   ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, st[k]));
   $('nCodes').textContent = codes.length;
   buildLib('');
-  if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').checked);
+  if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').getAttribute('aria-pressed') === 'true');
   setView(st.view);
   refresh();
   if (location.hash === '#guide') page('guide'); else if (location.hash === '#library') page('lib'); else $('dock').style.setProperty('--i', 0);

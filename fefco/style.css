@@ -339,3 +339,12 @@ button.m.copied::after{content:"Copié ✓";position:absolute;top:8px;right:8px;
   .cm-chg{display:flex;align-items:center;gap:2px;font:600 .72rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--orange)}
   .cm-chg svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 }
+
+/* Rotation 3D : bouton icône */
+.tgl{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;padding:0;background:transparent;color:var(--muted);border:1px solid var(--line)}
+.tgl svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tgl:hover{color:var(--ink);border-color:var(--teal)}
+.tgl[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:var(--onorange)}
+.tgl[aria-pressed="true"] svg{animation:tglspin 6s linear infinite}
+@keyframes tglspin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.tgl[aria-pressed="true"] svg{animation:none}}
