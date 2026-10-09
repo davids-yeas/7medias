@@ -94,7 +94,7 @@
     showNoDims(missing);
     if (missing.length) { save(); return; }
     compute(); drawPlan();
-    if (st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.update(st.code, dims());
+    if (st.view !== 'plan' && window.FEFCO_3D) { window.FEFCO_3D.update(st.code, dims()); autoFold(); }
     if (opts.lib) buildLib($('q').value);
     save();
     if (ready) scheduleLog();
@@ -193,7 +193,7 @@
     document.querySelectorAll('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
     $('panePlan').hidden = v === '3d'; $('pane3d').hidden = v === 'plan';
     $('stage').classList.toggle('both', v === 'both');
-    if (v !== 'plan' && window.FEFCO_3D && S[st.code]) { window.FEFCO_3D.update(st.code, dims()); if (!userPaused && !playing) setPlay(true); }
+    if (v !== 'plan' && window.FEFCO_3D && S[st.code]) { window.FEFCO_3D.update(st.code, dims()); startFold(); }
     save();
   }
   document.querySelectorAll('.seg button').forEach((b) => (b.onclick = () => setView(b.dataset.v)));
@@ -213,6 +213,14 @@
     }
     raf = requestAnimationFrame(tick);
   }
+  // Départ depuis le carton à plat : il se replie, puis se déplie, en boucle.
+  let foldCode = '';
+  function startFold() {
+    foldCode = st.code;
+    if (userPaused) return;                       // la personne a pris la main : on respecte sa position
+    fold.value = 0; fold.dispatchEvent(new Event('input')); dir = 1; hold = 600; setPlay(true);
+  }
+  function autoFold() { if (st.code !== foldCode) startFold(); else if (!userPaused && !playing) setPlay(true); }
   function setPlay(on) {
     playing = on; last = 0; if (raf) cancelAnimationFrame(raf); raf = null;
     play.dataset.playing = on; play.setAttribute('aria-label', on ? 'Pause' : 'Lecture'); play.title = on ? 'Pause' : 'Lecture';
