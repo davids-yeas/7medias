@@ -11,7 +11,6 @@
 <header class="top">
   <div class="logo">SNOTRAC<small>EXPERT EMBALLAGES</small></div>
   <div class="title">Dieline Studio <span>bibliothèque FEFCO</span></div>
-  <nav class="nav" aria-label="Menu"><button type="button" data-page="tool" class="on">Outil</button><button type="button" data-page="guide">Guide</button></nav>
   <div class="count" title="Codes FEFCO disponibles dans la bibliothèque"><b id="nCodes">0</b><span>codes disponibles</span></div>
   <button id="theme" class="ghost" type="button" aria-label="Changer de thème">Thème</button>
 </header>
@@ -75,6 +74,22 @@
     </section>
     <p class="note">Dimensions intérieures en mm, au format L × W × H. Les codes marqués « à valider » doivent être confirmés avec le PDF FEFCO avant production.</p>
   </main>
+</div>
+<div class="libpage" id="viewLib" hidden>
+  <div class="libhead">
+    <div>
+      <h2>Bibliothèque FEFCO</h2>
+      <p class="lead">Tous les codes du PDF FEFCO (12e édition). Les codes disponibles s'ouvrent dans l'outil, les autres sont en attente de leur plan.</p>
+    </div>
+    <div class="prog"><b><span id="catAvail">0</span> / <span id="catTotal">0</span></b><span>codes disponibles</span><i><u id="catBar"></u></i></div>
+  </div>
+  <div class="catbar">
+    <input id="cq" type="search" placeholder="Rechercher un code" autocomplete="off" aria-label="Rechercher un code">
+    <div id="catChips" class="chips" role="group" aria-label="Séries"></div>
+    <label class="chk"><input id="catOnly" type="checkbox"> Disponibles seulement</label>
+  </div>
+  <div id="catGrid" class="catgrid"></div>
+  <p class="note">Les séries 0600 (rigides), 0700 (prêtes à coller), 0800 (retail et e-commerce) et 0900 (aménagements intérieurs) sont à relever dans le PDF.</p>
 </div>
 <div class="guide" id="viewGuide" hidden>
   <aside class="toc" aria-label="Sommaire">
@@ -182,8 +197,15 @@
     </section>
   </article>
 </div>
+<nav class="dock" id="dock" aria-label="Navigation">
+  <span class="lens" aria-hidden="true"></span>
+  <button type="button" data-page="tool" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9L12 3Zm0 0v9m0 9v-9m8.5-4.5L12 12 3.5 7.5"/></svg><span>Outil</span></button>
+  <button type="button" data-page="lib"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Bibliothèque</span></button>
+  <button type="button" data-page="guide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 0 4 21.5v-16ZM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 1 1.5 1.5v-16Z"/></svg><span>Guide</span></button>
+</nav>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="styles.js"></script>
+<script src="catalog.js"></script>
 <script src="app3d.js"></script>
 <script src="app.js"></script>
 </body>

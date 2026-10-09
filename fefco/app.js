@@ -206,17 +206,52 @@
     s += T(-60, (r.bodyY[0] + r.bodyY[1]) / 2, 'H', 'dt');
     $('miniPlan').innerHTML = `<svg viewBox="${x0} ${y0} ${w} ${h}" role="img">${s}</svg>`;
   }
+  const VIEWS = { tool: 'viewTool', lib: 'viewLib', guide: 'viewGuide' }, HASH = { tool: '', lib: '#library', guide: '#guide' };
   function page(p, scrollTo) {
-    const g = p === 'guide';
-    $('viewTool').hidden = g; $('viewGuide').hidden = !g;
-    document.querySelectorAll('.nav button').forEach((b) => b.classList.toggle('on', b.dataset.page === p));
-    try { history.replaceState(null, '', g ? '#guide' : location.pathname + location.search); } catch (e) {}
-    if (g) { if (!$('miniPlan').firstChild) miniPlan(); window.scrollTo(0, 0); if (scrollTo) $(scrollTo).scrollIntoView(); }
-    else if (st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.show();
+    Object.keys(VIEWS).forEach((k) => { $(VIEWS[k]).hidden = k !== p; });
+    document.querySelectorAll('.dock button').forEach((b) => b.classList.toggle('on', b.dataset.page === p));
+    $('dock').style.setProperty('--i', Object.keys(VIEWS).indexOf(p));
+    try { history.replaceState(null, '', HASH[p] || location.pathname + location.search); } catch (e) {}
+    if (p === 'guide' && !$('miniPlan').firstChild) miniPlan();
+    if (p === 'lib') renderCat();
+    window.scrollTo(0, 0);
+    if (scrollTo) $(scrollTo).scrollIntoView();
+    if (p === 'tool' && st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.show();
   }
   document.querySelectorAll('[data-page]').forEach((b) => b.addEventListener('click', () => page(b.dataset.page)));
   document.querySelectorAll('.toc [data-s]').forEach((b) => b.addEventListener('click', () => $(b.dataset.s).scrollIntoView({ behavior: 'smooth' })));
   $('tryEx').onclick = () => { ['L', 'W', 'H'].forEach((k, i) => sync(k, [400, 300, 250][i])); st.code = '0201'; refresh({ lib: true }); page('tool'); };
+
+  /* ---------- Page Bibliothèque ---------- */
+  const CAT = window.FEFCO_CATALOG, cat = { s: 'all' };
+  function renderCat() {
+    const q = $('cq').value.trim().toLowerCase(), only = $('catOnly').checked;
+    const avail = (c) => !!S[c];
+    $('catAvail').textContent = CAT.list.filter((x) => avail(x.c)).length;
+    $('catTotal').textContent = CAT.list.length;
+    $('catBar').style.width = (CAT.list.filter((x) => avail(x.c)).length / CAT.list.length * 100) + '%';
+    $('catChips').innerHTML = [['all', 'Toutes']].concat(Object.keys(CAT.series).map((s) => [s, s])).map(([s, l]) => `<button type="button" class="chip${cat.s === s ? ' on' : ''}" data-s="${s}" title="${CAT.series[s] || ''}">${l}</button>`).join('');
+    let html = '', last = '', n = 0;
+    CAT.list.forEach((x) => {
+      if (cat.s !== 'all' && x.s !== cat.s) return;
+      if (q && !x.c.includes(q) && !(S[x.c] && S[x.c].title.toLowerCase().includes(q))) return;
+      if (only && !avail(x.c)) return;
+      if (x.s !== last) { html += `<div class="cat-s">${x.s} · ${CAT.series[x.s]}</div>`; last = x.s; }
+      n++;
+      const ok = avail(x.c), mode = x.m ? `<small>${x.m === 'M' ? 'Manuel' : x.m === 'A' ? 'Automatique' : 'Manuel ou auto'}</small>` : '';
+      html += ok
+        ? `<button type="button" class="cc ok" data-c="${x.c}">${thumb(x.c)}<b>${x.c}</b>${mode}<span class="t">${S[x.c].title}</span><span class="st">Disponible · ouvrir</span></button>`
+        : `<div class="cc off"><div class="ph">plan à ajouter</div><b>${x.c}</b>${mode}<span class="st">À ajouter</span></div>`;
+    });
+    $('catGrid').innerHTML = html || '<p class="note">Aucun code ne correspond. Efface la recherche ou change de série.</p>';
+  }
+  $('cq').addEventListener('input', renderCat);
+  $('catOnly').addEventListener('change', renderCat);
+  $('catChips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) { cat.s = b.dataset.s; renderCat(); } });
+  $('catGrid').addEventListener('click', (e) => {
+    const b = e.target.closest('.cc.ok'); if (!b) return;
+    st.code = b.dataset.c; resetView(); refresh({ lib: true }); page('tool');
+  });
 
   /* ---------- Démarrage ---------- */
   ['L', 'W', 'H', 'j', 'o', 'jeu', 'qty'].forEach((k) => sync(k, st[k]));
@@ -225,5 +260,5 @@
   if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').checked);
   setView(st.view);
   refresh();
-  if (location.hash === '#guide') page('guide');
+  if (location.hash === '#guide') page('guide'); else if (location.hash === '#library') page('lib'); else $('dock').style.setProperty('--i', 0);
 })();
