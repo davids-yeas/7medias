@@ -252,3 +252,10 @@ body{padding-bottom:calc(118px + env(safe-area-inset-bottom,0px))}
 .top{position:static;background:transparent;border-bottom:0;padding:14px 16px 10px}
 .top::after{display:none}
 .lib{top:16px}
+
+/* Bouton de thème : icône seule (soleil en thème sombre, lune en thème clair) */
+.ghost.icon{width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%}
+.ghost.icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ghost.icon .ic-moon{display:none}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .ghost.icon .ic-sun{display:none}:root:not([data-theme="dark"]) .ghost.icon .ic-moon{display:block}}
+:root[data-theme="light"] .ghost.icon .ic-sun{display:none}:root[data-theme="light"] .ghost.icon .ic-moon{display:block}
