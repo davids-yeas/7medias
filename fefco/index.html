@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plans FEFCO – laize, coupe, surface</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Plans FEFCO <span>laize · coupe · surface</span></h1>
+</header>
+<main>
+  <section class="panel inputs">
+    <label>Code FEFCO
+      <select id="code"></select>
+    </label>
+    <p id="desc" class="desc"></p>
+    <div class="row3">
+      <label>L (mm)<input id="L" type="number" value="400" min="1" inputmode="decimal"></label>
+      <label>W (mm)<input id="W" type="number" value="300" min="1" inputmode="decimal"></label>
+      <label>H (mm)<input id="H" type="number" value="250" min="1" inputmode="decimal"></label>
+    </div>
+    <p class="hint">Dimensions intérieures. L = grande face, W = petite face, H = hauteur.</p>
+    <details>
+      <summary>Réglages avancés</summary>
+      <div class="row3">
+        <label data-p="j">Joint j (mm)<input id="j" type="number" value="35"></label>
+        <label data-p="o">Recouvrement o (mm)<input id="o" type="number" value="40"></label>
+        <label data-p="jeu">Jeu (mm)<input id="jeu" type="number" value="0"></label>
+      </div>
+    </details>
+    <div class="results">
+      <div class="card"><b id="laize">–</b><span>Laize (vertical)</span></div>
+      <div class="card"><b id="coupe">–</b><span>Coupe (horizontal)</span></div>
+      <div class="card accent"><b id="surf">–</b><span>Surface</span></div>
+    </div>
+    <button id="dl" type="button">Télécharger le plan (SVG)</button>
+  </section>
+  <section class="panel plan">
+    <div id="warn" class="warn" hidden>Géométrie à valider avec le PDF FEFCO avant usage en production.</div>
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Plan à plat"></svg>
+  </section>
+</main>
+<script src="styles.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
