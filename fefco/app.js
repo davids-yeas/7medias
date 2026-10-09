@@ -166,7 +166,7 @@
   }
   function setPlay(on) {
     playing = on; last = 0; if (raf) cancelAnimationFrame(raf); raf = null;
-    play.textContent = on ? '❚❚ Pause' : '▶ Lecture';
+    play.dataset.playing = on; play.setAttribute('aria-label', on ? 'Pause' : 'Lecture'); play.title = on ? 'Pause' : 'Lecture';
     if (on) raf = requestAnimationFrame(tick);
   }
   play.onclick = () => { userPaused = playing; setPlay(!playing); };

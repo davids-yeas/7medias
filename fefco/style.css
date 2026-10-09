@@ -348,3 +348,11 @@ button.m.copied::after{content:"Copié ✓";position:absolute;top:8px;right:8px;
 .tgl[aria-pressed="true"] svg{animation:tglspin 6s linear infinite}
 @keyframes tglspin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.tgl[aria-pressed="true"] svg{animation:none}}
+
+/* Lecture / pause : bouton icône seul */
+.playbtn{background:var(--orange);border-color:var(--orange);color:var(--onorange)}
+.playbtn:hover{color:var(--onorange);border-color:var(--orange);filter:brightness(1.08)}
+.playbtn svg{stroke-width:2.4}
+.playbtn .i-play{fill:currentColor;display:none}
+.playbtn[data-playing="false"] .i-play{display:block}
+.playbtn[data-playing="false"] .i-pause{display:none}
