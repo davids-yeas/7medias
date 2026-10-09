@@ -159,7 +159,6 @@
   <label class="who" for="who"><span>Fait par</span><input id="who" type="text" maxlength="24" placeholder="Ton prénom" autocomplete="given-name" autocapitalize="words"></label>
   <div class="hfilters">
     <input id="hq" type="search" class="hsearch" placeholder="Rechercher un client, un code…" autocomplete="off" aria-label="Rechercher dans l'historique">
-    <button type="button" id="histFav" class="favtgl" aria-pressed="false" title="Affiche seulement les calculs des modèles favoris"><span aria-hidden="true">★</span> Favoris <small>0</small></button>
   </div>
   <div id="histList" class="histlist"></div>
 </div>
@@ -302,7 +301,6 @@
       <ul>
         <li><b>Enregistrement automatique :</b> un calcul est gardé 1,5 seconde après ta dernière saisie, ou tout de suite quand tu copies ou exportes. Les 40 derniers sont conservés.</li>
         <li><b>Fait par :</b> ton prénom, à saisir en haut de l'historique, est enregistré avec chaque calcul. Chaque ligne affiche la date, l'heure, le client et « Fait par ».</li>
-        <li><b>Filtre favoris :</b> le bouton « ★ Favoris », à côté de la recherche, ne garde que les calculs faits avec un modèle favori. Une étoile repère ces modèles sur chaque ligne.</li>
         <li><b>Nom du client :</b> le champ « Client », en haut des dimensions, est facultatif. Il est enregistré avec chaque calcul, affiché dans l'historique, repris dans la fiche PDF et le récapitulatif, et la recherche de l'historique le retrouve.</li>
         <li><b>Chaque ligne :</b> touche-la pour rouvrir le calcul dans le Studio. Les trois icônes exportent la fiche PDF, copient le récapitulatif ou suppriment la ligne. « Tout effacer » demande une confirmation.</li>
         <li><b>Historique partagé :</b> sur la version hébergée, saisis le <b>code d'accès de 6 caractères</b> (chiffres et lettres) et, si tu veux, ton prénom. Toute l'équipe voit alors les mêmes calculs, mis à jour en moins de 8 secondes. Chacun ne supprime que les siens. « Verrouiller » repasse en historique local.</li>

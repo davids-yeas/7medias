@@ -531,3 +531,5 @@ button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);bo
 html.nofs,html.nofs body{overflow:hidden}
 .toast{z-index:60}
 #tip{z-index:70}
+
+.hfilters .hsearch{width:100%}
