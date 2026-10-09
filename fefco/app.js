@@ -274,19 +274,31 @@
     const names = g === 's' ? CAT.series : g === 'm' ? MODES : { dispo: 'Disponible', valider: 'À valider', ajouter: 'À ajouter' };
     return `<b>${GROUP_TITLE[g]}</b>` + Object.keys(TIPS[g]).filter((k) => k !== 'all').map((k) => `<p><u>${g === 's' ? k + ' · ' : ''}${names[k] || k}</u> ${TIPS[g][k]}</p>`).join('');
   }
+  function serieHtml(s) {
+    const nb = CAT.list.filter((x) => x.s === s).length, pl = codes.filter((c) => c.slice(0, 2) + '00' === s).length;
+    const pg = (PDF.find((r) => r[0] === s) || [])[2];
+    return `<b>${s} · ${CAT.series[s]}</b>${TIPS.s[s]}<p><u>${nb} codes</u> relevés${pg ? ' · page ' + pg + ' du PDF' : ''} · <u>${pl}</u> plan${pl > 1 ? 's' : ''} dans l'outil</p>`;
+  }
+  function tipHtml(el) {
+    if (el.dataset.serie) return serieHtml(el.dataset.serie);
+    if (el.dataset.tipgroup) return groupHtml(el.dataset.tipgroup);
+    return el.dataset.tip;
+  }
+  const TIPSEL = '[data-tip],[data-serie],[data-tipgroup]';
   const canHover = matchMedia('(hover:hover)').matches;
   document.addEventListener('mouseover', (e) => {
     if (!canHover) return;
-    const t = e.target.closest('[data-tip]'); if (t && t.dataset.tip) showTip(t, t.dataset.tip); else if (tipFor && !e.target.closest('.info')) hideTip();
+    const t = e.target.closest(TIPSEL);
+    if (t) { if (t !== tipFor) showTip(t, tipHtml(t)); } else if (tipFor) hideTip();
   });
-  document.addEventListener('focusin', (e) => { const t = e.target.closest('[data-tip]'); if (t && t.dataset.tip && canHover) showTip(t, t.dataset.tip); });
+  document.addEventListener('focusin', (e) => { const t = e.target.closest(TIPSEL); if (t && canHover) showTip(t, tipHtml(t)); });
   document.addEventListener('focusout', () => { if (canHover) hideTip(); });
   document.addEventListener('click', (e) => {
-    const i = e.target.closest('.info');
-    if (i) {
+    const t = e.target.closest('.info[data-tipgroup], .cat-s');
+    if (t) {
       e.preventDefault(); e.stopPropagation();
-      if (tipFor === i) { hideTip(); return; }
-      showTip(i, i.dataset.tipgroup ? groupHtml(i.dataset.tipgroup) : i.dataset.tip);
+      if (tipFor === t && !canHover) { hideTip(); return; }
+      showTip(t, tipHtml(t));
     } else hideTip();
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
@@ -316,7 +328,7 @@
     let html = '', last = '', n = 0;
     CAT.list.forEach((x) => {
       if (!matches(x)) return;
-      if (x.s !== last) { html += `<div class="cat-s">${x.s} · ${CAT.series[x.s]}<button type="button" class="info" data-tip="${TIPS.s[x.s].replace(/"/g, '&quot;')}" aria-label="Aide : série ${x.s}">i</button></div>`; last = x.s; }
+      if (x.s !== last) { html += `<button type="button" class="cat-s" data-serie="${x.s}" aria-label="${x.s}, ${CAT.series[x.s]}. Afficher l'aide."><span>${x.s} · ${CAT.series[x.s]}</span><span class="info" aria-hidden="true">i</span></button>`; last = x.s; }
       n++;
       const ok = !!S[x.c], mode = x.m ? `<small>${MODES[x.m]}</small>` : '', warn = ok && S[x.c].conf !== 'ok' ? '<i class="tag">à valider</i>' : '';
       const sel = x.c === st.code;

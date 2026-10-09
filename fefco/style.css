@@ -367,3 +367,9 @@ button.m.copied::after{content:"Copié ✓";position:absolute;top:8px;right:8px;
 #tip u{text-decoration:none;font-weight:600;color:var(--teal)}
 .flabel{flex:0 0 96px;white-space:nowrap}
 @media(max-width:860px){.flabel{flex:none}}
+
+/* En-tête de série cliquable (bulle d'aide) */
+button.cat-s{background:none;border:0;width:100%;text-align:left;color:var(--muted);cursor:pointer;padding:12px 2px 4px;font:600 .75rem var(--display);letter-spacing:.16em;text-transform:uppercase}
+button.cat-s .info{margin:0;flex:none;color:var(--teal);border-color:var(--teal);pointer-events:none}
+button.cat-s:hover,button.cat-s:focus-visible{color:var(--ink)}
+button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);border-color:var(--orange)}
