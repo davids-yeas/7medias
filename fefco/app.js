@@ -195,6 +195,7 @@
 
   /* ---------- Démarrage ---------- */
   ['L', 'W', 'H', 'j', 'o', 'jeu', 'qty'].forEach((k) => sync(k, st[k]));
+  $('nCodes').textContent = codes.length;
   buildLib('');
   if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').checked);
   setView(st.view);

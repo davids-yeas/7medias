@@ -16,6 +16,9 @@ button{font:inherit;cursor:pointer}
 .logo small{display:block;font:400 .55rem var(--display);letter-spacing:.24em;color:var(--orange);margin-top:3px}
 .title{font:600 1rem var(--display);letter-spacing:.1em;text-transform:uppercase;margin-right:auto}
 .title span{font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:.06em}
+.count{display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:5px 14px}
+.count b{font:700 1.2rem var(--display);color:var(--orange);font-variant-numeric:tabular-nums}
+.count span{font:600 .7rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .ghost{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px 12px}
 .ghost:hover{border-color:var(--teal);color:var(--teal)}
 .sm{padding:6px 10px;font-size:.8rem}
@@ -100,6 +103,7 @@ input[type=range]{width:100%;accent-color:var(--orange);height:24px;margin:0}
   .grp{display:none}.item{flex:0 0 190px}
   .dims{grid-template-columns:minmax(0,1fr)}
   .title span{display:none}
+  .top{gap:10px}.count span{display:none}.count::after{content:'codes';font:600 .7rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
   .m:nth-child(5){grid-column:1/-1}
 }
