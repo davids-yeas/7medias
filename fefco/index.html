@@ -3,55 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Plans FEFCO – laize, coupe, surface</title>
+<title>Snotrac Dieline Studio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
+<header class="top">
   <div class="logo">SNOTRAC<small>EXPERT EMBALLAGES</small></div>
-  <h1>Plans FEFCO · laize · coupe · surface</h1>
+  <div class="title">Dieline Studio <span>bibliothèque FEFCO</span></div>
+  <button id="theme" class="ghost" type="button" aria-label="Changer de thème">Thème</button>
 </header>
-<main>
-  <section class="panel inputs">
-    <label>Code FEFCO
-      <select id="code"></select>
-    </label>
-    <p id="desc" class="desc"></p>
-    <div class="row3">
-      <label>L (mm)<input id="L" type="number" value="400" min="1" inputmode="decimal"></label>
-      <label>W (mm)<input id="W" type="number" value="300" min="1" inputmode="decimal"></label>
-      <label>H (mm)<input id="H" type="number" value="250" min="1" inputmode="decimal"></label>
+<div class="shell">
+  <aside class="lib" aria-label="Bibliothèque FEFCO">
+    <div class="lib-head">
+      <label class="sr" for="q">Rechercher un code</label>
+      <input id="q" type="search" placeholder="Rechercher : 0201, plateau…" autocomplete="off">
     </div>
-    <p class="hint">Dimensions intérieures. L = grande face, W = petite face, H = hauteur.</p>
-    <details>
-      <summary>Réglages avancés</summary>
-      <div class="row3">
-        <label data-p="j">Joint j (mm)<input id="j" type="number" value="35"></label>
-        <label data-p="o">Recouvrement o (mm)<input id="o" type="number" value="40"></label>
-        <label data-p="jeu">Jeu (mm)<input id="jeu" type="number" value="0"></label>
+    <div id="libList" class="lib-list"></div>
+  </aside>
+  <main class="work">
+    <section class="dims" aria-label="Dimensions intérieures">
+      <div class="dim" data-k="L"><label for="L">Longueur <b>L</b></label><div class="ctl"><input id="Lr" type="range" min="50" max="1200" step="1" aria-label="L curseur"><input id="L" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
+      <div class="dim" data-k="W"><label for="W">Largeur <b>W</b></label><div class="ctl"><input id="Wr" type="range" min="50" max="1000" step="1" aria-label="W curseur"><input id="W" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
+      <div class="dim" data-k="H"><label for="H">Hauteur <b>H</b></label><div class="ctl"><input id="Hr" type="range" min="20" max="800" step="1" aria-label="H curseur"><input id="H" type="number" min="1" inputmode="decimal"><em>mm</em></div></div>
+      <div class="extra">
+        <label data-p="j" for="j"><span>Joint <b>j</b></span><input id="j" type="number" min="0"></label>
+        <label data-p="o" for="o"><span>Recouvrement <b>o</b></span><input id="o" type="number" min="0"></label>
+        <label data-p="jeu" for="jeu"><span>Jeu <b>+</b></span><input id="jeu" type="number" min="0"></label>
+        <label for="qty"><span>Quantité</span><input id="qty" type="number" min="1"></label>
       </div>
-    </details>
-    <div class="results">
-      <div class="card"><b id="laize">–</b><span>Laize (vertical)</span></div>
-      <div class="card"><b id="coupe">–</b><span>Coupe (horizontal)</span></div>
-      <div class="card accent"><b id="surf">–</b><span>Surface</span></div>
-    </div>
-    <button id="dl" type="button">Télécharger le plan (SVG)</button>
-  </section>
-  <section class="panel plan">
-    <div id="warn" class="warn" hidden>Géométrie à valider avec le PDF FEFCO avant usage en production.</div>
-    <div class="tabs" role="tablist">
-      <button type="button" id="tab2d" class="tab on" role="tab">Plan à plat</button>
-      <button type="button" id="tab3d" class="tab" role="tab">Vue 3D</button>
-    </div>
-    <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Plan à plat"></svg>
-    <div id="pane3d" hidden>
-      <div id="v3d" class="v3d" aria-label="Vue 3D, glisser pour tourner"></div>
-      <label class="fold" for="fold">Pliage <input id="fold" type="range" min="0" max="100" value="100"></label>
-      <p class="hint">Glisse pour tourner, molette pour zoomer. Le curseur replie le plan en carton.</p>
-    </div>
-  </section>
-</main>
+    </section>
+
+    <section class="stagebox">
+      <div class="bar">
+        <div class="seg" role="tablist" aria-label="Affichage">
+          <button type="button" data-v="plan" class="on">Plan</button>
+          <button type="button" data-v="3d">3D</button>
+          <button type="button" data-v="both">Les deux</button>
+        </div>
+        <div class="ident"><b id="idCode">0201</b><span id="idTitle"></span><i id="idWarn" class="tag" hidden>à valider</i></div>
+        <div class="tools">
+          <button type="button" id="reset" class="ghost sm">Recentrer</button>
+          <!--dl--><button type="button" id="dl" class="ghost sm">SVG</button><!--/dl-->
+        </div>
+      </div>
+      <div id="stage" class="stage">
+        <div class="pane" id="panePlan">
+          <svg id="svg" role="img" aria-label="Plan à plat coté"></svg>
+          <div id="readout" class="readout">Survole un panneau pour voir sa cote. Molette : zoom. Glisser : déplacer.</div>
+        </div>
+        <div class="pane" id="pane3d" hidden>
+          <div id="v3d" class="v3d" aria-label="Vue 3D. Glisser pour tourner."></div>
+          <div class="fold3d">
+            <button type="button" id="play" class="primary sm">▶ Replier</button>
+            <input id="fold" type="range" min="0" max="100" value="100" aria-label="Pliage">
+            <label class="chk"><input id="auto" type="checkbox"> Rotation</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="Résultats">
+      <div class="m" id="mLaize"><span>Laize</span><b id="laize">–</b><em>vertical · mm</em></div>
+      <div class="m" id="mCoupe"><span>Coupe</span><b id="coupe">–</b><em>horizontal · mm</em></div>
+      <div class="m hot"><span>Surface</span><b id="surf">–</b><em>m² par pièce</em></div>
+      <div class="m"><span>Volume utile</span><b id="vol">–</b><em>litres</em></div>
+      <div class="m"><span>Total <u id="qtyLbl">×1</u></span><b id="tot">–</b><em>m² de carton</em></div>
+      <button type="button" id="copy" class="primary">Copier le récapitulatif</button>
+    </section>
+    <p class="note">Dimensions intérieures en mm, au format L × W × H. Les codes marqués « à valider » doivent être confirmés avec le PDF FEFCO avant production.</p>
+  </main>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="styles.js"></script>
 <script src="app3d.js"></script>

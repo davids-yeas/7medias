@@ -4,7 +4,7 @@
   if (!THREE) return;
   const $ = (id) => document.getElementById(id);
   const box = $('v3d');
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   box.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
@@ -102,7 +102,7 @@
     renderer.render(scene, camera);
   }
   function resize() {
-    const w = box.clientWidth, h = Math.max(280, Math.min(box.clientWidth * 0.75, 560));
+    const w = box.clientWidth, h = box.clientHeight || 420; if (!w) return;
     renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); frame();
   }
   // Rotation à la souris / au doigt
@@ -118,9 +118,13 @@
   const sl = $('fold');
   if (sl) sl.addEventListener('input', () => { state.fold = sl.value / 100; pose(); frame(); });
   window.addEventListener('resize', resize);
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(box);
+  (function loop() { if (state.auto && box.offsetParent) { state.ry += 0.006; frame(); } requestAnimationFrame(loop); })();
 
   window.FEFCO_3D = {
     update(code, d) { rebuild(code, d); resize(); },
     show() { resize(); },
+    setAuto(v) { state.auto = v; },
+    setFold(f) { state.fold = f; pose(); frame(); },
   };
 })();
