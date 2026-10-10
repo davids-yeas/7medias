@@ -1,5 +1,5 @@
-/* Snotrac Studio – charte Snotrac (bleu pétrole + orange brique), interface sombre type CAO. */
-:root{--bg:#0a1217;--panel:#101c23;--panel2:#15252e;--line:#233844;--ink:#e8f1f5;--muted:#8ea3ad;--teal:#5db8de;--orange:#ff7a3d;--onorange:#1a0a02;--face:rgba(93,184,222,.07);--flap:rgba(255,122,61,.07);--hover:rgba(255,122,61,.28);--cut:#e8f1f5;--crease:#ff5d5d;--dim:#6aa5ff;--grid:rgba(120,170,195,.07);--display:'Saira',system-ui,sans-serif;--body:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--stageH:clamp(340px,62vh,640px);color-scheme:dark}
+/* Snotrac Studio – charte Snotrac (bleu pétrole + orange brique), interface noire type CAO. */
+:root{--bg:#000;--panel:#0b0e11;--panel2:#12171b;--line:#232c32;--ink:#e8f1f5;--muted:#8ea3ad;--teal:#5db8de;--orange:#ff7a3d;--onorange:#1a0a02;--face:rgba(93,184,222,.07);--flap:rgba(255,122,61,.07);--hover:rgba(255,122,61,.28);--cut:#e8f1f5;--crease:#ff5d5d;--dim:#6aa5ff;--grid:rgba(120,170,195,.07);--display:'Saira',system-ui,sans-serif;--body:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--stageH:clamp(340px,62vh,640px);color-scheme:dark}
 
 :root[data-theme="light"]{--bg:#eef3f6;--panel:#fff;--panel2:#f3f7f9;--line:#d3dde3;--ink:#12232c;--muted:#5a6b74;--teal:#0f4a63;--orange:#c94f22;--onorange:#fff;--face:rgba(15,74,99,.06);--flap:rgba(201,79,34,.07);--hover:rgba(201,79,34,.22);--cut:#111;--crease:#d62f2f;--dim:#1f5fd6;--grid:rgba(15,74,99,.07);color-scheme:light}
 *{box-sizing:border-box}
@@ -217,7 +217,7 @@ body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
 
 /* ---------- Menu plus visible : verre plus dense, bulle active orange, texte plus grand ---------- */
 .dock{width:min(440px,calc(100vw - 24px));padding:7px;border-radius:36px;
-  --g-bg:rgba(18,32,40,.72);--g-edge:rgba(255,255,255,.42);--g-hi:rgba(255,255,255,.7);--g-lens:rgba(255,122,61,.38);--g-ink:#f3f8fb;--g-shadow:rgba(0,0,0,.6);
+  --g-bg:rgba(14,16,18,.78);--g-edge:rgba(255,255,255,.42);--g-hi:rgba(255,255,255,.7);--g-lens:rgba(255,122,61,.38);--g-ink:#f3f8fb;--g-shadow:rgba(0,0,0,.6);
   background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.05));background-color:var(--g-bg);
   box-shadow:inset 0 1px 0 var(--g-hi),inset 0 -1px 0 rgba(255,255,255,.12),0 0 0 1px rgba(0,0,0,.25),0 16px 40px var(--g-shadow),0 4px 10px rgba(0,0,0,.35)}
 
@@ -533,3 +533,7 @@ html.nofs,html.nofs body{overflow:hidden}
 #tip{z-index:70}
 
 .hfilters .hsearch{width:100%}
+
+.srctab td:nth-child(n+3){font-family:var(--mono);font-variant-numeric:tabular-nums}
+.srctab td.todo{color:var(--muted)}
+.doc .source-note,.doc .note{color:var(--muted);font-size:.8rem;margin:10px 0 0}

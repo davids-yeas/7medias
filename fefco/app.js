@@ -279,12 +279,12 @@
     copyText(recapText(curEntry()), () => { card.classList.add('copied'); setTimeout(() => card.classList.remove('copied'), 1600); });
   }
   document.querySelectorAll('.metrics .m').forEach((c) => c.addEventListener('click', () => copyRecap(c)));
-  // Thème sombre par défaut, quel que soit le réglage de l'appareil ; le choix de la personne est mémorisé.
-  const savedTheme = store.get('dieline-theme', '');
-  document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark';
+  // Thème sombre (noir) à chaque ouverture, quel que soit le réglage de l'appareil.
+  // Le bouton soleil / lune passe en clair pour la session en cours seulement.
+  document.documentElement.dataset.theme = 'dark';
   $('theme').onclick = () => {
-    const root = document.documentElement, next = root.dataset.theme === 'light' ? 'dark' : 'light';
-    root.dataset.theme = next; store.set('dieline-theme', next);
+    const root = document.documentElement;
+    root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
   };
   if ($('dl')) $('dl').onclick = async () => {
     const c = $('svg').cloneNode(true);
@@ -316,7 +316,7 @@
     document.querySelectorAll('.dock button').forEach((b) => b.classList.toggle('on', b.dataset.page === p));
     $('dock').style.setProperty('--i', Object.keys(VIEWS).indexOf(p));
     try { history.replaceState(null, '', HASH[p] || location.pathname + location.search); } catch (e) {}
-    if (p === 'guide' && !$('miniPlan').firstChild) miniPlan();
+    if (p === 'guide') { if (!$('miniPlan').firstChild) miniPlan(); renderSource(); }
     if (p === 'hist') { renderHist(); refreshCloud(); }
     if (p === 'lib') { renderCat(); renderSource(); if (!srcInit) { $('srcBox').open = !matchMedia('(max-width:860px)').matches; srcInit = true; } }
     window.scrollTo(0, 0);
@@ -445,10 +445,11 @@
   /* Tableau récapitulatif de la source (pages du PDF, codes relevés, plans de l'outil) */
   const PDF = [['0100', 'Rouleaux et feuilles commerciaux', '9'], ['0200', 'Caisses à rabats', '15'], ['0300', 'Boîtes télescopiques', '30'], ['0400', 'Boîtes à rabat et plateaux', '41'], ['0500', 'Boîtes coulissantes', '74'], ['0600', 'Boîtes rigides', '80'], ['0700', 'Caisses prêtes à coller', '86'], ['0800', 'Retail et e-commerce', '103'], ['0900', 'Aménagements intérieurs', '123']];
   function renderSource() {
-    $('srcTable').tBodies[0].innerHTML = PDF.map(([s, n, p]) => {
+    const rows = PDF.map(([s, n, p]) => {
       const rel = CAT.list.filter((x) => x.s === s).length, tool = codes.filter((c) => c.slice(0, 2) + '00' === s).length;
       return `<tr><td>${s}</td><td>${n}</td><td>${p}</td>` + (rel ? `<td>${rel}</td>` : '<td class="todo">à relever</td>') + `<td>${tool}</td></tr>`;
     }).join('');
+    document.querySelectorAll('.srctab').forEach((t) => { t.tBodies[0].innerHTML = rows; });
   }
   $('cq').addEventListener('input', renderCat);
   $('catReset').onclick = () => { $('cq').value = ''; cat.s = cat.m = cat.t = 'all'; cat.f = false; renderCat(); };

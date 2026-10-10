@@ -127,7 +127,7 @@
         </ul>
       </div>
     </div>
-    <div class="tablewrap"><table id="srcTable">
+    <div class="tablewrap"><table id="srcTable" class="srctab">
       <thead><tr><th>Série</th><th>Désignation</th><th>Pages du PDF</th><th>Codes relevés</th><th>Plans dans l'outil</th></tr></thead>
       <tbody></tbody>
     </table></div>
@@ -175,6 +175,7 @@
     <button type="button" data-s="g8">Lire le plan</button>
     <button type="button" data-s="g9">La vue 3D</button>
     <button type="button" data-s="g10">La bibliothèque</button>
+    <button type="button" data-s="g16">Source de la bibliothèque</button>
     <button type="button" data-s="g11">Historique et partage</button>
     <button type="button" data-s="g12">Exports et copie</button>
     <button type="button" data-s="g13">Formules par code</button>
@@ -203,7 +204,7 @@
         <div><b>Historique</b><span>Tes derniers calculs, et ceux de l'équipe si le code est saisi.</span></div>
         <div><b>Guide</b><span>Cette page.</span></div>
       </div>
-      <p>Le menu flottant en bas de l'écran change de page. En haut : le logo, le nombre de codes disponibles et le bouton soleil ou lune qui bascule entre le thème sombre et le thème clair. Le thème sombre s'affiche par défaut, quel que soit le réglage de ton appareil, et ton choix est mémorisé.</p>
+      <p>Le menu flottant en bas de l'écran change de page. En haut : le logo, le nombre de codes disponibles et le bouton soleil ou lune qui bascule entre le thème sombre et le thème clair. Le thème sombre (noir) s'affiche à chaque ouverture, quel que soit le réglage de ton appareil. Le bouton passe en clair le temps de la session.</p>
     </section>
 
     <section id="g3"><h3>Le code FEFCO</h3>
@@ -295,6 +296,33 @@
         <li><b>Bulles d'information :</b> survole un bouton de filtre (ordinateur) ou touche un « i » ou un titre de série (téléphone) pour lire l'explication de la catégorie.</li>
         <li><b>Choisir :</b> un toucher sur une carte disponible la sélectionne et te ramène au Studio. Ton modèle en cours est entouré d'orange.</li>
       </ul>
+    </section>
+
+    <section id="g16"><h3>Source de la bibliothèque</h3>
+    <div class="srcgrid">
+      <dl class="facts">
+        <div><dt>Document</dt><dd>FEFCO Code, Design style library for corrugated board products</dd></div>
+        <div><dt>Édition</dt><dd>12<sup>e</sup> édition, © 2022</dd></div>
+        <div><dt>Éditeur</dt><dd>FEFCO, Avenue Louise 250, 1050 Bruxelles, Belgique · <a href="https://www.fefco.org" target="_blank" rel="noopener">fefco.org</a></dd></div>
+        <div><dt>Adopté par</dt><dd>ICCA, International Corrugated Case Association · <a href="https://www.iccanet.org" target="_blank" rel="noopener">iccanet.org</a></dd></div>
+        <div><dt>Fichier utilisé</dt><dd>« FEFCO Code_WEB(7) New version.pdf », version web interactive</dd></div>
+        <div><dt>Relevé</dt><dd>Liste des codes lue dans le PDF le 9 octobre 2026 : séries 0100 à 0500.</dd></div>
+      </dl>
+      <div class="conv">
+        <b>Conventions du code FEFCO</b>
+        <ul>
+          <li>Cotes <b>intérieures</b> en mm : L (longueur) × W (largeur) × H (hauteur).</li>
+          <li>Montage : M manuel, A automatique, M/A les deux.</li>
+          <li>Suffixe de version après un point (0201.2), « G » collé, « S » agrafé.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tablewrap"><table id="srcTable2" class="srctab">
+      <thead><tr><th>Série</th><th>Désignation</th><th>Pages du PDF</th><th>Codes relevés</th><th>Plans dans l'outil</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <p class="note">Les plans de l'outil sont reconstruits à partir des cotes et des formules du code FEFCO. Ce ne sont pas des copies des dessins du PDF, qui reste la référence. © FEFCO, tous droits réservés.</p>
+  
     </section>
 
     <section id="g11"><h3>Historique et partage</h3>
