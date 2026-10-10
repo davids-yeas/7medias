@@ -120,7 +120,7 @@
   // Croix générique : fond central, et sur chaque côté une suite de bandes (de l'intérieur vers l'extérieur).
   // o.centre = 'L×W' (L horizontal) ou 'W×L' ; o.lr / o.tb = côtés symétriques, ou o.left/right/top/bottom.
   const crossX = (o) => (d) => {
-    const rot = o.centre === 'W×L', cw = rot ? d.W : d.L, ch = rot ? d.L : d.W, sum = (a) => a.reduce((s, t) => s + dep(t, d), 0);
+    const ct = (o.centre || 'L×W').split('×'), cw = dep(ct[0], d), ch = dep(ct[1], d), sum = (a) => a.reduce((s, t) => s + dep(t, d), 0);
     const S = { left: o.left || o.lr || [], right: o.right || o.lr || [], top: o.top || o.tb || [], bottom: o.bottom || o.tb || [] };
     const xl = sum(S.left), yt = sum(S.top), rects = [], creases = [];
     const fl = (t, i) => i > 0 && !/^H\+?$/.test(t);
