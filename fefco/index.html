@@ -11,7 +11,6 @@
 <header class="top">
   <div class="logo"><img class="lg-l" src="logo.png" width="145" height="40" alt="Snotrac, expert emballages"><img class="lg-d" src="logo-dark.png" width="145" height="40" alt="" aria-hidden="true"></div>
   <div class="title">Studio</div>
-  <div class="count" title="Codes FEFCO disponibles dans la bibliothèque"><b id="nCodes">0</b><span>codes disponibles</span></div>
   <button id="theme" class="ghost icon" type="button" aria-label="Changer de thème" title="Changer de thème">
     <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
     <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg>
@@ -136,13 +135,13 @@
   <div class="filters" aria-label="Filtres">
     <div class="frow">
       <input id="cq" type="search" placeholder="Rechercher : code, nom, série…" autocomplete="off" aria-label="Rechercher">
-      <button type="button" id="catFav" class="favtgl" aria-pressed="false" data-tip="Affiche seulement les modèles marqués d'une étoile."><span aria-hidden="true">★</span> Favoris <small>0</small></button>
+      <button type="button" id="catFav" class="favtgl" aria-pressed="false"><span aria-hidden="true">★</span> Favoris <small>0</small></button>
       <span class="fcount" id="catCount" aria-live="polite"></span>
       <button type="button" id="catReset" class="ghost sm">Réinitialiser</button>
     </div>
-    <div class="fgroup"><span class="flabel">Série<button type="button" class="info" data-tipgroup="s" aria-label="Aide : série">i</button></span><div id="fSerie" class="chips" role="group" aria-label="Série"></div></div>
-    <div class="fgroup"><span class="flabel">Montage<button type="button" class="info" data-tipgroup="m" aria-label="Aide : montage">i</button></span><div id="fMode" class="chips" role="group" aria-label="Montage"></div></div>
-    <div class="fgroup"><span class="flabel">Statut<button type="button" class="info" data-tipgroup="t" aria-label="Aide : statut">i</button></span><div id="fStatus" class="chips" role="group" aria-label="Statut"></div></div>
+    <div class="fgroup"><span class="flabel">Série</span><div id="fSerie" class="chips" role="group" aria-label="Série"></div></div>
+    <div class="fgroup"><span class="flabel">Montage</span><div id="fMode" class="chips" role="group" aria-label="Montage"></div></div>
+    <div class="fgroup"><span class="flabel">Statut</span><div id="fStatus" class="chips" role="group" aria-label="Statut"></div></div>
   </div>
   <div id="catGrid" class="catgrid"></div>
   <p class="note">Les séries 0600 (rigides), 0700 (prêtes à coller), 0800 (retail et e-commerce) et 0900 (aménagements intérieurs) sont à relever dans le PDF.</p>

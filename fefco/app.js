@@ -318,7 +318,7 @@
     try { history.replaceState(null, '', HASH[p] || location.pathname + location.search); } catch (e) {}
     if (p === 'guide') { if (!$('miniPlan').firstChild) miniPlan(); renderSource(); }
     if (p === 'hist') { renderHist(); refreshCloud(); }
-    if (p === 'lib') { renderCat(); renderSource(); if (!srcInit) { $('srcBox').open = !matchMedia('(max-width:860px)').matches; srcInit = true; } }
+    if (p === 'lib') { renderCat(); renderSource(); if (!srcInit) { $('srcBox').open = false; srcInit = true; } }
     window.scrollTo(0, 0);
     if (scrollTo) $(scrollTo).scrollIntoView();
     if (p === 'lib' && focusSel) { const el = document.querySelector('.cc.sel'); if (el) el.scrollIntoView({ block: 'center' }); }
@@ -383,7 +383,7 @@
     if (el.dataset.tipgroup) return groupHtml(el.dataset.tipgroup);
     return el.dataset.tip;
   }
-  const TIPSEL = '[data-tip],[data-serie],[data-tipgroup]';
+  const TIPSEL = '[data-none]';
   const canHover = matchMedia('(hover:hover)').matches;
   document.addEventListener('mouseover', (e) => {
     if (!canHover) return;
@@ -393,7 +393,7 @@
   document.addEventListener('focusin', (e) => { const t = e.target.closest(TIPSEL); if (t && canHover) showTip(t, tipHtml(t)); });
   document.addEventListener('focusout', () => { if (canHover) hideTip(); });
   document.addEventListener('click', (e) => {
-    const t = e.target.closest('.info[data-tipgroup], .cat-s');
+    const t = e.target.closest('[data-none]');
     if (t) {
       e.preventDefault(); e.stopPropagation();
       if (tipFor === t && !canHover) { hideTip(); return; }
@@ -403,7 +403,7 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTip(); });
   window.addEventListener('scroll', hideTip, { passive: true });
 
-  const chip = (grp, v, l, n) => `<button type="button" class="chip${cat[grp] === v ? ' on' : ''}" data-g="${grp}" data-v="${v}" data-tip="${(TIPS[grp][v] || '').replace(/"/g, '&quot;')}">${l}<small>${n}</small></button>`;
+  const chip = (grp, v, l, n) => `<button type="button" class="chip${cat[grp] === v ? ' on' : ''}" data-g="${grp}" data-v="${v}">${l}<small>${n}</small></button>`;
   function matches(x, skip) {
     const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const q = norm($('cq').value.trim());
@@ -428,7 +428,7 @@
     let html = '', last = '', n = 0;
     CAT.list.forEach((x) => {
       if (!matches(x)) return;
-      if (x.s !== last) { html += `<button type="button" class="cat-s" data-serie="${x.s}" aria-label="${x.s}, ${CAT.series[x.s]}. Afficher l'aide."><span>${x.s} · ${CAT.series[x.s]}</span><span class="info" aria-hidden="true">i</span></button>`; last = x.s; }
+      if (x.s !== last) { html += `<div class="cat-s"><span>${x.s} · ${CAT.series[x.s]}</span></div>`; last = x.s; }
       n++;
       const ok = !!S[x.c], mode = x.m ? `<small>${MODES[x.m]}</small>` : '', warn = ok && S[x.c].conf !== 'ok' ? '<i class="tag">à valider</i>' : '';
       const sel = x.c === st.code;
@@ -748,7 +748,6 @@
   /* ---------- Démarrage ---------- */
   ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, st[k]));
   sync('client', st.client || '');
-  $('nCodes').textContent = codes.length;
   buildLib('');
   if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').getAttribute('aria-pressed') === 'true');
   setView(st.view);
