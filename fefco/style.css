@@ -374,7 +374,7 @@ button.cat-s .info{margin:0;flex:none;color:var(--teal);border-color:var(--teal)
 button.cat-s:hover,button.cat-s:focus-visible{color:var(--ink)}
 button.cat-s:hover .info,button.cat-s:focus-visible .info{color:var(--orange);border-color:var(--orange)}
 
-/* ---------- Boutons icône (favori, PDF, lien, SVG) ---------- */
+/* ---------- Boutons icône (favori, PDF, lien) ---------- */
 .ibtn{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;padding:0;background:transparent;color:var(--muted);border:1px solid var(--line)}
 .ibtn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ibtn:hover{color:var(--ink);border-color:var(--teal)}

@@ -301,15 +301,6 @@
     const root = document.documentElement;
     root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
   };
-  if ($('dl')) $('dl').onclick = async () => {
-    const c = $('svg').cloneNode(true);
-    c.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    const css = 'rect,polygon{fill:none;stroke:#111;stroke-width:1.5}.cr{stroke:#d62f2f;stroke-dasharray:6 4}.dm{stroke:#1f5fd6}.dt{fill:#1f5fd6;font-family:monospace}.tx{fill:#111;font-family:monospace}';
-    c.insertAdjacentHTML('afterbegin', `<style>${css}</style>`);
-    const r = await saveFile(new Blob([c.outerHTML], { type: 'image/svg+xml' }), `FEFCO-${st.code}-${st.L}x${st.W}x${st.H}.svg`);
-    toast(r === 'declined' ? 'Export annulé' : 'Plan SVG prêt');
-  };
-
   /* ---------- Menu : Outil / Guide ---------- */
   function miniPlan() {
     const r = S['0201'].build({ L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, v: 30 });
