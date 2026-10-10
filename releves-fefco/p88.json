@@ -1,0 +1,233 @@
+[
+{
+"code": "0700",
+"mode": "M",
+"page": 89,
+"titre_fr": "Caisse à fond automatique, sans rabats supérieurs",
+"representable": false
+},
+{
+"code": "0701",
+"mode": "M",
+"page": 89,
+"titre_fr": "Caisse à fond automatique, rabats ½W",
+"representable": false
+},
+{
+"code": "0702",
+"mode": "M",
+"page": 89,
+"titre_fr": "Caisse à fond automatique (type 0701), sans rabats",
+"representable": false
+},
+{
+"code": "0703",
+"mode": "M",
+"page": 90,
+"titre_fr": "Caisse à fond automatique, rabats W",
+"representable": false
+},
+{
+"code": "0704",
+"mode": "M",
+"page": 90,
+"titre_fr": "Caisse à fond automatique, rabats ½W / ½L",
+"representable": false
+},
+{
+"code": "0705",
+"mode": "M",
+"page": 90,
+"titre_fr": "Caisse à fond automatique, couvercle à rabat rentrant",
+"representable": false
+},
+{
+"code": "0706",
+"mode": "M",
+"page": 91,
+"titre_fr": "Caisse à fond automatique à 45°, sans rabats",
+"representable": false
+},
+{
+"code": "0707",
+"mode": "M",
+"page": 91,
+"titre_fr": "Caisse à fond automatique à 45°, rabats W",
+"representable": false
+},
+{
+"code": "0708",
+"mode": "M",
+"page": 91,
+"titre_fr": "Caisse à fond automatique à 45°, rabats ½W",
+"representable": false
+},
+{
+"code": "0709",
+"mode": "M",
+"page": 92,
+"titre_fr": "Caisse à fond automatique à 45°, rabats ½W / ½L",
+"representable": false
+},
+{
+"code": "0710",
+"mode": "M",
+"page": 92,
+"titre_fr": "Caisse à fond automatique, rabats W",
+"representable": false
+},
+{
+"code": "0711",
+"mode": "M",
+"page": 92,
+"titre_fr": "Caisse à fond automatique, rabats ½W",
+"representable": false
+},
+{
+"code": "0712",
+"mode": "M",
+"page": 93,
+"titre_fr": "Caisse à fond automatique, rabats ½W / ½L",
+"representable": false
+},
+{
+"code": "0713",
+"mode": "M",
+"page": 93,
+"titre_fr": "Caisse à fond automatique, couvercle rabattable",
+"representable": false
+},
+{
+"code": "0714",
+"mode": "M",
+"page": 93,
+"titre_fr": "Caisse et couvercle à fond automatique",
+"representable": false
+},
+{
+"code": "0715",
+"mode": "M",
+"page": 94,
+"titre_fr": "Caisse à fond automatique avec croisillon intégré",
+"representable": false
+},
+{
+"code": "0716",
+"mode": "M",
+"page": 94,
+"titre_fr": "Caisse présentoir à partie détachable",
+"representable": false
+},
+{
+"code": "0717",
+"mode": "M",
+"page": 94,
+"titre_fr": "Porte-bouteilles à poignée, fond automatique",
+"representable": false
+},
+{
+"code": "0718",
+"mode": "M",
+"page": 95,
+"titre_fr": "Plateau à parois d'extrémité doublées",
+"representable": false
+},
+{
+"code": "0719",
+"mode": "M",
+"page": 95,
+"titre_fr": "Caisse à fond automatique, couvercle à rabat rentrant",
+"representable": false
+},
+{
+"code": "0720",
+"mode": "M",
+"page": 95,
+"titre_fr": "Caisse à fond automatique, couvercle à rabats v",
+"representable": false
+},
+{
+"code": "0721",
+"mode": "M",
+"page": 96,
+"titre_fr": "Caisse à fond automatique, patte de suspension",
+"representable": false
+},
+{
+"code": "0722",
+"mode": "M",
+"page": 96,
+"titre_fr": "Caisse à fonds automatiques haut et bas, fenêtre",
+"representable": false
+},
+{
+"code": "0723",
+"mode": "M",
+"page": 96,
+"titre_fr": "Porte-bouteilles à poignée (L = W)",
+"representable": false
+},
+{
+"code": "0724",
+"mode": "M",
+"page": 97,
+"titre_fr": "Porte-bouteilles à poignée (L = 1,5 W)",
+"representable": false
+},
+{
+"code": "0725",
+"mode": "M",
+"page": 97,
+"titre_fr": "Caisse présentoir 2 pièces, coiffe découpée",
+"representable": false
+},
+{
+"code": "0726",
+"mode": "M",
+"page": 97,
+"titre_fr": "Caisse présentoir 2 pièces à découpe",
+"representable": false
+},
+{
+"code": "0727",
+"mode": "A",
+"page": 98,
+"titre_fr": "Plateau et coiffe à rabats d'extrémité",
+"representable": false
+},
+{
+"code": "0728",
+"mode": "M",
+"page": 98,
+"titre_fr": "Caisse présentoir à partie détachable",
+"representable": false
+},
+{
+"code": "0730",
+"mode": "M",
+"page": 98,
+"titre_fr": "Boîte hexagonale",
+"representable": false
+},
+{
+"code": "0740",
+"mode": "M",
+"page": 99,
+"titre_fr": "Caisse bag-in-box à ouverture robinet",
+"representable": false
+},
+{
+"code": "0747",
+"mode": "M",
+"page": 99,
+"titre_fr": "Plateau à couvercle rabattable, coins collés",
+"representable": false
+},
+{
+"code": "0748",
+"mode": "M",
+"page": 99,
+"titre_fr": "Plateau à couvercle rabattable, variante",
+"representable": false
+}
+]

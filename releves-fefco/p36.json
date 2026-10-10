@@ -1,0 +1,15 @@
+[
+{"code":"0314","mode":"M","page":36,"titre_fr":"Boîte télescopique : 2 plateaux et manchon","representable":false},
+{"code":"0319","mode":"M/A","page":36,"titre_fr":"Caisse télescopique à deux corps à rabats","representable":true,"spec":{"type":"pieces","items":[{"n":"Corps supérieur","qty":1,"spec":{"type":"slotted","joint":true,"bodyH":"H","seq":[["L","½W","0"],["W","½W","0"],["L","½W","0"],["W","½W","0"]]}},{"n":"Corps inférieur","qty":1,"spec":{"type":"slotted","joint":true,"bodyH":"H+","seq":[["L+","0","½W"],["W+","0","½W"],["L+","0","½W"],["W+","0","½W"]]}}]}},
+{"code":"0320","mode":"M/A","page":36,"titre_fr":"Caisse télescopique à deux corps (extérieur en haut)","representable":true,"spec":{"type":"pieces","items":[{"n":"Corps supérieur","qty":1,"spec":{"type":"slotted","joint":true,"bodyH":"H","seq":[["L+","½W","0"],["W+","½W","0"],["L+","½W","0"],["W+","½W","0"]]}},{"n":"Corps inférieur","qty":1,"spec":{"type":"slotted","joint":true,"bodyH":"H","seq":[["L","0","½W"],["W","0","½W"],["L","0","½W"],["W","0","½W"]]}}]}},
+{"code":"0321","mode":"M","page":37,"titre_fr":"Caisse télescopique à rabats imbriqués","representable":false},
+{"code":"0322","mode":"M","page":37,"titre_fr":"Boîte à coins soufflets et rabats de verrouillage","representable":false},
+{"code":"0323","mode":"M","page":37,"titre_fr":"Boîte à coins soufflets et parois doublées","representable":false},
+{"code":"0325","mode":"M/A","page":38,"titre_fr":"Manchon à rabats et 2 plateaux à rebord replié","representable":true,"simplifie":"doubles rainures dessinées comme un seul pli","spec":{"type":"pieces","items":[{"n":"Plateau","qty":2,"spec":{"type":"crossX","centre":"L+×W+","lr":["v","v"],"tb":["v","v"]}},{"n":"Manchon","qty":1,"spec":{"type":"slotted","joint":true,"bodyH":"H","seq":[["L","v","v"],["W","v","v"],["L","v","v"],["W","v","v"]]}}]}},
+{"code":"0330","mode":"M/A","page":38,"titre_fr":"Boîte à parois doublées et coins","representable":false},
+{"code":"0331","mode":"M/A","page":38,"titre_fr":"Boîte à parois doublées et coins pleins","representable":false},
+{"code":"0350","mode":"A","page":39,"titre_fr":"Boîte octogonale","representable":false},
+{"code":"0351","mode":"M/A","page":39,"titre_fr":"Boîte octogonale à coins rabattus","representable":false},
+{"code":"0352","mode":"M/A","page":39,"titre_fr":"Boîte octogonale allongée","representable":false},
+{"code":"0360","mode":"M","page":40,"titre_fr":"Boîte hexagonale","representable":false}
+]
