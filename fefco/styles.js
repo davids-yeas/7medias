@@ -13,13 +13,26 @@
     'L+': (d) => d.L + (d.jeu || 0), 'W+': (d) => d.W + (d.jeu || 0), 'H+': (d) => d.H + (d.jeu || 0),
     '½L+': (d) => (d.L + (d.jeu || 0)) / 2, '½W+': (d) => (d.W + (d.jeu || 0)) / 2,
   };
-  const dep = (tok, d) => TOK[tok](d);
+  // Jeton connu, sinon petite expression écrite sur le dessin (« H+v », « 2H », « ½(L+o) », « W+ »…).
+  const expr = {};
+  function dep(tok, d) {
+    if (TOK[tok]) return TOK[tok](d);
+    if (!expr[tok]) {
+      let e = String(tok).replace(/\s+/g, '').replace(/[−–]/g, '-').replace(/×/g, '*');
+      e = e.replace(/([LWH])\+(?![LWHvo(½\d])/g, '$1p');          // L+ W+ H+ = cotes avec le jeu
+      e = e.replace(/½/g, '0.5*').replace(/¼/g, '0.25*').replace(/(\d)(?=[LWHvo(])/g, '$1*');
+      if (!/^[LWHpvo0-9.+\-*/()]*$/.test(e)) throw new Error('Cote inconnue : ' + tok);
+      expr[tok] = new Function('L', 'W', 'H', 'Lp', 'Wp', 'Hp', 'v', 'o', 'return ' + e.replace(/([LWH])p/g, '$1p') + ';');
+    }
+    const J = d.jeu || 0;
+    return expr[tok](d.L, d.W, d.H, d.L + J, d.W + J, d.H + J, d.v || 0, d.o || 0);
+  }
   // spec.seq (facultatif) = suite de panneaux [largeur, rabat haut, rabat bas] pour les découpes hors L W L W.
   // spec.diag = plis en diagonale sur les rabats des panneaux W (rabats repliés en soufflet).
   function slotted(spec) {            // spec = { L: [haut, bas], W: [haut, bas] }
     const seqOf = () => spec.seq || ['L', 'W', 'L', 'W'].map((k) => [k, spec[k][0], spec[k][1]]);
     return function (d) {
-      const { H } = d, j = spec.noJoint ? 0 : d.j, seq = seqOf();
+      const H = spec.bodyH ? dep(spec.bodyH, d) : d.H, j = spec.noJoint ? 0 : d.j, seq = seqOf();
       const top = Math.max(...seq.map((p) => dep(p[1], d)));
       const bot = Math.max(...seq.map((p) => dep(p[2], d)));
       const rects = [], creases = [], polys = [];
@@ -104,23 +117,33 @@
       rects.push({ x, y: 0, w, h, fl: false, label: { t, v: w, rot: w < h * 0.35 } }); x += w; });
     return { rects, polys: [], creases, coupe: x, laize: h };
   };
-  // Croix générique : fond L×W, et sur chaque côté une suite de bandes (de l'intérieur vers l'extérieur).
+  // Croix générique : fond central, et sur chaque côté une suite de bandes (de l'intérieur vers l'extérieur).
+  // o.centre = 'L×W' (L horizontal) ou 'W×L' ; o.lr / o.tb = côtés symétriques, ou o.left/right/top/bottom.
   const crossX = (o) => (d) => {
-    const L = d.L, W = d.W, sum = (a) => a.reduce((s, t) => s + dep(t, d), 0);
-    const xl = sum(o.lr), yt = sum(o.tb), rects = [], creases = [];
-    rects.push({ x: xl, y: yt, w: L, h: W, fl: false, label: { t: 'L×W', v: null, txt: 'L × W' } });
+    const rot = o.centre === 'W×L', cw = rot ? d.W : d.L, ch = rot ? d.L : d.W, sum = (a) => a.reduce((s, t) => s + dep(t, d), 0);
+    const S = { left: o.left || o.lr || [], right: o.right || o.lr || [], top: o.top || o.tb || [], bottom: o.bottom || o.tb || [] };
+    const xl = sum(S.left), yt = sum(S.top), rects = [], creases = [];
+    const fl = (t, i) => i > 0 && !/^H\+?$/.test(t);
+    rects.push({ x: xl, y: yt, w: cw, h: ch, fl: false, label: { t: o.centre || 'L×W', v: null, txt: (o.centre || 'L×W').replace('×', ' × ') } });
     let p = 0;
-    o.lr.forEach((t, i) => { const w = dep(t, d), fl = i > 0 && t !== 'H';
-      rects.push({ x: xl - p - w, y: yt, w, h: W, fl, label: { t, v: w, rot: true } });
-      rects.push({ x: xl + L + p, y: yt, w, h: W, fl, label: { t, v: w, rot: true } });
-      creases.push([xl - p, yt, xl - p, yt + W], [xl + L + p, yt, xl + L + p, yt + W]); p += w; });
+    S.left.forEach((t, i) => { const w = dep(t, d); rects.push({ x: xl - p - w, y: yt, w, h: ch, fl: fl(t, i), label: { t, v: w, rot: true } }); creases.push([xl - p, yt, xl - p, yt + ch]); p += w; });
     p = 0;
-    o.tb.forEach((t, i) => { const h = dep(t, d), fl = i > 0 && t !== 'H';
-      rects.push({ x: xl, y: yt - p - h, w: L, h, fl, label: { t, v: h } });
-      rects.push({ x: xl, y: yt + W + p, w: L, h, fl, label: { t, v: h } });
-      creases.push([xl, yt - p, xl + L, yt - p], [xl, yt + W + p, xl + L, yt + W + p]); p += h; });
-    return { rects, polys: [], creases, coupe: L + 2 * xl, laize: W + 2 * yt, bodyY: null };
+    S.right.forEach((t, i) => { const w = dep(t, d); rects.push({ x: xl + cw + p, y: yt, w, h: ch, fl: fl(t, i), label: { t, v: w, rot: true } }); creases.push([xl + cw + p, yt, xl + cw + p, yt + ch]); p += w; });
+    const xr = p; p = 0;
+    S.top.forEach((t, i) => { const h = dep(t, d); rects.push({ x: xl, y: yt - p - h, w: cw, h, fl: fl(t, i), label: { t, v: h } }); creases.push([xl, yt - p, xl + cw, yt - p]); p += h; });
+    p = 0;
+    S.bottom.forEach((t, i) => { const h = dep(t, d); rects.push({ x: xl, y: yt + ch + p, w: cw, h, fl: fl(t, i), label: { t, v: h } }); creases.push([xl, yt + ch + p, xl + cw, yt + ch + p]); p += h; });
+    return { rects, polys: [], creases, coupe: xl + cw + xr, laize: yt + ch + p, bodyY: null };
   };
+  // Plan décrit par une fiche de relevé (voir FROM_PDF plus bas).
+  function fromSpec(sp) {
+    if (sp.type === 'slotted') return slotted({ seq: sp.seq, noJoint: sp.joint === false, bodyH: sp.bodyH, diag: sp.diag });
+    if (sp.type === 'tray') return sp.lid ? lid({ corner: sp.corner, diag: sp.diag, cdiag: sp.cdiag, low: sp.lid === 'v' }) : base({ corner: sp.corner, diag: sp.diag, cdiag: sp.cdiag });
+    if (sp.type === 'crossX') return crossX(sp);
+    if (sp.type === 'band') return band(sp.cols, sp.h);
+    if (sp.type === 'pieces') return compose(sp.items.map((it) => ({ n: it.n, qty: it.qty, build: fromSpec(it.spec) })));
+    throw new Error('Type de plan inconnu : ' + sp.type);
+  }
 
   const STYLES = {
     '0200': Object.assign(slot({ L: ['0', '½W'], W: ['0', '½W'] }), { title: 'Caisse à rabats inférieurs', serie: '0200 · Caisses à rabats', mode: 'M/A', conf: 'ok',
@@ -195,6 +218,18 @@
       desc: 'Plateau en croix : 4 parois H, prolongées par des rabats de ½L et ½W qui se rabattent à l’intérieur.',
       params: [], build: crossX({ lr: ['H', '½L'], tb: ['H', '½W'] }) },
   };
+
+  // Fiches relevées sur les pages du PDF FEFCO : [code, série, montage, titre, description, réglages, plan].
+  const FROM_PDF = [
+  ];
+  FROM_PDF.forEach(([c, serie, mode, title, desc, params, sp]) => {
+    const txt = JSON.stringify(sp), auto = [];
+    if (/"type":"slotted"/.test(txt) && !/"joint":false/.test(txt)) auto.push('j');
+    if (/o[)"]/.test(txt)) auto.push('o');
+    if (/\+"|\+[)½]|"lid":"/.test(txt)) auto.push('jeu');
+    if (/v/.test(txt.replace(/"[a-z]+":/gi, '').replace(/"(slotted|tray|crossX|band|pieces|side|end|gusset)"/g, ''))) auto.push('v');
+    STYLES[c] = { title, serie, mode, conf: 'ok', desc, params: params || auto, build: fromSpec(sp), fam: null };
+  });
 
   // Données de pliage 3D : profondeur de rabat (haut / bas) par type de panneau.
   Object.keys(STYLES).forEach((c) => { const t = STYLES[c]; if (t.spec && !t.spec.seq) t.flap = (k, d, side) => dep(t.spec[k][side === 'b' ? 1 : 0], d); });
