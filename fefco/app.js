@@ -64,7 +64,7 @@
   }
   function compute() {
     cur = S[st.code].build(dims());
-    const ps = pieces(cur), surf = ps.reduce((s, p) => s + p.laize * p.coupe, 0) / 1e6;
+    const ps = pieces(cur), surf = ps.reduce((s, p) => s + p.laize * p.coupe * (p.qty || 1), 0) / 1e6;
     $('laize').textContent = ps.map((p) => fmt(p.laize)).join(' · ');
     $('coupe').textContent = ps.map((p) => fmt(p.coupe)).join(' · ');
     $('surf').textContent = fmt(surf, 3);
@@ -231,13 +231,20 @@
     const t = S[st.code], no3d = !!t && !t.fam;
     document.querySelectorAll('.seg button').forEach((b) => { if (b.dataset.v !== 'plan') { b.disabled = no3d; b.title = no3d ? 'Vue 3D non disponible pour ce modèle' : ''; } });
     if (no3d) v = 'plan';
-    document.querySelectorAll('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
+    document.querySelectorAll('.seg button').forEach((b) => { const on = v === 'both' || b.dataset.v === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     $('panePlan').hidden = v === '3d'; $('pane3d').hidden = v === 'plan';
     $('stage').classList.toggle('both', v === 'both');
     if (v !== 'plan' && window.FEFCO_3D && t) { window.FEFCO_3D.update(st.code, dims()); startFold(); }
     save();
   }
-  document.querySelectorAll('.seg button').forEach((b) => (b.onclick = () => setView(b.dataset.v)));
+  // Plan et 3D se cochent séparément ; les deux cochés = affichage côte à côte (au moins un reste coché).
+  document.querySelectorAll('.seg button').forEach((b) => (b.onclick = () => {
+    if (b.disabled) return;
+    const on = { plan: st.view !== '3d', '3d': st.view !== 'plan' };
+    on[b.dataset.v] = !on[b.dataset.v];
+    if (!on.plan && !on['3d']) on[b.dataset.v === 'plan' ? '3d' : 'plan'] = true;
+    setView(on.plan && on['3d'] ? 'both' : on.plan ? 'plan' : '3d');
+  }));
 
   /* ---------- Lecture du pliage : boucle automatique, le curseur reprend la main ---------- */
   const fold = $('fold'), play = $('play');
@@ -660,7 +667,7 @@
     const E = e || curEntry(), t = S[E.c];
     const r = e ? t.build({ L: E.L, W: E.W, H: E.H, j: E.j, o: E.o, jeu: E.jeu, v: E.v == null ? DEF.v : E.v }) : cur;
     const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
-    const PW = 210, PH = 297, M = 14, ps = pieces(r), surf = ps.reduce((s, p) => s + p.laize * p.coupe, 0) / 1e6;
+    const PW = 210, PH = 297, M = 14, ps = pieces(r), surf = ps.reduce((s, p) => s + p.laize * p.coupe * (p.qty || 1), 0) / 1e6;
     const INK = [29, 43, 51], TEAL = [15, 74, 99], ORANGE = [201, 79, 34], BLUE = [31, 95, 214], RED = [214, 47, 47], MUTED = [90, 107, 116], LINE = [213, 222, 227];
     let y = M;
     const logo = logoData();

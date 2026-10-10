@@ -37,6 +37,15 @@
     </button>
       <button type="button" id="unselCard" class="ibtn" aria-label="Désélectionner le modèle" title="Désélectionner le modèle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
+    <div class="idbar" id="idBar">
+      <div class="ident"><b id="idCode">0201</b><span id="idTitle"></span><i id="idWarn" class="tag" hidden>à valider</i><button type="button" id="unsel" class="ibtn xs" aria-label="Désélectionner le modèle" title="Désélectionner le modèle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <div class="tools">
+        <button type="button" id="fav" class="ibtn" aria-pressed="false" aria-label="Ajouter aux favoris" title="Ajouter aux favoris"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8L12 3.5Z"/></svg></button>
+        <button type="button" id="pdf" class="ibtn" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></button>
+        <!--lk--><button type="button" id="lk" class="ibtn" aria-label="Copier le lien de cette fiche" title="Copier le lien de cette fiche"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></button><!--/lk-->
+        <button type="button" id="dl" class="ibtn" aria-label="Télécharger le plan en SVG" title="Télécharger le plan en SVG"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 11 12 15.5 16.5 11M5 20h14"/></svg></button>
+      </div>
+    </div>
     <section class="dims" aria-label="Dimensions intérieures">
       <div class="dimhead"><span>Dimensions intérieures <i>mm</i></span><button type="button" id="dimReset" class="ghost sm" title="Effacer les dimensions et revenir aux réglages par défaut"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg>Réinitialiser</button></div>
       <label class="clientf" for="client"><span>Client <i>facultatif</i></span><input id="client" type="text" maxlength="60" placeholder="Nom du client ou référence" autocomplete="off" autocapitalize="words"></label>
@@ -62,17 +71,9 @@
 
     <section class="stagebox">
       <div class="bar">
-        <div class="seg" role="tablist" aria-label="Affichage">
-          <button type="button" data-v="plan" class="on">Plan</button>
-          <button type="button" data-v="3d">3D</button>
-          <button type="button" data-v="both">Les deux</button>
-        </div>
-        <div class="ident"><b id="idCode">0201</b><span id="idTitle"></span><i id="idWarn" class="tag" hidden>à valider</i><button type="button" id="unsel" class="ibtn xs" aria-label="Désélectionner le modèle" title="Désélectionner le modèle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-        <div class="tools">
-          <button type="button" id="fav" class="ibtn" aria-pressed="false" aria-label="Ajouter aux favoris" title="Ajouter aux favoris"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8L12 3.5Z"/></svg></button>
-          <button type="button" id="pdf" class="ibtn" aria-label="Exporter la fiche en PDF" title="Exporter la fiche en PDF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></button>
-          <!--lk--><button type="button" id="lk" class="ibtn" aria-label="Copier le lien de cette fiche" title="Copier le lien de cette fiche"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></button><!--/lk-->
-          <button type="button" id="dl" class="ibtn" aria-label="Télécharger le plan en SVG" title="Télécharger le plan en SVG"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 11 12 15.5 16.5 11M5 20h14"/></svg></button>
+        <div class="seg" role="group" aria-label="Affichage : coche Plan, 3D ou les deux">
+          <button type="button" data-v="plan" class="on" aria-pressed="true">Plan</button>
+          <button type="button" data-v="3d" aria-pressed="false">3D</button>
         </div>
       </div>
       <div id="stage" class="stage">
@@ -283,7 +284,7 @@
 
     <section id="g9"><h3>La vue 3D</h3>
       <ul>
-        <li><b>Plan, 3D, Les deux :</b> trois affichages au-dessus du plan. « Les deux » met le plan et la boîte côte à côte, à la même hauteur.</li>
+        <li><b>Plan et 3D :</b> deux cases à cocher au-dessus du plan. Coche l'une, l'autre ou les deux : avec les deux, le plan et la boîte s'affichent côte à côte, à la même hauteur. Pour les modèles sans vue 3D, seule la case Plan est active.</li>
         <li><b>Lecture automatique :</b> dès que la 3D s'affiche ou que tu changes de modèle, le carton part à plat, se replie (d'abord les parois, puis les rabats), marque une pause, puis se déplie, en boucle.</li>
         <li><b>Boutons :</b> l'icône pause / lecture arrête ou relance la boucle, l'icône flèche circulaire active ou coupe la rotation automatique.</li>
         <li><b>Curseur « Pliage » :</b> dès que tu le touches, la lecture s'arrête et tu choisis toi-même la position.</li>
@@ -366,9 +367,15 @@
           <tr><td>0228</td><td>H + W</td><td>3W + L + 2·½(L+o) + joint</td><td>ok</td></tr>
           <tr><td>0230 · 0231</td><td>H + W</td><td>2L + 2W + o (sans joint)</td><td>ok</td></tr>
           <tr><td>0300 · 0301 · 0302</td><td>fond : W + 2H · couvercle : W+ + 2H+</td><td>fond : L + 2H · couvercle : L+ + 2H+</td><td>ok</td></tr>
+          <tr><td>0303 · 0304 · 0308 · 0309</td><td>fond : W + 2H · couvercle : W+ + 2H+</td><td>fond : L + 2H · couvercle : L+ + 2H+</td><td>ok</td></tr>
+          <tr><td>0306</td><td>fond : W + 2H · couvercle : W+ + 2v</td><td>fond : L + 2H · couvercle : L+ + 2v</td><td>ok</td></tr>
+          <tr><td>0310</td><td>couvercle (×2) : W+ + 2v · manchon : H</td><td>couvercle : L+ + 2v · manchon : 2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0312 · 0313</td><td>couvercle : W+ + 2v · corps : H + ½W (0312) ou H + W (0313)</td><td>couvercle : L+ + 2v · corps : 2L + 2W + joint</td><td>ok</td></tr>
           <tr><td>0402</td><td>2W + 2H</td><td>2L + 2H</td><td>ok</td></tr>
+          <tr><td>0403</td><td>2W + 2H</td><td>L + 4H + 4v</td><td>ok</td></tr>
+          <tr><td>0404</td><td>bande 1 : L+ · bande 2 : W</td><td>bande 1 : 2W+ + 2H+ · bande 2 : 2L + 2H</td><td>ok</td></tr>
         </tbody></table></div>
-      <p class="hint">o = recouvrement des rabats du 0202. v = profondeur des rabats supérieurs du 0209. « + » = cotes du couvercle : L, W et H du fond augmentés du jeu. Pour les boîtes en deux pièces, la surface additionne le fond et le couvercle. Joint = languette de collage. Ces valeurs se règlent dans le Studio quand le code les utilise.</p>
+      <p class="hint">o = recouvrement des rabats du 0202. v = profondeur des rabats supérieurs du 0209. « + » = cotes du couvercle : L, W et H du fond augmentés du jeu. Pour les modèles en plusieurs pièces, la laize et la coupe sont données pièce par pièce et la surface additionne toutes les pièces (×2 compté deux fois). Joint = languette de collage. Ces valeurs se règlent dans le Studio quand le code les utilise.</p>
     </section>
 
     <section id="g14"><h3>Version hébergée</h3>

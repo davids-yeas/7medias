@@ -9,7 +9,9 @@
   const TOK = {
     '0': () => 0, '½W': (d) => d.W / 2, '½L': (d) => d.L / 2, 'W': (d) => d.W, 'L': (d) => d.L,
     '½(W+o)': (d) => (d.W + d.o) / 2, 'v': (d) => d.v || 0, '½(L+o)': (d) => (d.L + d.o) / 2,
-    'v+o': (d) => (d.v || 0) + d.o, 'L−v': (d) => d.L - (d.v || 0), 'W−v': (d) => d.W - (d.v || 0),
+    'v+o': (d) => (d.v || 0) + d.o, 'L−v': (d) => d.L - (d.v || 0), 'W−v': (d) => d.W - (d.v || 0), 'H': (d) => d.H,
+    'L+': (d) => d.L + (d.jeu || 0), 'W+': (d) => d.W + (d.jeu || 0), 'H+': (d) => d.H + (d.jeu || 0),
+    '½L+': (d) => (d.L + (d.jeu || 0)) / 2, '½W+': (d) => (d.W + (d.jeu || 0)) / 2,
   };
   const dep = (tok, d) => TOK[tok](d);
   // spec.seq (facultatif) = suite de panneaux [largeur, rabat haut, rabat bas] pour les découpes hors L W L W.
@@ -49,51 +51,76 @@
   const slot = (spec) => ({ fam: spec.seq ? null : 'slotted', spec, build: slotted(spec) });
 
   // ---------- Boîtes télescopiques et plateaux : fond L×W + parois H ----------
-  // Un plateau ; corner = 'side' (coins tenus par les parois de gauche/droite),
-  // 'end' (coins tenus par les parois haut/bas) ou null (croix sans coins).
-  // sfx = '+' pour les cotes d'un couvercle.
-  function tray(L, W, H, corner, sfx, ox) {
-    const P = (t) => t + (sfx || '');
-    const rects = [], creases = [], X = (v) => ox + v;
-    rects.push({ x: X(H), y: H, w: L, h: W, fl: false, label: { t: P('L') + '×' + P('W'), v: null, txt: `${P('L')} × ${P('W')}` } });
-    rects.push({ x: X(H), y: 0, w: L, h: H, fl: false, label: { t: P('H'), v: H } });
-    rects.push({ x: X(H), y: H + W, w: L, h: H, fl: false, label: { t: P('H'), v: H } });
-    rects.push({ x: X(0), y: H, w: H, h: W, fl: false, label: { t: P('H'), v: H, rot: true } });
-    rects.push({ x: X(H + L), y: H, w: H, h: W, fl: false, label: { t: P('H'), v: H, rot: true } });
-    if (corner) [[0, 0], [H + L, 0], [0, H + W], [H + L, H + W]].forEach((c) => rects.push({ x: X(c[0]), y: c[1], w: H, h: H, fl: true, label: null }));
+  // corner = 'side' (coins tenus par les parois gauche/droite), 'end' (par les parois haut/bas),
+  // 'gusset' (pas de fente : coins pliés en soufflet, pli en diagonale) ou null (croix sans coins).
+  // diag = plis à 45° dans les parois haut/bas (coins repliés à l'intérieur, 0303/0304).
+  // sfx = '+' pour les cotes d'un couvercle ; hT = libellé de la hauteur des parois.
+  function tray(L, W, H, o) {
+    const sfx = o.sfx || '', P = (t) => t + sfx, hT = o.hT || P('H');
+    const rects = [], creases = [], corner = o.corner;
+    rects.push({ x: H, y: H, w: L, h: W, fl: false, label: { t: P('L') + '×' + P('W'), v: null, txt: `${P('L')} × ${P('W')}` } });
+    rects.push({ x: H, y: 0, w: L, h: H, fl: false, label: { t: hT, v: H } });
+    rects.push({ x: H, y: H + W, w: L, h: H, fl: false, label: { t: hT, v: H } });
+    rects.push({ x: 0, y: H, w: H, h: W, fl: false, label: { t: hT, v: H, rot: true } });
+    rects.push({ x: H + L, y: H, w: H, h: W, fl: false, label: { t: hT, v: H, rot: true } });
+    if (corner) [[0, 0], [H + L, 0], [0, H + W], [H + L, H + W]].forEach((c) => rects.push({ x: c[0], y: c[1], w: H, h: H, fl: true, label: null }));
     const wAll = L + 2 * H, hAll = W + 2 * H;
-    if (corner === 'side') { creases.push([X(0), H, X(wAll), H], [X(0), H + W, X(wAll), H + W], [X(H), H, X(H), H + W], [X(H + L), H, X(H + L), H + W]); }
-    else if (corner === 'end') { creases.push([X(H), 0, X(H), hAll], [X(H + L), 0, X(H + L), hAll], [X(H), H, X(H + L), H], [X(H), H + W, X(H + L), H + W]); }
-    else creases.push([X(H), H, X(H + L), H], [X(H), H + W, X(H + L), H + W], [X(H), H, X(H), H + W], [X(H + L), H, X(H + L), H + W]);
-    return { rects, creases, w: wAll, h: hAll };
+    if (corner === 'side') creases.push([0, H, wAll, H], [0, H + W, wAll, H + W], [H, H, H, H + W], [H + L, H, H + L, H + W]);
+    else if (corner === 'end') creases.push([H, 0, H, hAll], [H + L, 0, H + L, hAll], [H, H, H + L, H], [H, H + W, H + L, H + W]);
+    else if (corner === 'gusset') {
+      creases.push([0, H, wAll, H], [0, H + W, wAll, H + W], [H, 0, H, hAll], [H + L, 0, H + L, hAll]);
+      creases.push([0, 0, H, H], [wAll, 0, H + L, H], [0, hAll, H, H + W], [wAll, hAll, H + L, H + W]);
+    } else creases.push([H, H, H + L, H], [H, H + W, H + L, H + W], [H, H, H, H + W], [H + L, H, H + L, H + W]);
+    if (o.cdiag) creases.push([0, 0, H, H], [wAll, 0, H + L, H], [0, hAll, H, H + W], [wAll, hAll, H + L, H + W]);
+    if (o.diag) creases.push([H, H, 2 * H, 0], [H + L, H, L, 0], [H, H + W, 2 * H, hAll], [H + L, H + W, L, hAll]);
+    return { rects, polys: [], creases, coupe: wAll, laize: hAll };
   }
-  // Fond + couvercle côte à côte ; le couvercle prend le jeu (« + ») sur L, W et H.
-  function telescope(cBase, cLid) {
+  const base = (o) => (d) => tray(d.L, d.W, d.H, o || {});
+  const lid = (o) => (d) => { const J = d.jeu || 0, lh = o && o.low ? (d.v || 0) : d.H + J;
+    return tray(d.L + J, d.W + J, lh, Object.assign({ sfx: '+', hT: o && o.low ? 'v' : 'H+' }, o || {})); };
+  // Plusieurs pièces posées côte à côte ; chaque pièce garde sa laize et sa coupe.
+  function compose(list) {
     return function (d) {
-      const g = 0.12 * Math.max(d.L, d.W), J = d.jeu || 0;
-      const a = tray(d.L, d.W, d.H, cBase, '', 0);
-      const b = tray(d.L + J, d.W + J, d.H + J, cLid, '+', a.w + g);
-      const pieces = [{ n: 'Fond', x: 0, coupe: a.w, laize: a.h }, { n: 'Couvercle', x: a.w + g, coupe: b.w, laize: b.h }];
-      return { rects: a.rects.concat(b.rects), polys: [], creases: a.creases.concat(b.creases), coupe: a.w + g + b.w, laize: Math.max(a.h, b.h), bodyY: null, pieces };
+      const g = 0.12 * Math.max(d.L, d.W), out = { rects: [], polys: [], creases: [], bodyY: null, pieces: [] };
+      let x = 0, hMax = 0;
+      list.forEach((it) => {
+        const r = it.build(d), mv = (p) => [p[0] + x, p[1]];
+        r.rects.forEach((q) => out.rects.push(Object.assign({}, q, { x: q.x + x })));
+        r.polys.forEach((q) => out.polys.push(Object.assign({}, q, { pts: q.pts.map(mv) })));
+        r.creases.forEach((c) => out.creases.push([c[0] + x, c[1], c[2] + x, c[3]]));
+        out.pieces.push({ n: it.n + (it.qty > 1 ? ' ×' + it.qty : ''), qty: it.qty || 1, x, coupe: r.coupe, laize: r.laize });
+        hMax = Math.max(hMax, r.laize); x += r.coupe + g;
+      });
+      out.coupe = x - g; out.laize = hMax;
+      return out;
     };
   }
-  // Plateau croisé avec rabats de rive (0402) : paroi H puis rabat sur chaque côté.
-  function cross2(d) {
-    const { L, W, H } = d, fx = L / 2, fy = W / 2;
-    const x0 = fx + H, y0 = fy + H, rects = [], creases = [];
-    rects.push({ x: x0, y: y0, w: L, h: W, fl: false, label: { t: 'L×W', v: null, txt: `${'L'} × ${'W'}` } });
-    rects.push({ x: x0, y: y0 - H, w: L, h: H, fl: false, label: { t: 'H', v: H } });
-    rects.push({ x: x0, y: y0 + W, w: L, h: H, fl: false, label: { t: 'H', v: H } });
-    rects.push({ x: x0 - H, y: y0, w: H, h: W, fl: false, label: { t: 'H', v: H, rot: true } });
-    rects.push({ x: x0 + L, y: y0, w: H, h: W, fl: false, label: { t: 'H', v: H, rot: true } });
-    rects.push({ x: x0, y: 0, w: L, h: fy, label: { t: '½W', v: fy } });
-    rects.push({ x: x0, y: y0 + W + H, w: L, h: fy, label: { t: '½W', v: fy } });
-    rects.push({ x: 0, y: y0, w: fx, h: W, label: { t: '½L', v: fx, rot: true } });
-    rects.push({ x: x0 + L + H, y: y0, w: fx, h: W, label: { t: '½L', v: fx, rot: true } });
-    creases.push([x0, y0, x0 + L, y0], [x0, y0 + W, x0 + L, y0 + W], [x0, y0, x0, y0 + W], [x0 + L, y0, x0 + L, y0 + W],
-      [x0, y0 - H, x0 + L, y0 - H], [x0, y0 + W + H, x0 + L, y0 + W + H], [x0 - H, y0, x0 - H, y0 + W], [x0 + L + H, y0, x0 + L + H, y0 + W]);
-    return { rects, polys: [], creases, coupe: L + 2 * H + L, laize: W + 2 * H + W, bodyY: null };
-  }
+  const telescope = (cBase, cLid) => compose([{ n: 'Fond', build: base({ corner: cBase }) }, { n: 'Couvercle', build: lid({ corner: cLid }) }]);
+
+  // Bande : une suite de panneaux de même hauteur, séparés par des plis verticaux (0404).
+  const band = (cols, hTok) => (d) => {
+    const h = dep(hTok, d), rects = [], creases = []; let x = 0;
+    cols.forEach((t, i) => { const w = dep(t, d); if (i) creases.push([x, 0, x, h]);
+      rects.push({ x, y: 0, w, h, fl: false, label: { t, v: w, rot: w < h * 0.35 } }); x += w; });
+    return { rects, polys: [], creases, coupe: x, laize: h };
+  };
+  // Croix générique : fond L×W, et sur chaque côté une suite de bandes (de l'intérieur vers l'extérieur).
+  const crossX = (o) => (d) => {
+    const L = d.L, W = d.W, sum = (a) => a.reduce((s, t) => s + dep(t, d), 0);
+    const xl = sum(o.lr), yt = sum(o.tb), rects = [], creases = [];
+    rects.push({ x: xl, y: yt, w: L, h: W, fl: false, label: { t: 'L×W', v: null, txt: 'L × W' } });
+    let p = 0;
+    o.lr.forEach((t, i) => { const w = dep(t, d), fl = i > 0 && t !== 'H';
+      rects.push({ x: xl - p - w, y: yt, w, h: W, fl, label: { t, v: w, rot: true } });
+      rects.push({ x: xl + L + p, y: yt, w, h: W, fl, label: { t, v: w, rot: true } });
+      creases.push([xl - p, yt, xl - p, yt + W], [xl + L + p, yt, xl + L + p, yt + W]); p += w; });
+    p = 0;
+    o.tb.forEach((t, i) => { const h = dep(t, d), fl = i > 0 && t !== 'H';
+      rects.push({ x: xl, y: yt - p - h, w: L, h, fl, label: { t, v: h } });
+      rects.push({ x: xl, y: yt + W + p, w: L, h, fl, label: { t, v: h } });
+      creases.push([xl, yt - p, xl + L, yt - p], [xl, yt + W + p, xl + L, yt + W + p]); p += h; });
+    return { rects, polys: [], creases, coupe: L + 2 * xl, laize: W + 2 * yt, bodyY: null };
+  };
 
   const STYLES = {
     '0200': Object.assign(slot({ L: ['0', '½W'], W: ['0', '½W'] }), { title: 'Caisse à rabats inférieurs', serie: '0200 · Caisses à rabats', mode: 'M/A', conf: 'ok',
@@ -134,9 +161,39 @@
     '0302': { title: 'Boîte télescopique sans coins', serie: '0300 · Boîtes télescopiques', mode: 'M', conf: 'ok',
       desc: 'Fond et couvercle en croix, sans rabats de coin : les parois sont assemblées par agrafage ou bande.',
       params: ['jeu'], build: telescope(null, null), fam: 'cross' },
+    '0303': { title: 'Boîte télescopique, coins repliés', serie: '0300 · Boîtes télescopiques', mode: 'M', conf: 'ok',
+      desc: 'Fond et couvercle : coins tenus par les parois de bout, repliés à l’intérieur par des plis à 45°.',
+      params: ['jeu'], build: compose([{ n: 'Fond', build: base({ corner: 'end', diag: true }) }, { n: 'Couvercle', build: lid({ corner: 'end', diag: true }) }]), fam: 'cross' },
+    '0304': { title: 'Boîte télescopique, coins repliés sur les côtés', serie: '0300 · Boîtes télescopiques', mode: 'M', conf: 'ok',
+      desc: 'Comme 0303, mais les coins sont tenus par les parois latérales.',
+      params: ['jeu'], build: compose([{ n: 'Fond', build: base({ corner: 'side', diag: true }) }, { n: 'Couvercle', build: lid({ corner: 'side', diag: true }) }]), fam: 'cross' },
+    '0306': { title: 'Boîte à couvercle bas', serie: '0300 · Boîtes télescopiques', mode: 'M/A', conf: 'ok',
+      desc: 'Fond de hauteur H et couvercle bas de hauteur v, qui ne coiffe que le haut du fond.',
+      params: ['jeu', 'v'], build: compose([{ n: 'Fond', build: base({ corner: 'side' }) }, { n: 'Couvercle', build: lid({ corner: 'end', low: true }) }]), fam: 'cross' },
+    '0308': { title: 'Boîte télescopique à coins en soufflet', serie: '0300 · Boîtes télescopiques', mode: 'M', conf: 'ok',
+      desc: 'Fond et couvercle à coins fendus, chaque coin plié en diagonale.',
+      params: ['jeu'], build: compose([{ n: 'Fond', build: base({ corner: 'side', cdiag: true }) }, { n: 'Couvercle', build: lid({ corner: 'side', cdiag: true }) }]), fam: 'cross' },
+    '0309': { title: 'Boîte télescopique sans découpe de coin', serie: '0300 · Boîtes télescopiques', mode: 'M', conf: 'ok',
+      desc: 'Fond et couvercle d’une seule feuille rectangulaire, coins pliés en soufflet (pli en diagonale), sans fente.',
+      params: ['jeu'], build: compose([{ n: 'Fond', build: base({ corner: 'gusset' }) }, { n: 'Couvercle', build: lid({ corner: 'gusset' }) }]), fam: 'cross' },
+    '0310': { title: 'Manchon et deux couvercles', serie: '0300 · Boîtes télescopiques', mode: 'M/A', conf: 'ok',
+      desc: 'Un manchon (4 panneaux et joint, sans rabats) fermé en haut et en bas par deux couvercles bas de hauteur v.',
+      params: ['j', 'jeu', 'v'], build: compose([{ n: 'Couvercle', qty: 2, build: lid({ corner: 'side', low: true }) }, { n: 'Manchon', build: slotted({ L: ['0', '0'], W: ['0', '0'] }) }]) },
+    '0312': { title: 'Caisse à fond à rabats et couvercle bas', serie: '0300 · Boîtes télescopiques', mode: 'M/A', conf: 'ok',
+      desc: 'Corps 0200 (rabats ½W en bas) coiffé d’un couvercle bas de hauteur v.',
+      params: ['j', 'jeu', 'v'], build: compose([{ n: 'Couvercle', build: lid({ corner: 'end', low: true }) }, { n: 'Corps', build: slotted({ L: ['0', '½W'], W: ['0', '½W'] }) }]) },
+    '0313': { title: 'Caisse américaine et deux couvercles', serie: '0300 · Boîtes télescopiques', mode: 'M/A', conf: 'ok',
+      desc: 'Corps 0201 (rabats ½W) avec un couvercle bas de hauteur v en haut et en bas.',
+      params: ['j', 'jeu', 'v'], build: compose([{ n: 'Couvercle', qty: 2, build: lid({ corner: 'end', low: true }) }, { n: 'Corps', build: slotted({ L: ['½W', '½W'], W: ['½W', '½W'] }) }]) },
+    '0403': { title: 'Plateau à parois latérales doublées', serie: '0400 · Boîtes et plateaux', mode: 'M', conf: 'ok',
+      desc: 'Plateau en croix : parois L doublées (H, v, H, v) et parois W prolongées par un rabat de ½W.',
+      params: ['v'], build: crossX({ lr: ['H', 'v', 'H', 'v'], tb: ['H', '½W'] }) },
+    '0404': { title: 'Boîte en deux bandes croisées', serie: '0400 · Boîtes et plateaux', mode: 'M', conf: 'ok',
+      desc: 'Deux bandes : l’une de hauteur L+ (½W+, H+, W+, H+, ½W+), l’autre de hauteur W (½L, H, L, H, ½L), pliées l’une dans l’autre.',
+      params: ['jeu'], build: compose([{ n: 'Bande L+', build: band(['½W+', 'H+', 'W+', 'H+', '½W+'], 'L+') }, { n: 'Bande W', build: band(['½L', 'H', 'L', 'H', '½L'], 'W') }]) },
     '0402': { title: 'Plateau à rabats de rive', serie: '0400 · Boîtes et plateaux', mode: 'M', conf: 'ok',
       desc: 'Plateau en croix : 4 parois H, prolongées par des rabats de ½L et ½W qui se rabattent à l’intérieur.',
-      params: [], build: cross2 },
+      params: [], build: crossX({ lr: ['H', '½L'], tb: ['H', '½W'] }) },
   };
 
   // Données de pliage 3D : profondeur de rabat (haut / bas) par type de panneau.
