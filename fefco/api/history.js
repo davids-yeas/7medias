@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
     }
     if (body.action === 'add') {
       const e = body.entry || {}, v = {};
-      for (const k of ['L', 'W', 'H', 'j', 'o', 'jeu', 'la', 'co']) { v[k] = num(e[k]); if (v[k] === null) return res.status(400).json({ error: 'Valeur invalide : ' + k }); }
+      for (const k of ['L', 'W', 'H', 'j', 'o', 'jeu', 'v', 'la', 'co']) { v[k] = num(e[k] == null ? 0 : e[k]); if (v[k] === null) return res.status(400).json({ error: 'Valeur invalide : ' + k }); }
       if (!/^\d{4}(\.\d{1,2})?$/.test(String(e.c))) return res.status(400).json({ error: 'Code invalide' });
       if (!dev) return res.status(400).json({ error: 'Appareil manquant' });
       const item = Object.assign({ id: crypto.randomUUID(), t: Date.now(), c: String(e.c) }, v, { cl: txt(e.cl, 60), by: txt(body.by, 24), dev });

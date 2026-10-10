@@ -1,19 +1,19 @@
 (function () {
   const S = window.FEFCO_STYLES, $ = (id) => document.getElementById(id);
   const codes = Object.keys(S);
-  const DEF = { code: '0201', L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, client: '', view: 'plan' };
+  const DEF = { code: '0201', L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, v: 30, client: '', view: 'plan' };
   const st = Object.assign({}, DEF);
   try { Object.assign(st, JSON.parse(localStorage.getItem('dieline') || '{}')); } catch (e) {}
   st.code = ''; // à l'ouverture, aucun modèle n'est sélectionné
   try { // lien de partage : ?c=0201&L=400&W=300&H=250
     const q = new URLSearchParams(location.search);
-    if (S[q.get('c')]) { st.code = q.get('c'); ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => { if (q.has(k)) st[k] = Math.max(0, parseFloat(q.get(k)) || 0); }); }
+    if (S[q.get('c')]) { st.code = q.get('c'); ['L', 'W', 'H', 'j', 'o', 'jeu', 'v'].forEach((k) => { if (q.has(k)) st[k] = Math.max(0, parseFloat(q.get(k)) || 0); }); }
   } catch (e) {}
   if (!S[st.code]) st.code = '';
   const save = () => { try { localStorage.setItem('dieline', JSON.stringify(st)); } catch (e) {} };
   const fmt = (n, d = 1) => (Math.round(n * 10 ** d) / 10 ** d).toLocaleString('fr-FR', { maximumFractionDigits: d });
   const num = (v) => Math.max(0, parseFloat(v) || 0);
-  const dims = () => ({ L: st.L, W: st.W, H: st.H, j: st.j, o: st.o, jeu: st.jeu });
+  const dims = () => ({ L: st.L, W: st.W, H: st.H, j: st.j, o: st.o, jeu: st.jeu, v: st.v });
   /* ---------- Stockage local : favoris, récents, historique ---------- */
   const store = {
     get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
@@ -33,7 +33,7 @@
 
   /* ---------- Bibliothèque visuelle ---------- */
   const thumb = (code) => {
-    const r = S[code].build({ L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0 });
+    const r = S[code].build({ L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, v: 30 });
     const p = 30, m = Math.max(r.coupe, r.laize) * 0.04;
     let s = '';
     r.rects.forEach((q) => { s += `<rect x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="none" stroke="currentColor" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`; });
@@ -59,18 +59,20 @@
     $('cmThumb').innerHTML = thumb(st.code); $('cmCode').textContent = st.code; $('cmTitle').textContent = t.title; $('cmWarn').hidden = t.conf === 'ok';
     $('idCode').textContent = st.code; $('idTitle').textContent = t.title; $('idWarn').hidden = t.conf === 'ok';
     document.querySelectorAll('[data-p]').forEach((l) => { l.style.display = t.params.includes(l.dataset.p) ? '' : 'none'; });
-    if (st.code !== lastCode) { lastCode = st.code; recent = [st.code].concat(recent.filter((c) => c !== st.code)).slice(0, 6); store.set('dieline-recent', recent); }
+    if (st.code !== lastCode) { lastCode = st.code; recent = [st.code].concat(recent.filter((c) => c !== st.code)).slice(0, 6); store.set('dieline-recent', recent); if (ready) setView(st.view); }
     syncFav(); renderQuick();
   }
   function compute() {
     cur = S[st.code].build(dims());
-    const surf = cur.laize * cur.coupe / 1e6;
-    $('laize').textContent = fmt(cur.laize);
-    $('coupe').textContent = fmt(cur.coupe);
+    const ps = pieces(cur), surf = ps.reduce((s, p) => s + p.laize * p.coupe, 0) / 1e6;
+    $('laize').textContent = ps.map((p) => fmt(p.laize)).join(' · ');
+    $('coupe').textContent = ps.map((p) => fmt(p.coupe)).join(' · ');
     $('surf').textContent = fmt(surf, 3);
     $('vol').textContent = fmt(st.L * st.W * st.H / 1e6, 1);
     return surf;
   }
+  // Plusieurs pièces (fond + couvercle) : laize et coupe par pièce, surface additionnée.
+  const pieces = (r) => r.pieces || [{ n: '', x: 0, coupe: r.coupe, laize: r.laize }];
   function showNoDims(missing) {
     document.querySelector('.work').classList.toggle('nodims', missing.length > 0);
     if (missing.length) $('noDimsList').textContent = missing.join(', ');
@@ -94,7 +96,7 @@
     showNoDims(missing);
     if (missing.length) { save(); return; }
     compute(); drawPlan();
-    if (st.view !== 'plan' && window.FEFCO_3D) { window.FEFCO_3D.update(st.code, dims()); autoFold(); }
+    if (st.view !== 'plan' && S[st.code].fam && window.FEFCO_3D) { window.FEFCO_3D.update(st.code, dims()); autoFold(); }
     if (opts.lib) buildLib($('q').value);
     save();
     if (ready) scheduleLog();
@@ -118,8 +120,8 @@
     };
     let s = '';
     r.rects.forEach((q) => {
-      const l = q.label || {}, isFlap = l.t && l.t !== 'L' && l.t !== 'W' && l.t !== 'H' && l.t !== 'L×W';
-      const name = NAMES[l.t] || (isFlap ? 'Rabat ' + l.t : 'Panneau');
+      const l = q.label || {}, isFlap = q.fl != null ? q.fl : l.t && l.t !== 'L' && l.t !== 'W' && l.t !== 'H' && l.t !== 'L×W';
+      const name = isFlap ? (l.t ? 'Rabat ' + l.t : 'Rabat de coin') : NAMES[l.t] || NAMES[(l.t || '').replace(/\+/g, '')] || 'Panneau';
       const info = `${name} · ${fmt(q.w)} × ${fmt(q.h)} mm`;
       s += `<rect class="pn${isFlap ? ' fl' : ''}" data-i="${info}" x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}"/>`;
       s += label(q.x + q.w / 2, q.y + q.h / 2, q.w, q.h, q.label);
@@ -130,10 +132,13 @@
       s += label((Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2, Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), p.label);
     });
     r.creases.forEach((c) => { s += `<line class="cr" x1="${c[0]}" y1="${c[1]}" x2="${c[2]}" y2="${c[3]}"/>`; });
-    const tk = fs * 0.6, bx = r.coupe + off, by = r.laize + off;
+    const tk = fs * 0.6;
     const dimV = (x, a, b, t, cls, rot) => `<line class="dm ${cls}" x1="${x}" y1="${a}" x2="${x}" y2="${b}"/><line class="dm ${cls}" x1="${x - tk}" y1="${a}" x2="${x + tk}" y2="${a}"/><line class="dm ${cls}" x1="${x - tk}" y1="${b}" x2="${x + tk}" y2="${b}"/>` + T(x + (rot === 1 ? fs * 1.3 : -fs * 1.3), (a + b) / 2, t, 'dt', { rot: 1 });
-    s += dimV(bx, 0, r.laize, `LAIZE ${fmt(r.laize)}`, 'laize', 1);
-    s += `<line class="dm coupe" x1="0" y1="${by}" x2="${r.coupe}" y2="${by}"/><line class="dm coupe" x1="0" y1="${by - tk}" x2="0" y2="${by + tk}"/><line class="dm coupe" x1="${r.coupe}" y1="${by - tk}" x2="${r.coupe}" y2="${by + tk}"/>` + T(r.coupe / 2, by + fs * 1.4, `COUPE ${fmt(r.coupe)}`, 'dt');
+    pieces(r).forEach((p, i, all) => {
+      const px = p.x, pr = p.x + p.coupe, pb = p.laize + off, left = i < all.length - 1;   // 1re pièce : cote à gauche
+      s += dimV(left ? px - off : pr + off, 0, p.laize, `LAIZE ${fmt(p.laize)}`, 'laize', left ? 2 : 1);
+      s += `<line class="dm coupe" x1="${px}" y1="${pb}" x2="${pr}" y2="${pb}"/><line class="dm coupe" x1="${px}" y1="${pb - tk}" x2="${px}" y2="${pb + tk}"/><line class="dm coupe" x1="${pr}" y1="${pb - tk}" x2="${pr}" y2="${pb + tk}"/>` + T((px + pr) / 2, pb + fs * 1.4, `${p.n ? p.n.toUpperCase() + ' · ' : ''}COUPE ${fmt(p.coupe)}`, 'dt');
+    });
     if (hasH) s += dimV(-off - fs * 0.8, r.bodyY[0], r.bodyY[1], `H = ${fmt(r.bodyY[1] - r.bodyY[0])}`, 'hh', 2);
     $('svg').innerHTML = s;
     $('svg').dataset.fs = fs;
@@ -203,14 +208,14 @@
   const sync = (k, v) => { st[k] = v; if ($(k)) $(k).value = !v && ['L', 'W', 'H'].includes(k) ? '' : v; };
   $('dimReset').onclick = () => {
     ['L', 'W', 'H'].forEach((k) => sync(k, 0)); $('L').value = $('W').value = $('H').value = '';
-    sync('j', DEF.j); sync('o', DEF.o); sync('jeu', DEF.jeu);
+    sync('j', DEF.j); sync('o', DEF.o); sync('jeu', DEF.jeu); sync('v', DEF.v);
     resetView(); refresh(); toast('Dimensions effacées'); $('L').focus();
   };
   $('client').addEventListener('input', (e) => { st.client = e.target.value.slice(0, 60); refresh(); });
   ['L', 'W', 'H'].forEach((k) => {
     $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); });
   });
-  ['j', 'o', 'jeu'].forEach((k) => $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); }));
+  ['j', 'o', 'jeu', 'v'].forEach((k) => $(k).addEventListener('input', (e) => { st[k] = num(e.target.value); refresh(); }));
   const mobile = () => matchMedia('(max-width:860px)').matches;
   $('libList').addEventListener('click', (e) => {
     const b = e.target.closest('.item'); if (!b) return;
@@ -223,10 +228,13 @@
   /* ---------- Affichage Plan / 3D / Les deux ---------- */
   function setView(v) {
     st.view = v;
+    const t = S[st.code], no3d = !!t && !t.fam;
+    document.querySelectorAll('.seg button').forEach((b) => { if (b.dataset.v !== 'plan') { b.disabled = no3d; b.title = no3d ? 'Vue 3D non disponible pour ce modèle' : ''; } });
+    if (no3d) v = 'plan';
     document.querySelectorAll('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
     $('panePlan').hidden = v === '3d'; $('pane3d').hidden = v === 'plan';
     $('stage').classList.toggle('both', v === 'both');
-    if (v !== 'plan' && window.FEFCO_3D && S[st.code]) { window.FEFCO_3D.update(st.code, dims()); startFold(); }
+    if (v !== 'plan' && window.FEFCO_3D && t) { window.FEFCO_3D.update(st.code, dims()); startFold(); }
     save();
   }
   document.querySelectorAll('.seg button').forEach((b) => (b.onclick = () => setView(b.dataset.v)));
@@ -269,7 +277,7 @@
     const su = e.la * e.co / 1e6;
     return `FEFCO ${e.c} – ${S[e.c].title}${e.cl ? `\nClient : ${e.cl}` : ''}\nDimensions int. : ${fmt(e.L, 0)} × ${fmt(e.W, 0)} × ${fmt(e.H, 0)} mm\nLaize : ${fmt(e.la)} mm\nCoupe : ${fmt(e.co)} mm\nSurface : ${fmt(su, 3)} m²\nVolume utile : ${fmt(e.L * e.W * e.H / 1e6, 1)} L`;
   }
-  const curEntry = () => ({ c: st.code, L: st.L, W: st.W, H: st.H, j: st.j, o: st.o, jeu: st.jeu, la: cur.laize, co: cur.coupe, cl: (st.client || '').trim() });
+  const curEntry = () => ({ c: st.code, L: st.L, W: st.W, H: st.H, j: st.j, o: st.o, jeu: st.jeu, v: st.v, la: cur.laize, co: cur.coupe, cl: (st.client || '').trim() });
   function copyText(txt, done) {
     const fallback = () => { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove(); };
     if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
@@ -297,7 +305,7 @@
 
   /* ---------- Menu : Outil / Guide ---------- */
   function miniPlan() {
-    const r = S['0201'].build({ L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0 });
+    const r = S['0201'].build({ L: 400, W: 300, H: 250, j: 35, o: 40, jeu: 0, v: 30 });
     const fs = 52, pad = 120, x0 = -pad, y0 = -40, w = r.coupe + pad + 230, h = r.laize + 230;
     const T = (x, y, t, c, rot) => `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="middle" class="${c}"${rot ? ` transform="rotate(-90 ${x} ${y})"` : ''}>${t}</text>`;
     let s = '';
@@ -322,7 +330,7 @@
     window.scrollTo(0, 0);
     if (scrollTo) $(scrollTo).scrollIntoView();
     if (p === 'lib' && focusSel) { const el = document.querySelector('.cc.sel'); if (el) el.scrollIntoView({ block: 'center' }); }
-    if (p === 'tool' && st.view !== 'plan' && window.FEFCO_3D) window.FEFCO_3D.show();
+    if (p === 'tool' && st.view !== 'plan' && S[st.code] && S[st.code].fam && window.FEFCO_3D) window.FEFCO_3D.show();
   }
   document.querySelectorAll('[data-page]').forEach((b) => b.addEventListener('click', () => page(b.dataset.page)));
   $('curModel').addEventListener('click', () => page('lib', null, true));
@@ -493,7 +501,7 @@
     if (!cur) return;
     const e = Object.assign({ t: Date.now(), by: cloud.name }, curEntry());
     const p = cloud.on ? hist.find((x) => x.dev === DEV) : hist[0];
-    if (p && ['c', 'L', 'W', 'H', 'j', 'o', 'jeu'].every((k) => p[k] === e[k]) && (p.cl || '') === (e.cl || '')) return;
+    if (p && ['c', 'L', 'W', 'H', 'j', 'o', 'jeu', 'v'].every((k) => p[k] === e[k]) && (p.cl || '') === (e.cl || '')) return;
     if (cloud.on) { cloudInsert(e); return; }
     hist.unshift(e); hist = hist.slice(0, 40); persist();
     if (!$('viewHist').hidden) renderHist();
@@ -528,7 +536,7 @@
     } else if (main) {
       const i = +main.dataset.i, h = hist[i]; if (!h) return;
       if (!cloud.on) { hist.splice(i, 1); persist(); }
-      st.code = h.c; ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, h[k])); sync('client', h.cl || '');
+      st.code = h.c; ['L', 'W', 'H', 'j', 'o', 'jeu', 'v'].forEach((k) => sync(k, h[k] == null ? DEF[k] : h[k])); sync('client', h.cl || '');
       resetView(); refresh({ lib: true }); page('tool'); toast('Calcul rouvert');
     }
   });
@@ -556,7 +564,7 @@
     if (!$('viewHist').hidden) renderHist();
   }
   async function cloudInsert(e) {
-    const r = await api({ action: 'add', code: cloud.code, dev: DEV, by: cloud.name, entry: { c: e.c, L: e.L, W: e.W, H: e.H, j: e.j, o: e.o, jeu: e.jeu, la: e.la, co: e.co, cl: e.cl || '' } });
+    const r = await api({ action: 'add', code: cloud.code, dev: DEV, by: cloud.name, entry: { c: e.c, L: e.L, W: e.W, H: e.H, j: e.j, o: e.o, jeu: e.jeu, v: e.v, la: e.la, co: e.co, cl: e.cl || '' } });
     if (r.status === 401) { lock('Code modifié : saisis le nouveau code'); return; }
     if (!r.ok) { toast('Synchronisation impossible'); return; }
     addCloud(r.data.item);
@@ -650,9 +658,9 @@
   const pf = (n, d) => fmt(n, d).replace(/[\u202F\u00A0]/g, ' '); // le PDF n'affiche pas les espaces insécables
   function buildPdf(e) { // e : un calcul de l'historique ; sans argument, le calcul en cours
     const E = e || curEntry(), t = S[E.c];
-    const r = e ? t.build({ L: E.L, W: E.W, H: E.H, j: E.j, o: E.o, jeu: E.jeu }) : cur;
+    const r = e ? t.build({ L: E.L, W: E.W, H: E.H, j: E.j, o: E.o, jeu: E.jeu, v: E.v == null ? DEF.v : E.v }) : cur;
     const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
-    const PW = 210, PH = 297, M = 14, surf = r.laize * r.coupe / 1e6;
+    const PW = 210, PH = 297, M = 14, ps = pieces(r), surf = ps.reduce((s, p) => s + p.laize * p.coupe, 0) / 1e6;
     const INK = [29, 43, 51], TEAL = [15, 74, 99], ORANGE = [201, 79, 34], BLUE = [31, 95, 214], RED = [214, 47, 47], MUTED = [90, 107, 116], LINE = [213, 222, 227];
     let y = M;
     const logo = logoData();
@@ -673,10 +681,10 @@
     if (E.cl) { doc.text('Client : ' + E.cl.replace(/[^\u0020-\u00FF]/g, '?'), M, y); y += 6.5; }
     let dimTxt = `Dimensions intérieures (L × W × H) : ${pf(E.L, 0)} × ${pf(E.W, 0)} × ${pf(E.H, 0)} mm`;
     doc.text(dimTxt, M, y);
-    const extra = [t.params.includes('j') ? `joint ${pf(E.j, 0)} mm` : '', t.params.includes('o') ? `recouvrement ${pf(E.o, 0)} mm` : '', t.params.includes('jeu') ? `jeu ${pf(E.jeu, 0)} mm` : ''].filter(Boolean).join('  |  ');
+    const extra = [t.params.includes('j') ? `joint ${pf(E.j, 0)} mm` : '', t.params.includes('o') ? `recouvrement ${pf(E.o, 0)} mm` : '', t.params.includes('jeu') ? `jeu ${pf(E.jeu, 0)} mm` : '', t.params.includes('v') ? `rabat v ${pf(E.v == null ? DEF.v : E.v, 0)} mm` : ''].filter(Boolean).join('  |  ');
     if (extra) { y += 5; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED); doc.text(extra, M, y); }
     y += 6;
-    const boxes = [['LAIZE (VERTICAL)', pf(r.laize) + ' mm'], ['COUPE (HORIZONTAL)', pf(r.coupe) + ' mm'], ['SURFACE', pf(surf, 3) + ' m²'], ['VOLUME UTILE', pf(E.L * E.W * E.H / 1e6, 1) + ' L']];
+    const boxes = [['LAIZE (VERTICAL)', ps.map((p) => pf(p.laize)).join(' · ') + ' mm'], ['COUPE (HORIZONTAL)', ps.map((p) => pf(p.coupe)).join(' · ') + ' mm'], ['SURFACE', pf(surf, 3) + ' m²'], ['VOLUME UTILE', pf(E.L * E.W * E.H / 1e6, 1) + ' L']];
     const bw = (PW - 2 * M - 3 * 4) / 4;
     boxes.forEach((b, i) => {
       const x = M + i * (bw + 4);
@@ -689,7 +697,7 @@
 
     // plan : mise à l'échelle dans la zone restante
     const fsm = Math.max(r.coupe, r.laize) / 52, hasH = !!r.bodyY, off = fsm * 2.6;
-    const mL = hasH ? fsm * 5 : fsm * 1.5, mR = fsm * 5, mT = fsm * 1.5, mB = fsm * 5;
+    const mL = hasH || ps.length > 1 ? fsm * 5 : fsm * 1.5, mR = fsm * 5, mT = fsm * 1.5, mB = fsm * 5;
     const mW = r.coupe + mL + mR, mH = r.laize + mT + mB;
     const aw = PW - 2 * M, ah = PH - M - 14 - y;
     const sc = Math.min(aw / mW, ah / mH);
@@ -706,7 +714,7 @@
     };
     doc.setLineWidth(0.3); doc.setDrawColor(...INK);
     r.rects.forEach((q) => {
-      const l = q.label || {}, flap = l.t && l.t !== 'L' && l.t !== 'W' && l.t !== 'H' && l.t !== 'L×W';
+      const l = q.label || {}, flap = q.fl != null ? q.fl : l.t && l.t !== 'L' && l.t !== 'W' && l.t !== 'H' && l.t !== 'L×W';
       doc.setFillColor(...(flap ? [250, 240, 234] : [234, 242, 246])); doc.rect(X(q.x), Y(q.y), q.w * sc, q.h * sc, 'FD'); lab(q.x + q.w / 2, q.y + q.h / 2, q.w, q.h, q.label);
     });
     r.polys.forEach((p) => {
@@ -724,10 +732,12 @@
       doc.line(X(xm), Y(a), X(xm), Y(b)); doc.line(X(xm) - tk, Y(a), X(xm) + tk, Y(a)); doc.line(X(xm) - tk, Y(b), X(xm) + tk, Y(b));
       const tw = doc.getTextWidth(txt); doc.text(txt, X(xm) + side * fsMm * 1.15, Y((a + b) / 2) + tw / 2, { angle: 90 });
     };
-    vdim(r.coupe + off, 0, r.laize, `LAIZE ${pf(r.laize)}`, 1);
-    const by = r.laize + off;
-    doc.line(X(0), Y(by), X(r.coupe), Y(by)); doc.line(X(0), Y(by) - tk, X(0), Y(by) + tk); doc.line(X(r.coupe), Y(by) - tk, X(r.coupe), Y(by) + tk);
-    doc.text(`COUPE ${pf(r.coupe)}`, X(r.coupe / 2), Y(by) + fsMm * 1.5, { align: 'center' });
+    ps.forEach((p, i) => {
+      const px = p.x, pr = p.x + p.coupe, by = p.laize + off, left = i < ps.length - 1;
+      vdim(left ? px - off : pr + off, 0, p.laize, `LAIZE ${pf(p.laize)}`, left ? -1 : 1);
+      doc.line(X(px), Y(by), X(pr), Y(by)); doc.line(X(px), Y(by) - tk, X(px), Y(by) + tk); doc.line(X(pr), Y(by) - tk, X(pr), Y(by) + tk);
+      doc.text(`${p.n ? p.n.toUpperCase() + ' · ' : ''}COUPE ${pf(p.coupe)}`, X((px + pr) / 2), Y(by) + fsMm * 1.5, { align: 'center' });
+    });
     if (hasH) vdim(-off - fsm * 0.8, r.bodyY[0], r.bodyY[1], `H = ${pf(r.bodyY[1] - r.bodyY[0])}`, -1);
 
     // pied de page
@@ -746,7 +756,7 @@
   $('pdf').onclick = () => { scheduleLog(true); exportPdf(); };
 
   /* ---------- Démarrage ---------- */
-  ['L', 'W', 'H', 'j', 'o', 'jeu'].forEach((k) => sync(k, st[k]));
+  ['L', 'W', 'H', 'j', 'o', 'jeu', 'v'].forEach((k) => sync(k, st[k]));
   sync('client', st.client || '');
   buildLib('');
   if (window.FEFCO_3D) window.FEFCO_3D.setAuto($('auto').getAttribute('aria-pressed') === 'true');

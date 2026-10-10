@@ -548,3 +548,8 @@ html.nofs,html.nofs body{overflow:hidden}
   .prog>span{font-size:.62rem}
   .prog i{flex:1 1 100%;margin-top:6px;height:4px}
 }
+
+/* ---------- Header : bouton PDF FEFCO + thème ---------- */
+#pdfDoc{margin-left:auto;color:var(--ink);text-decoration:none}
+#pdfDoc:hover{color:var(--teal)}
+.top #theme{margin-left:-12px}

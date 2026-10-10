@@ -31,16 +31,13 @@
     const seq = ['L', 'W', 'L', 'W'], H = d.H;
     let x = 0, parent = null; const flaps = [], bodies = [];
     seq.forEach((k, i) => {
-      const w = k === 'L' ? d.L : d.W, dep = st.flap(k, d);
+      const w = k === 'L' ? d.L : d.W, dt = st.flap(k, d, 't'), db = st.flap(k, d, 'b');
       const g = grp(parent || pivot, i ? x : 0, 0);
       if (i) bodies.push(g);
       panel(g, 0, 0, w, H);
-      if (dep > 0) {
-        const up = i >= 2 ? 2 : 0;
-        const t = grp(g, 0, H + up); panel(t, 0, 0, w, dep); t.userData.s = 1; flaps.push(t);
-        const b = grp(g, 0, -up); b.scale.y = 1; const bm = new THREE.Group(); b.add(bm);
-        panel(bm, 0, -dep, w, dep); b.userData.s = -1; flaps.push(b);
-      }
+      const up = i >= 2 ? 2 : 0;
+      if (dt > 0) { const t = grp(g, 0, H + up); panel(t, 0, 0, w, dt); t.userData.s = 1; flaps.push(t); }
+      if (db > 0) { const b = grp(g, 0, -up); const bm = new THREE.Group(); b.add(bm); panel(bm, 0, -db, w, db); b.userData.s = -1; flaps.push(b); }
       if (i === 0) {
         const j = new THREE.Group(); g.add(j); j.userData.joint = true; hinge.joint = j;
         const tp = Math.min(8, H / 4);
@@ -50,11 +47,11 @@
       if (i === 0) hinge.root = g;
     });
     hinge.bodies = bodies; hinge.flaps = flaps; hinge.fam = 'slotted';
-    return { cx: d.L / 2, cy: H / 2, cz: -d.W / 2, fx: d.L + d.W - d.j / 2, fy: H / 2, fz: 0, bx: d.L, by: d.W, bz: H, openH: H + 2 * Math.max(st.flap('L', d), st.flap('W', d)), stage: 0.6, size: Math.max(d.L, d.W, H) * 2 };
+    return { cx: d.L / 2, cy: H / 2, cz: -d.W / 2, fx: d.L + d.W - d.j / 2, fy: H / 2, fz: 0, bx: d.L, by: d.W, bz: H, openH: H + Math.max(st.flap('L', d, 't'), st.flap('W', d, 't')) + Math.max(st.flap('L', d, 'b'), st.flap('W', d, 'b')), stage: 0.6, size: Math.max(d.L, d.W, H) * 2 };
   }
 
   function buildCross(st, d) {
-    const L = d.L + (d.jeu || 0), W = d.W + (d.jeu || 0), H = d.H;
+    const L = d.L, W = d.W, H = d.H;   // fond seul
     panel(pivot, 0, 0, L, W);
     const mk = (x, y, w, h, key, s, below) => { const g = grp(pivot, x, y); const m = new THREE.Group(); g.add(m); panel(m, 0, below ? -h : 0, w, h); g.userData = { key, s }; return g; };
     hinge.walls = [

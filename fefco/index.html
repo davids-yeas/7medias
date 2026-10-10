@@ -11,6 +11,9 @@
 <header class="top">
   <div class="logo"><img class="lg-l" src="logo.png" width="145" height="40" alt="Snotrac, expert emballages"><img class="lg-d" src="logo-dark.png" width="145" height="40" alt="" aria-hidden="true"></div>
   <div class="title">Studio</div>
+  <a id="pdfDoc" class="ghost icon" href="https://drive.google.com/file/d/18r8_59waFoxJzRRnId_zO_6qVo-gER12/view?usp=drive_link" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir le PDF FEFCO (nouvelle fenêtre)" title="Ouvrir le PDF FEFCO">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>
+  </a>
   <button id="theme" class="ghost icon" type="button" aria-label="Changer de thème" title="Changer de thème">
     <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
     <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg>
@@ -44,6 +47,7 @@
         <label data-p="j" for="j"><span>Joint <b>j</b></span><input id="j" type="number" min="0"></label>
         <label data-p="o" for="o"><span>Recouvrement <b>o</b></span><input id="o" type="number" min="0"></label>
         <label data-p="jeu" for="jeu"><span>Jeu <b>+</b></span><input id="jeu" type="number" min="0"></label>
+        <label data-p="v" for="v"><span>Rabat <b>v</b></span><input id="v" type="number" min="0"></label>
       </div>
     </section>
 
@@ -349,15 +353,22 @@
       <div class="tablewrap"><table>
         <thead><tr><th>Code</th><th>Laize (vertical)</th><th>Coupe (horizontal)</th><th>État</th></tr></thead>
         <tbody>
-          <tr><td>0200</td><td>H</td><td>2L + 2W + joint</td><td>ok</td></tr>
-          <tr><td>0201</td><td>W + H</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0200</td><td>H + ½W</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0201</td><td>H + W</td><td>2L + 2W + joint</td><td>ok</td></tr>
           <tr><td>0202</td><td>H + W + o</td><td>2L + 2W + joint</td><td>ok</td></tr>
           <tr><td>0203</td><td>H + 2W</td><td>2L + 2W + joint</td><td>ok</td></tr>
-          <tr><td>0205</td><td>H + L</td><td>2L + 2W + joint</td><td>à valider</td></tr>
-          <tr><td>0300</td><td>W + 2H (+ jeu)</td><td>L + 2H (+ jeu)</td><td>à valider</td></tr>
-          <tr><td>0400</td><td>W + 2H</td><td>L + 2H</td><td>à valider</td></tr>
+          <tr><td>0204</td><td>H + L (rabats ½L des panneaux W)</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0205</td><td>H + L</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0206</td><td>H + 2W</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0209</td><td>H + v + ½W</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0214</td><td>H + v + ½W</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0226</td><td>H + W</td><td>2L + 2W + joint</td><td>ok</td></tr>
+          <tr><td>0228</td><td>H + W</td><td>3W + L + 2·½(L+o) + joint</td><td>ok</td></tr>
+          <tr><td>0230 · 0231</td><td>H + W</td><td>2L + 2W + o (sans joint)</td><td>ok</td></tr>
+          <tr><td>0300 · 0301 · 0302</td><td>fond : W + 2H · couvercle : W+ + 2H+</td><td>fond : L + 2H · couvercle : L+ + 2H+</td><td>ok</td></tr>
+          <tr><td>0402</td><td>2W + 2H</td><td>2L + 2H</td><td>ok</td></tr>
         </tbody></table></div>
-      <p class="hint">o = recouvrement des rabats du 0202. Joint = languette de collage. Ces valeurs se règlent dans le Studio quand le code les utilise.</p>
+      <p class="hint">o = recouvrement des rabats du 0202. v = profondeur des rabats supérieurs du 0209. « + » = cotes du couvercle : L, W et H du fond augmentés du jeu. Pour les boîtes en deux pièces, la surface additionne le fond et le couvercle. Joint = languette de collage. Ces valeurs se règlent dans le Studio quand le code les utilise.</p>
     </section>
 
     <section id="g14"><h3>Version hébergée</h3>
