@@ -40,7 +40,7 @@ redemanderont le nouveau code.
 |---|---|
 | `index.html`, `style.css` | page et charte Snotrac |
 | `styles.js` | géométrie des codes FEFCO (formules) |
-| `catalog.js` | liste des 168 codes relevés dans le PDF |
+| `catalog.js` | liste des 325 codes relevés dans le PDF (séries 0100 à 0900) |
 | `app.js`, `app3d.js` | application, vue 3D |
 | `config.js` | active l'historique partagé |
 | `api/history.js` | fonction serverless (code d'accès + Redis) |

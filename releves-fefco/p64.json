@@ -1,0 +1,299 @@
+[
+{
+"code": "0453",
+"mode": "A",
+"page": 64,
+"titre_fr": "Plateau à coins rattachés aux parois longues",
+"representable": true,
+"spec": {
+"type": "tray",
+"corner": "end"
+},
+"simplifie": "fentes de coin non dessinées"
+},
+{
+"code": "0454",
+"mode": "M",
+"page": 64,
+"titre_fr": "Plateau à parois latérales doubles et coins rattachés",
+"representable": false
+},
+{
+"code": "0455",
+"mode": "M",
+"page": 64,
+"titre_fr": "Plateau à parois longues doubles et coins latéraux",
+"representable": false
+},
+{
+"code": "0456",
+"mode": "M",
+"page": 65,
+"titre_fr": "Plateau à quatre parois doubles",
+"representable": false
+},
+{
+"code": "0457",
+"mode": "M",
+"page": 65,
+"titre_fr": "Plateau en croix à coins crochets",
+"representable": true,
+"spec": {
+"type": "crossX",
+"centre": "L×W",
+"lr": [
+"H"
+],
+"tb": [
+"H"
+]
+},
+"simplifie": "languettes à crochet et fentes de verrouillage non dessinées"
+},
+{
+"code": "0458",
+"mode": "M",
+"page": 65,
+"titre_fr": "Plateau en croix simple",
+"representable": true,
+"spec": {
+"type": "crossX",
+"centre": "L×W",
+"lr": [
+"H"
+],
+"tb": [
+"H"
+]
+}
+},
+{
+"code": "0459",
+"mode": "A",
+"page": 66,
+"titre_fr": "Plateau octogonal à pans coupés",
+"representable": false
+},
+{
+"code": "0459.1",
+"mode": "A",
+"page": 66,
+"titre_fr": "Plateau à coins rattachés et double rainure",
+"representable": false
+},
+{
+"code": "0460",
+"mode": "A",
+"page": 66,
+"titre_fr": "Plateau à parois d'extrémité basses",
+"representable": true,
+"spec": {
+"type": "slotted",
+"joint": false,
+"bodyH": "L",
+"seq": [
+[
+"H",
+"v",
+"v"
+],
+[
+"W",
+"v",
+"v"
+],
+[
+"H",
+"v",
+"v"
+]
+]
+},
+"simplifie": "rabats biseautés dessinés droits, fentes en V non dessinées"
+},
+{
+"code": "0461",
+"mode": "M/A",
+"page": 67,
+"titre_fr": "Plateau à coins soufflet et parois latérales doubles",
+"representable": false
+},
+{
+"code": "0462",
+"mode": "M",
+"page": 67,
+"titre_fr": "Boîte octogonale à couvercle",
+"representable": false
+},
+{
+"code": "0463",
+"mode": "M",
+"page": 67,
+"titre_fr": "Boîte à pans coupés et couvercle",
+"representable": false
+},
+{
+"code": "0464",
+"mode": "M",
+"page": 68,
+"titre_fr": "Plateau en croix à rabats latéraux ½(W+o)",
+"representable": true,
+"spec": {
+"type": "crossX",
+"centre": "W×L",
+"lr": [
+"H",
+"½(W+o)"
+],
+"tb": [
+"H"
+]
+},
+"simplifie": "pattes et fentes de verrouillage non dessinées"
+},
+{
+"code": "0465",
+"mode": "M",
+"page": 68,
+"titre_fr": "Boîte postale à parois doubles et couvercle",
+"representable": false
+},
+{
+"code": "0466",
+"mode": "M",
+"page": 68,
+"titre_fr": "Boîte à couvercle et coins verrouillés",
+"representable": false
+},
+{
+"code": "0469",
+"mode": "M",
+"page": 69,
+"titre_fr": "Boîte à couvercle avec rabat avant",
+"representable": false
+},
+{
+"code": "0470",
+"mode": "M",
+"page": 69,
+"titre_fr": "Boîte à couvercle et rabats d'extrémité triples",
+"representable": false
+},
+{
+"code": "0471",
+"mode": "M",
+"page": 69,
+"titre_fr": "Boîte à couvercle avec oreilles arrondies",
+"representable": false
+},
+{
+"code": "0472",
+"mode": "M",
+"page": 70,
+"titre_fr": "Boîte à couvercle et grands rabats arrondis",
+"representable": false
+},
+{
+"code": "0473",
+"mode": "M",
+"page": 70,
+"titre_fr": "Étui enveloppant à deux rangées",
+"representable": false
+},
+{
+"code": "0474",
+"mode": "M",
+"page": 70,
+"titre_fr": "Étui enveloppant à deux rangées (variante)",
+"representable": false
+},
+{
+"code": "0475",
+"mode": "M",
+"page": 71,
+"titre_fr": "Boîte postale à couvercle et paroi double",
+"representable": false
+},
+{
+"code": "0476",
+"mode": "M",
+"page": 71,
+"titre_fr": "Boîte octogonale à couvercle",
+"representable": false
+},
+{
+"code": "0480",
+"mode": "A",
+"page": 71,
+"titre_fr": "Plateau à rabats d'about v",
+"representable": true,
+"spec": {
+"type": "slotted",
+"joint": false,
+"bodyH": "W",
+"seq": [
+[
+"v",
+"v",
+"v"
+],
+[
+"H",
+"H",
+"H"
+],
+[
+"L",
+"H",
+"H"
+],
+[
+"H",
+"H",
+"H"
+],
+[
+"v",
+"v",
+"v"
+]
+]
+},
+"simplifie": "fentes entre rabats non dessinées"
+},
+{
+"code": "0481",
+"mode": "M",
+"page": 72,
+"titre_fr": "Plateau gerbable à parois d'extrémité basses",
+"representable": false
+},
+{
+"code": "0482",
+"mode": "M",
+"page": 72,
+"titre_fr": "Plateau gerbable à rebords",
+"representable": false
+},
+{
+"code": "0483",
+"mode": "A",
+"page": 72,
+"titre_fr": "Plateau à coins renforcés et échancrures",
+"representable": false
+},
+{
+"code": "0484",
+"mode": "M",
+"page": 73,
+"titre_fr": "Plateau gerbable bas à rebords",
+"representable": false
+},
+{
+"code": "0485",
+"mode": "M",
+"page": 73,
+"titre_fr": "Présentoir à couvercle à rabat incliné",
+"representable": false
+}
+]

@@ -1,7 +1,7 @@
 import json,glob,re,os
 S=os.path.dirname(os.path.abspath(__file__))+'/'
 ROOT=os.path.dirname(os.path.abspath(__file__))+'/../fefco/'
-SER={'0300':'Boîtes télescopiques','0400':'Boîtes et plateaux','0500':'Boîtes coulissantes','0600':'Caisses rigides','0700':'Caisses prêtes à monter','0800':'Présentoirs','0900':'Accessoires intérieurs'}
+SER={'0300':'Boîtes télescopiques','0400':'Boîtes et plateaux','0500':'Boîtes coulissantes','0600':'Caisses rigides','0700':'Caisses prêtes à coller','0800':'Retail et e-commerce','0900':'Aménagements intérieurs'}
 rows=[]
 for f in sorted(glob.glob(S+'*.json')): rows+= [r for r in json.load(open(f)) if r.get('code')]
 rows=[r for r in rows if re.match(r'^\d{4}(\.\d)?$',r['code'])]
