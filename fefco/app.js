@@ -139,7 +139,7 @@
       s += dimV(left ? px - off : pr + off, 0, p.laize, `LAIZE ${fmt(p.laize)}`, 'laize', left ? 2 : 1);
       s += `<line class="dm coupe" x1="${px}" y1="${pb}" x2="${pr}" y2="${pb}"/><line class="dm coupe" x1="${px}" y1="${pb - tk}" x2="${px}" y2="${pb + tk}"/><line class="dm coupe" x1="${pr}" y1="${pb - tk}" x2="${pr}" y2="${pb + tk}"/>` + T((px + pr) / 2, pb + fs * 1.4, `${p.n ? p.n.toUpperCase() + ' · ' : ''}COUPE ${fmt(p.coupe)}`, 'dt');
     });
-    if (hasH) s += dimV(-off - fs * 0.8, r.bodyY[0], r.bodyY[1], `H = ${fmt(r.bodyY[1] - r.bodyY[0])}`, 'hh', 2);
+    if (hasH) s += dimV(-off - fs * 0.8, r.bodyY[0], r.bodyY[1], `${r.bodyT || 'H'} = ${fmt(r.bodyY[1] - r.bodyY[0])}`, 'hh', 2);
     $('svg').innerHTML = s;
     $('svg').dataset.fs = fs;
   }
@@ -736,7 +736,7 @@
       doc.line(X(px), Y(by), X(pr), Y(by)); doc.line(X(px), Y(by) - tk, X(px), Y(by) + tk); doc.line(X(pr), Y(by) - tk, X(pr), Y(by) + tk);
       doc.text(`${p.n ? p.n.toUpperCase() + ' · ' : ''}COUPE ${pf(p.coupe)}`, X((px + pr) / 2), Y(by) + fsMm * 1.5, { align: 'center' });
     });
-    if (hasH) vdim(-off - fsm * 0.8, r.bodyY[0], r.bodyY[1], `H = ${pf(r.bodyY[1] - r.bodyY[0])}`, -1);
+    if (hasH) vdim(-off - fsm * 0.8, r.bodyY[0], r.bodyY[1], `${r.bodyT || 'H'} = ${pf(r.bodyY[1] - r.bodyY[0])}`, -1);
 
     // pied de page
     doc.setDrawColor(...LINE); doc.setLineWidth(0.3); doc.line(M, PH - M - 6, PW - M, PH - M - 6);

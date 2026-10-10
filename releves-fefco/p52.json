@@ -1,0 +1,420 @@
+[
+{
+"code": "0424",
+"mode": "M/A",
+"page": 52,
+"titre_fr": "Plateau à bouts doublés et coins rabattus",
+"representable": false
+},
+{
+"code": "0425",
+"mode": "M/A",
+"page": 52,
+"titre_fr": "Plateau à quatre parois doublées",
+"representable": false
+},
+{
+"code": "0425.1",
+"mode": "M/A",
+"page": 52,
+"titre_fr": "Plateau à parois doublées, bouts sans ailes",
+"representable": false
+},
+{
+"code": "0426",
+"mode": "M",
+"page": 53,
+"titre_fr": "Boîte à couvercle et paroi latérale doublée",
+"representable": false
+},
+{
+"code": "0427",
+"mode": "M",
+"page": 53,
+"titre_fr": "Boîte postale à couvercle, bouts doublés",
+"representable": false
+},
+{
+"code": "0427.1",
+"mode": "M",
+"page": 53,
+"titre_fr": "Boîte postale à couvercle en deux pièces",
+"representable": false
+},
+{
+"code": "0428",
+"mode": "M",
+"page": 54,
+"titre_fr": "Boîte à couvercle rabattant",
+"representable": false
+},
+{
+"code": "0429",
+"mode": "M",
+"page": 54,
+"titre_fr": "Boîte postale à couvercle",
+"representable": false
+},
+{
+"code": "0430",
+"mode": "M/A",
+"page": 54,
+"titre_fr": "Plateau à rebords v sur quatre côtés",
+"representable": false
+},
+{
+"code": "0431",
+"mode": "M",
+"page": 55,
+"titre_fr": "Plateau à parois rabattues v",
+"representable": false
+},
+{
+"code": "0432",
+"mode": "M",
+"page": 55,
+"titre_fr": "Plateau à parois latérales doublées",
+"representable": false
+},
+{
+"code": "0433",
+"mode": "M",
+"page": 55,
+"titre_fr": "Plateau à parois latérales doublées renforcées",
+"representable": false
+},
+{
+"code": "0434",
+"mode": "A",
+"page": 56,
+"titre_fr": "Plateau à bouts renforcés à ailes ½W",
+"representable": false
+},
+{
+"code": "0435",
+"mode": "M/A",
+"page": 56,
+"titre_fr": "Plateau empilable à côtés doublés",
+"representable": false
+},
+{
+"code": "0435.1",
+"mode": "M/A",
+"page": 56,
+"titre_fr": "Plateau empilable à côtés doublés et poignées",
+"representable": false
+},
+{
+"code": "0436",
+"mode": "M",
+"page": 57,
+"titre_fr": "Plateau empilable à bouts renforcés",
+"representable": false
+},
+{
+"code": "0436.1",
+"mode": "A",
+"page": 57,
+"titre_fr": "Plateau empilable",
+"representable": false
+},
+{
+"code": "0436.2",
+"mode": "A",
+"page": 57,
+"titre_fr": "Plateau empilable (variante)",
+"representable": false
+},
+{
+"code": "0437",
+"mode": "M",
+"page": 58,
+"titre_fr": "Plateau à coins diagonaux et ailes ½W",
+"representable": false
+},
+{
+"code": "0438",
+"mode": "A",
+"page": 58,
+"titre_fr": "Plateau à coins renforcés",
+"representable": false
+},
+{
+"code": "0439",
+"mode": "M",
+"page": 58,
+"titre_fr": "Plateau à parois doublées et coins en soufflet",
+"representable": false
+},
+{
+"code": "0440",
+"mode": "A",
+"page": 59,
+"titre_fr": "Boîte-plateau à couvercle et rabats v",
+"representable": true,
+"spec": {
+"type": "slotted",
+"joint": false,
+"bodyH": "W",
+"seq": [
+[
+"v",
+"0",
+"0"
+],
+[
+"H",
+"H",
+"H"
+],
+[
+"L",
+"H",
+"H"
+],
+[
+"H",
+"H",
+"H"
+],
+[
+"L",
+"v",
+"v"
+],
+[
+"v",
+"0",
+"0"
+]
+]
+},
+"simplifie": "fentes entre rabats non dessinées"
+},
+{
+"code": "0441",
+"mode": "A",
+"page": 59,
+"titre_fr": "Boîte à couvercle rabattant",
+"representable": true,
+"spec": {
+"type": "slotted",
+"joint": false,
+"bodyH": "L",
+"seq": [
+[
+"H",
+"H",
+"H"
+],
+[
+"W",
+"H",
+"H"
+],
+[
+"H",
+"H",
+"H"
+],
+[
+"W",
+"v",
+"v"
+],
+[
+"v",
+"v",
+"v"
+]
+]
+},
+"simplifie": "fentes entre rabats non dessinées"
+},
+{
+"code": "0442",
+"mode": "M",
+"page": 59,
+"titre_fr": "Boîte à couvercle à rabats ½(W+o)",
+"representable": true,
+"spec": {
+"type": "slotted",
+"joint": false,
+"bodyH": "L",
+"seq": [
+[
+"H",
+"½(W+o)",
+"½(W+o)"
+],
+[
+"W",
+"H",
+"H"
+],
+[
+"H",
+"½(W+o)",
+"½(W+o)"
+],
+[
+"W",
+"H",
+"H"
+],
+[
+"v",
+"0",
+"0"
+]
+]
+},
+"simplifie": "crochets de verrouillage non dessinés"
+},
+{
+"code": "0443",
+"mode": "M",
+"page": 60,
+"titre_fr": "Étui à couvercle (boîte haute)",
+"representable": true,
+"spec": {
+"type": "slotted",
+"joint": true,
+"bodyH": "L",
+"seq": [
+[
+"H",
+"W",
+"W"
+],
+[
+"W",
+"W",
+"W"
+],
+[
+"H",
+"W",
+"W"
+],
+[
+"W",
+"W",
+"W"
+]
+]
+},
+"simplifie": "patte de collage dessinée à gauche (à droite sur le PDF), biseaux non dessinés"
+},
+{
+"code": "0444",
+"mode": "M",
+"page": 60,
+"titre_fr": "Étui à couvercle, rabat prolongé",
+"representable": false
+},
+{
+"code": "0445",
+"mode": "M",
+"page": 60,
+"titre_fr": "Boîte à couvercle, bouts doublés",
+"representable": false
+},
+{
+"code": "0446",
+"mode": "A",
+"page": 61,
+"titre_fr": "Plateau à alvéoles (porte-bouteilles)",
+"representable": false
+},
+{
+"code": "0447",
+"mode": "M",
+"page": 61,
+"titre_fr": "Boîte à couvercle à rabat rentrant",
+"representable": false
+},
+{
+"code": "0448",
+"mode": "M",
+"page": 61,
+"titre_fr": "Plateau à coins diagonaux",
+"representable": true,
+"spec": {
+"type": "tray",
+"corner": "side",
+"cdiag": true
+}
+},
+{
+"code": "0449",
+"mode": "M",
+"page": 62,
+"titre_fr": "Plateau à coins en soufflet",
+"representable": true,
+"spec": {
+"type": "tray",
+"corner": "gusset"
+}
+},
+{
+"code": "0449.1",
+"mode": "M",
+"page": 62,
+"titre_fr": "Plateau à coins en soufflet rentrés",
+"representable": true,
+"spec": {
+"type": "tray",
+"corner": "gusset"
+},
+"simplifie": "même plan que 0449, seul le sens de pliage des soufflets change"
+},
+{
+"code": "0450",
+"mode": "M",
+"page": 62,
+"titre_fr": "Plateau à coins sur les bouts, plis diagonaux",
+"representable": true,
+"spec": {
+"type": "tray",
+"corner": "end",
+"diag": true
+}
+},
+{
+"code": "0451",
+"mode": "M",
+"page": 63,
+"titre_fr": "Plateau à coins sur les côtés, plis diagonaux",
+"representable": true,
+"spec": {
+"type": "tray",
+"corner": "side",
+"diag": true
+}
+},
+{
+"code": "0451.1",
+"mode": "M",
+"page": 63,
+"titre_fr": "Plateau à coins sur les côtés, plis diagonaux, verrouillé",
+"representable": true,
+"spec": {
+"type": "tray",
+"corner": "side",
+"diag": true
+},
+"simplifie": "encoches en V et fentes de verrouillage non dessinées"
+},
+{
+"code": "0452",
+"mode": "A",
+"page": 63,
+"titre_fr": "Plateau à coins sur les côtés",
+"representable": true,
+"spec": {
+"type": "tray",
+"corner": "side"
+}
+}
+]
